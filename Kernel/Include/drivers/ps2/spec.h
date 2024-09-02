@@ -1,7 +1,7 @@
 #define PS2_DATA_PORT 0x60
 #define PS2_COMMAND_PORT 0x64
 
-namespace Quark::Hal::PS2 {
+namespace Quark::System::Hal::PS2 {
     enum class StateReg
     {
         OutputBuffer   = 0x01,
@@ -43,4 +43,4 @@ namespace Quark::Hal::PS2 {
         FirstPortTranslation = 0x40,
         Reserved_1           = 0x80
     };
-} // namespace Quark::Hal::PS2
+} // namespace Quark::System::Hal::PS2

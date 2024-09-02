@@ -4,8 +4,8 @@
 
 #include <quark/sched/thread.h>
 
-namespace Quark::Hal {
-    using Quark::Task::Thread;
+namespace Quark::System::Hal {
+    using Quark::System::Task::Thread;
 
     struct CPULocal
     {

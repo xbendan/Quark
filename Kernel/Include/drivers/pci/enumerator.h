@@ -1,7 +1,7 @@
 #include <drivers/pci/device.h>
 #include <mixins/utils/linked_list.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     class PCIDeviceEnumerator : public Io::Device::Enumerator
     {
     public:
@@ -23,4 +23,4 @@ namespace Quark::Hal {
         Io::DeviceConnectivity* m_deviceHost;
         LinkedList<PCIDevice>   m_devices;
     };
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

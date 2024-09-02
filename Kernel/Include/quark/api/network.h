@@ -1,7 +1,7 @@
-namespace Quark::API {
+namespace Quark::System::API {
 
 }
 
 #if defined(GLOBAL_API_NAMESPACE)
-using namespace Quark::API;
+using namespace Quark::System::API;
 #endif

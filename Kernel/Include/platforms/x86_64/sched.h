@@ -8,8 +8,8 @@
 
 #include <mixins/concurrent/atomic.h>
 
-namespace Quark::Platform::X64 {
-    using Quark::Task::Thread;
+namespace Quark::System::Platform::X64 {
+    using Quark::System::Task::Thread;
 
     struct InterruptRetainer
     {
@@ -68,4 +68,4 @@ namespace Quark::Platform::X64 {
         }
         ~CPULocal() = default;
     };
-} // namespace Quark::Platform::X64
+} // namespace Quark::System::Platform::X64

@@ -63,4 +63,7 @@ extern "C"
 extern "C" [[noreturn]]
 void
 kload_limine(void)
-{}
+{
+    while (true)
+        asm volatile("hlt; pause;");
+}

@@ -7,7 +7,7 @@
 #include <quark/memory/page.h>
 #include <quark/privilege/user.h>
 
-namespace Quark::API {
+namespace Quark::System::API {
     using Mem::AddressSpace;
     using Mem::PhysMemFrame;
 
@@ -47,5 +47,5 @@ namespace Quark::API {
 }
 
 #if defined(GLOBAL_API_NAMESPACE)
-using namespace Quark::API;
+using namespace Quark::System::API;
 #endif

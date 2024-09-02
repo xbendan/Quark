@@ -2,7 +2,7 @@
 #include <mixins/fmt/translator.h>
 #include <mixins/std/string.h>
 
-namespace Quark::API {
+namespace Quark::System::API {
     enum class LogLevel
     {
         Debug,
@@ -30,5 +30,5 @@ namespace Quark::API {
 }
 
 #if defined(GLOBAL_API_NAMESPACE)
-using namespace Quark::API;
+using namespace Quark::System::API;
 #endif

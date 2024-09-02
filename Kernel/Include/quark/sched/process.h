@@ -8,9 +8,9 @@
 #include <quark/memory/address_space.h>
 #include <quark/sched/thread.h>
 
-namespace Quark::Task {
-    using namespace Quark::Mem;
-    using namespace Quark::Io::FileSystem;
+namespace Quark::System::Task {
+    using namespace Quark::System::Mem;
+    using namespace Quark::System::Io::FileSystem;
 
     class Process
     {
@@ -89,4 +89,4 @@ namespace Quark::Task {
                                        const String<Utf8>& command,
                                        const String<Utf8>& arguments);
     };
-} // namespace Quark::Task
+} // namespace Quark::System::Task

@@ -5,7 +5,7 @@
 #include <mixins/utils/flags.h>
 #include <mixins/utils/uuid.h>
 
-namespace Quark::Io::FileSystem {
+namespace Quark::System::Io::FileSystem {
     enum class FileType : u16
     {
         Unknown,

@@ -3,7 +3,7 @@
 #include <mixins/utils/date.h>
 #include <mixins/utils/uuid.h>
 
-namespace Quark::Privilege {
+namespace Quark::System::Privilege {
 
     enum class Level
     {

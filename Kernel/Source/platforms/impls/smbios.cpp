@@ -3,7 +3,7 @@
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     const char* __signatureL2 = "_SM_";
     const char* __signatureL3 = "_SM3_";
 
@@ -17,11 +17,11 @@ namespace Quark::Hal {
         if ((result = range.find(__signatureL2, 4, 0x10)).isPresent()) {
             m_majorVer   = 2;
             m_smbiosInfo = (void*)result.take();
-            log("[SMBIOS] Found SMBIOS 2.0 at %p\n", m_smbiosInfo);
+            log(u8"[SMBIOS] Found SMBIOS 2.0 at %p\n", m_smbiosInfo);
         } else if ((result = range.find(__signatureL3, 5, 0x10)).isPresent()) {
             m_majorVer   = 3;
             m_smbiosInfo = (void*)result.take();
-            log("[SMBIOS] Found SMBIOS 3.0 at %p\n", m_smbiosInfo);
+            log(u8"[SMBIOS] Found SMBIOS 3.0 at %p\n", m_smbiosInfo);
         }
     }
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

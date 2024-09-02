@@ -9,6 +9,6 @@ namespace {
         String<> _name;
         u64      _key;
 
-        Func<Quark::Io::Device*(void)> _init;
+        Func<Quark::System::Io::Device*(void)> _init;
     };
 }

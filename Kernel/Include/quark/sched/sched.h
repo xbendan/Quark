@@ -5,7 +5,7 @@
 #include <mixins/std/string.h>
 #include <quark/sched/process.h>
 
-namespace Quark::Task {
+namespace Quark::System::Task {
 
     class Scheduler
     {
@@ -40,4 +40,4 @@ namespace Quark::Task {
         Array<RefPtr<Process>> m_processes;
         u16                    m_nextPID;
     };
-} // namespace Quark::Task
+} // namespace Quark::System::Task

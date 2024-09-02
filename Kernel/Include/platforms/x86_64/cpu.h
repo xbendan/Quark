@@ -71,7 +71,7 @@
 #include <mixins/utils/array.h>
 #include <platforms/x86_64/sched.h>
 
-namespace Quark::Platform::X64 {
+namespace Quark::System::Platform::X64 {
     // enum ModelSpecReg : u32 {
     //     APIC_BASE    = 0x1b,
     //     EFER         = 0xC0000080,
@@ -183,4 +183,4 @@ namespace Quark::Platform::X64 {
                      : "=rm"(flags)::"memory", "cc");
         return flags & 0x200;
     }
-} // namespace Quark::Platform::X64
+} // namespace Quark::System::Platform::X64

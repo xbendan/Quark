@@ -15,9 +15,9 @@ _lidt(void*);
 
 extern u64 interruptVectors[];
 
-namespace Quark {
-    using namespace Quark::Mem;
-    using namespace Quark::Platform::X64;
+namespace Quark::System {
+    using namespace Quark::System::Mem;
+    using namespace Quark::System::Platform::X64;
 
     InterruptDescTbl                kIdt = {};
     Inert<CPULocal>                 kCPULocal;
@@ -64,4 +64,4 @@ namespace Quark {
 
         return Ok();
     }
-} // namespace Quark
+} // namespace Quark::System

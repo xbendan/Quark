@@ -13,8 +13,8 @@ struct OsBootConfig
     u64 _bootTime;
     u64 _bootFlags;
 
-    OsMemoryConfig                 _memory;
-    Quark::Hal::PlatformDefinition _platform;
+    OsMemoryConfig                         _memory;
+    Quark::System::Hal::PlatformDefinition _platform;
 
     struct OsGraphicsInfo
     {
@@ -27,7 +27,7 @@ struct OsBootConfig
 
     OsBootConfig() = default;
 
-    OsBootConfig(Quark::Hal::PlatformDefinition& platform)
+    OsBootConfig(Quark::System::Hal::PlatformDefinition& platform)
         : _platform(platform)
     {
         _checksum  = 0;

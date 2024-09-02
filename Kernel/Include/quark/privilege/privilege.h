@@ -1,4 +1,4 @@
-namespace Quark::User {
+namespace Quark::System::User {
     enum class Privilege
     {
         None = 0,

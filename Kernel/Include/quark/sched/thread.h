@@ -2,7 +2,7 @@
 
 #include <mixins/std/c++types.h>
 
-namespace Quark::Task {
+namespace Quark::System::Task {
     class Process;
 
     class Thread
@@ -29,4 +29,4 @@ namespace Quark::Task {
         u32            _threadId;
         u8             _priority;
     };
-} // namespace Quark::Task
+} // namespace Quark::System::Task

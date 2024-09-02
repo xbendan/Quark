@@ -3,8 +3,8 @@
 #include <quark/dev/device.h>
 #include <quark/sched/thread.h>
 
-namespace Quark::Hal {
-    using namespace Quark::Task;
+namespace Quark::System::Hal {
+    using namespace Quark::System::Task;
 
     enum class ProcessorSignal
     {
@@ -34,4 +34,4 @@ namespace Quark::Hal {
         Thread* _currentThread;
         Thread* _idleThread;
     };
-}; // namespace Quark::Hal
+}; // namespace Quark::System::Hal

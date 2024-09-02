@@ -2,7 +2,7 @@
 
 #include <mixins/std/c++types.h>
 
-namespace Quark::Platform::X64 {
+namespace Quark::System::Platform::X64 {
 
     struct TaskStateSegment;
 
@@ -159,4 +159,4 @@ namespace Quark::Platform::X64 {
             }
         } __attribute__((packed)) _entries[256];
     } __attribute__((packed));
-} // namespace Quark::Platform::X64
+} // namespace Quark::System::Platform::X64

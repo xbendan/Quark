@@ -1,7 +1,7 @@
 #include <mixins/std/concepts.h>
 #include <mixins/utils/date.h>
 
-namespace Quark::System {
+namespace Quark::System::System {
 
     // template <typename T>
     // concept ClockSource = requires(T& t) {

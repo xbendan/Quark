@@ -49,7 +49,7 @@
 #define XHCI_TRB_SIZE 16
 #define XHCI_EVENT_RING_SEGMENT_TABLE_ENTRY_SIZE 16
 
-namespace Quark::Hal::Specs {
+namespace Quark::System::Hal::Specs {
     enum class XhciExtendedCapabilities
     {
         LegacySupport                     = 1,
@@ -128,4 +128,4 @@ namespace Quark::Hal::Specs {
         u64 _deviceContextBaseAddressArrayPointer;
         u64 _config;
     };
-} // namespace Quark::Hal::Specs
+} // namespace Quark::System::Hal::Specs

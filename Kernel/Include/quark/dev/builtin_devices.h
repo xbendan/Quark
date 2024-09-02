@@ -2,7 +2,7 @@
 #include <quark/dev/device.h>
 #include <quark/fs/partition.h>
 
-namespace Quark::Io {
+namespace Quark::System::Io {
     class DiskDevice : public Device
     {
     public:
@@ -15,4 +15,4 @@ namespace Quark::Io {
     private:
         LinkedList<FileSystem::Partition> m_partitions;
     };
-} // namespace Quark::Io
+} // namespace Quark::System::Io

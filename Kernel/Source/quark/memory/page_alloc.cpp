@@ -5,7 +5,7 @@
 #include <mixins/math/align.h>
 #include <mixins/math/compute.h>
 
-namespace Quark::Mem {
+namespace Quark::System::Mem {
     OsMemoryConfig                                   g_osMemInfo;
     Array<AddressRange[256]>                         g_pageRanges;
     Array<PhysMemQueue[BUDDY_LEVEL_UPPER_LIMIT + 1]> g_pageQueues;
@@ -13,8 +13,8 @@ namespace Quark::Mem {
     // PhysMemFrame**               g_pageFrames;
 }
 
-namespace Quark::API {
-    using namespace Quark::Mem;
+namespace Quark::System::API {
+    using namespace Quark::System::Mem;
 
     // General Memory Allocation and Free
 

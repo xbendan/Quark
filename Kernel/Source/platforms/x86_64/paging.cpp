@@ -3,7 +3,7 @@
 #include <quark/memory/address_range.h>
 #include <quark/memory/page.h>
 
-namespace Quark::Platform::X64 {
+namespace Quark::System::Platform::X64 {
 
     PageDir   kPageDirs;
     PageDir   kIoDirs[4];
@@ -432,11 +432,11 @@ namespace Quark::Platform::X64 {
     {
         return Error::NotImplemented();
     }
-} // namespace Quark::Platform::X64
+} // namespace Quark::System::Platform::X64
 
-namespace Quark {
-    using Quark::Mem::AddressSpace;
-    using namespace Quark::Platform::X64;
+namespace Quark::System {
+    using Quark::System::Mem::AddressSpace;
+    using namespace Quark::System::Platform::X64;
 
     Res<AddressSpace*> initVirtMemory()
     {

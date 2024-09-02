@@ -9,7 +9,7 @@
 #define KERNEL_VIRTUAL_BASE 0xffffffff80000000
 #define IO_VIRTUAL_BASE (KERNEL_VIRTUAL_BASE - 0x100000000)
 
-namespace Quark::Mem {
+namespace Quark::System::Mem {
     u64 copyAsIOAddress(u64 address);
 
     class AddressSpace
@@ -98,4 +98,4 @@ namespace Quark::Mem {
             u64 _swapped;
         } _stats;
     };
-} // namespace Quark::Mem
+} // namespace Quark::System::Mem

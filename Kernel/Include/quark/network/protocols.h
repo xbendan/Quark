@@ -1,6 +1,6 @@
 #include <mixins/std/c++types.h>
 
-namespace Quark::Net {
+namespace Quark::System::Net {
     struct IPv4Address
     {
         union
@@ -44,4 +44,4 @@ namespace Quark::Net {
             u16 _words[3];
         };
     };
-} // namespace Quark::Net
+} // namespace Quark::System::Net

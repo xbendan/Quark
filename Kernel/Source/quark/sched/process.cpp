@@ -1,8 +1,8 @@
 #include <quark/api/task.h>
 #include <quark/sched/process.h>
 
-namespace Quark::Task {
-    using namespace Quark::Mem;
+namespace Quark::System::Task {
+    using namespace Quark::System::Mem;
 
     Process::Process(u32           processId,
                      String<>      name,

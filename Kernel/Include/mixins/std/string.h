@@ -298,8 +298,10 @@ public:
     [[gnu::always_inline]]
     constexpr String() = default;
 
+    template <typename TCode = u8>
     [[gnu::always_inline]]
-    constexpr String(char const* buf)
+    constexpr String(TCode const* buf)
+        : Slice<U>((Unit const*)buf, lengthOf(buf))
     {
     }
 
@@ -368,6 +370,16 @@ public:
     constexpr bool equals(char const* other)
     {
         return *this == String(other);
+    }
+
+    template <typename T = char>
+    static constexpr usize lengthOf(T const* str)
+    {
+        usize len = 0;
+        while (str[len] != '\0') {
+            len++;
+        }
+        return len;
     }
 };
 

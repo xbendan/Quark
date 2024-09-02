@@ -4,7 +4,7 @@
 #include <mixins/utils/flags.h>
 #include <quark/fs/file.h>
 
-namespace Quark::Io::FileSystem {
+namespace Quark::System::Io::FileSystem {
     enum class FileSystemId
     {
         Virtual,
@@ -97,4 +97,4 @@ namespace Quark::Io::FileSystem {
         {
         }
     };
-} // namespace Quark::Io::FileSystem
+} // namespace Quark::System::Io::FileSystem

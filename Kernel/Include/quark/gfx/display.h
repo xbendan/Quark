@@ -2,7 +2,7 @@
 #include <quark/dev/device.h>
 #include <quark/gfx/color.h>
 
-namespace Quark::Graphics {
+namespace Quark::System::Graphics {
     using Point = Vec<u32, 2>;
     using Size  = Vec<u32, 2>;
 

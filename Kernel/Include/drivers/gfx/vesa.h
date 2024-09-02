@@ -2,7 +2,7 @@
 #include <quark/gfx/display.h>
 
 namespace VESA {
-    using namespace Quark::Graphics;
+    using namespace Quark::System::Graphics;
 
     class VGATextOutputDevice
         : public IVideoOutputDevice
@@ -20,4 +20,4 @@ namespace VESA {
         Point m_cursor{ 0, 0 };
         u16*  m_buffer{ (u16*)0xb8000 };
     };
-} // namespace Quark::Hal::Impls
+} // namespace Quark::System::Hal::Impls

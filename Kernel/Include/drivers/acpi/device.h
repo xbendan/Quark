@@ -2,13 +2,14 @@
 #include <mixins/std/c++types.h>
 #include <quark/dev/device.h>
 
-namespace Quark::Hal {
+namespace ACPI {
+    using namespace Quark::System;
 
-    class ACPIControllerDevice : public Io::Device
+    class ControllerDevice : public Io::Device
     {
     public:
-        ACPIControllerDevice();
-        ~ACPIControllerDevice();
+        ControllerDevice();
+        ~ControllerDevice();
 
         template <typename _Tp>
             requires(Std::isDerived<ACPI::TableHeader, _Tp>)
@@ -28,4 +29,4 @@ namespace Quark::Hal {
         ACPI::FixedAcpiDescTable*        _fadt;
         ACPI::PCIExpressSpecTable*       _mcfg;
     };
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

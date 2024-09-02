@@ -3,7 +3,7 @@
 #include <mixins/std/c++types.h>
 #include <mixins/std/type_traits.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     template <typename T = u8>
         requires Std::isIntegral<T>
     static inline T pIn(u16 port)
@@ -24,4 +24,4 @@ namespace Quark::Hal {
     {
         pOut<u8>(0x80, 0);
     }
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

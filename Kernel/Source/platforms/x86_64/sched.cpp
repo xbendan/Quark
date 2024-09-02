@@ -4,8 +4,8 @@
 #include <quark/api/task.h>
 #include <quark/sched/process.h>
 
-namespace Quark::Task {
-    using namespace Quark::Platform::X64;
+namespace Quark::System::Task {
+    using namespace Quark::System::Platform::X64;
 
     void Scheduler::schedule(Scheduler::Context* context, Thread* thread)
     {

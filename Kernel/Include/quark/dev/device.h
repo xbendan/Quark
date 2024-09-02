@@ -6,7 +6,7 @@
 #include <mixins/utils/linked_list.h>
 #include <mixins/utils/uuid.h>
 
-namespace Quark::Io {
+namespace Quark::System::Io {
     class Device
     {
     public:
@@ -88,4 +88,4 @@ namespace Quark::Io {
     };
 }
 
-// namespace Quark::Io
+// namespace Quark::System::Io

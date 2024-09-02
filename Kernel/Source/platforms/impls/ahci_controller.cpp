@@ -3,7 +3,7 @@
 #include <quark/memory/address_space.h>
 #include <quark/os/panic.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     AHCIControllerDevice::AHCIControllerDevice(PCIInfo& info)
         : PCIDevice(info, "AHCI Controller Device", Class::DiskController)
         , m_clbPhys(allocPhysMemory4K(8).unwrap())
@@ -57,4 +57,4 @@ namespace Quark::Hal {
             }
         }
     }
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

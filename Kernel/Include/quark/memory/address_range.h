@@ -6,7 +6,7 @@
 #include <mixins/std/c++types.h>
 #include <mixins/std/type_traits.h>
 
-namespace Quark::Mem {
+namespace Quark::System::Mem {
     enum class MemoryType
     {
         USABLE,
@@ -134,4 +134,4 @@ namespace Quark::Mem {
             return *this;
         }
     };
-} // namespace Quark::Mem
+} // namespace Quark::System::Mem

@@ -3,7 +3,7 @@
 #include <mixins/utils/linked_list.h>
 #include <quark/dev/builtin_devices.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     class AHCIControllerDevice;
 
     class SATADiskDevice : public Io::DiskDevice
@@ -59,4 +59,4 @@ namespace Quark::Hal {
 
         LinkedList<SATADiskDevice*> m_diskList;
     };
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

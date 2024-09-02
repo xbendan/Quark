@@ -1,7 +1,7 @@
 #include <mixins/std/c++types.h>
 #include <quark/api/memory.h>
 
-using namespace Quark::API;
+using namespace Quark::System::API;
 
 void*
 operator new(usize size)

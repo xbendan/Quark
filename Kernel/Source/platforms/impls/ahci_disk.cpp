@@ -2,8 +2,8 @@
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
 
-namespace Quark::Hal {
-    using Quark::Mem::AddressRange;
+namespace Quark::System::Hal {
+    using Quark::System::Mem::AddressRange;
 
     SATADiskDevice::SATADiskDevice(int                   port,
                                    AHCI::HBAPortRegs*    portRegs,
@@ -144,4 +144,4 @@ namespace Quark::Hal {
         }
         return -1;
     }
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

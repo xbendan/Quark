@@ -3,8 +3,8 @@
 #include <quark/api/task.h>
 #include <quark/sched/process.h>
 
-namespace Quark::API {
-    using Quark::Task::Process;
+namespace Quark::System::API {
+    using Quark::System::Task::Process;
 
     Res<RefPtr<Process>> createProcess(String<> name)
     {

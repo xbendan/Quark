@@ -1,4 +1,4 @@
-namespace Quark::Graphics {
+namespace Quark::System::Graphics {
     class ISurface
     {};
 }

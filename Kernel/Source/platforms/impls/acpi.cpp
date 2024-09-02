@@ -4,17 +4,17 @@
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
 
-namespace Quark::Hal {
-    using Quark::Mem::AddressRange;
+namespace ACPI {
+    using Quark::System::Mem::AddressRange;
 
     static const char* _signature = "RSD PTR ";
 
-    ACPIControllerDevice::ACPIControllerDevice()
+    ControllerDevice::ControllerDevice()
         : Device("ACPI Management Device", Class::SystemDevices)
     {
     }
 
-    Res<> ACPIControllerDevice::onLoad()
+    Res<> ControllerDevice::onLoad()
     {
         u64 address = Mem::copyAsIOAddress( //
             AddressRange(0x0, 0x7bff + 1)
@@ -50,7 +50,7 @@ namespace Quark::Hal {
             case 0:
                 _rsdt = reinterpret_cast<ACPI::RootSystemDescTable*>(
                     Mem::copyAsIOAddress(_rsdp->_rsdtAddress));
-                log("[ACPI] ACPI Version 1.0\n");
+                log(u8"[ACPI] ACPI Version 1.0\n");
                 break;
             case 2:
                 _xsdp =
@@ -60,7 +60,7 @@ namespace Quark::Hal {
                     Mem::copyAsIOAddress(_rsdp->_rsdtAddress));
                 _xsdt = reinterpret_cast<ACPI::ExtendedSystemDescTable*>(
                     Mem::copyAsIOAddress(_xsdp->_xsdtAddress));
-                log("[ACPI] ACPI Version 2.0 ~ 6.3\n");
+                log(u8"[ACPI] ACPI Version 2.0 ~ 6.3\n");
                 break;
             default:
                 break;
@@ -76,8 +76,8 @@ namespace Quark::Hal {
 
     template <class _Tp>
         requires(Std::isDerived<ACPI::TableHeader, _Tp>)
-    Res<_Tp*> ACPIControllerDevice::findTable(String<> name, //
-                                              unsigned index)
+    Res<_Tp*> ControllerDevice::findTable(String<> name, //
+                                          unsigned index)
     {
         if (!_rsdp) {
             return Error::DeviceFault("ACPI RSDP not found");
@@ -105,4 +105,4 @@ namespace Quark::Hal {
         }
         return Error::DeviceFault("Table not found");
     }
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

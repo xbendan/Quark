@@ -1,10 +1,10 @@
 #include <quark/api/logging.h>
 #include <quark/os/main.h>
 
-namespace Quark {
+namespace Quark::System {
     Res<> setupDevices()
     {
-        log("Setting up devices...");
+        log(u8"Setting up devices...");
         return Ok();
     }
 }

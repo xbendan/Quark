@@ -12,10 +12,10 @@
 #include <quark/sched/sched.h>
 #include <quark/sched/thread.h>
 
-namespace Quark {
-    using Quark::Mem::AddressSpace;
-    using Quark::Task::Process;
-    using Quark::Task::Scheduler;
+namespace Quark::System {
+    using Quark::System::Mem::AddressSpace;
+    using Quark::System::Task::Process;
+    using Quark::System::Task::Scheduler;
 
     OsBootConfig& getBootInfo();
 
@@ -30,4 +30,4 @@ namespace Quark {
     Res<>              initTasks();
     Res<>              initFileSystems();
 
-} // namespace Quark
+} // namespace Quark::System

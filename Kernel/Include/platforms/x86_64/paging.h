@@ -8,8 +8,8 @@
 #define VMM_PAGE_ADDRESS_MASK 0x0000fffffffff000
 #define VMM_PAGE_ENTRY_COUNT 512
 
-namespace Quark::Platform::X64 {
-    using namespace Quark::Mem;
+namespace Quark::System::Platform::X64 {
+    using namespace Quark::System::Mem;
 
     template <u8 _Lv>
     class MapLevel
@@ -281,4 +281,4 @@ namespace Quark::Platform::X64 {
         return (addr >> 12) & 0x1FF;
     }
 
-} // namespace Quark::Platform::X64
+} // namespace Quark::System::Platform::X64

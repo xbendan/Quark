@@ -4,7 +4,9 @@
 #include <mixins/utils/array.h>
 #include <quark/api/logging.h>
 
-namespace Quark::Platform::X64 {
+namespace Quark::System::Platform::X64 {
+    using namespace Quark::System::API;
+
     InterruptDescTbl tbl = {};
 
     // clang-format off
@@ -200,12 +202,12 @@ namespace Quark::Platform::X64 {
 
     void UnhandledException(InterruptStackFrame* context)
     {
-        log("Unhandled exception %d\n", context->intno);
+        log(u8"Unhandled exception %d\n", context->intno);
     }
 
     void DivisionError(InterruptStackFrame* context)
     {
-        log("Division Error\n");
+        log(u8"Division Error\n");
     }
 
     void Debug(InterruptStackFrame* context) {}
@@ -254,14 +256,14 @@ namespace Quark::Platform::X64 {
 
     void SecurityException(InterruptStackFrame* context) {}
 
-} // namespace Quark::Platform::X64
+} // namespace Quark::System::Platform::X64
 
 extern "C" void
-dispatchInterrupts(Quark::Platform::X64::InterruptStackFrame* frame)
+dispatchInterrupts(Quark::System::Platform::X64::InterruptStackFrame* frame)
 {
     // if (frame->intno < 32) {
-    //     log("Exception %d\n", frame->intno);
+    //     log(u8"Exception %d\n", frame->intno);
     // } else {
-    //     log("Interrupt %d\n", frame->intno);
+    //     log(u8"Interrupt %d\n", frame->intno);
     // }
 }

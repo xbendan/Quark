@@ -24,8 +24,8 @@ enum OsMemRangeType
 
 struct OsMemRangeInfo
 {
-    Quark::Mem::AddressRange _value;
-    OsMemRangeType           _type;
+    Quark::System::Mem::AddressRange _value;
+    OsMemRangeType                   _type;
 };
 
 struct OsMemoryConfig

@@ -6,7 +6,7 @@
 #include <mixins/utils/flags.h>
 #include <platforms/x86_64/hwregs.h>
 
-namespace Quark::Platform::X64 {
+namespace Quark::System::Platform::X64 {
     struct InterruptStackFrame : public Registers
     {
         u64 intno, err;
@@ -61,4 +61,4 @@ namespace Quark::Platform::X64 {
     void HypervisorInjectionException(InterruptStackFrame* context);
     void VMMCommunicationException(InterruptStackFrame* context);
     void SecurityException(InterruptStackFrame* context);
-} // namespace Quark::Platform::X64
+} // namespace Quark::System::Platform::X64

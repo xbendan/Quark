@@ -5,7 +5,7 @@
 #include <mixins/std/string.h>
 #include <mixins/utils/flags.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     struct PlatformDefinition
     {
         String<> _name;

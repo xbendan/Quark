@@ -1,7 +1,7 @@
 #include <drivers/smbios/spec.h>
 #include <quark/dev/device.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
 
     class SystemManagementBIOSDevice : public Io::Device
     {
@@ -14,4 +14,4 @@ namespace Quark::Hal {
         u8    m_minorVer;
         void* m_smbiosInfo;
     };
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

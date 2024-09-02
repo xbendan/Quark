@@ -8,8 +8,8 @@
 
 #include <mixins/math/compute.h>
 
-namespace Quark {
-    using namespace Quark::Mem;
+namespace Quark::System {
+    using namespace Quark::System::Mem;
 
     Res<> initPhysMemory()
     {
@@ -54,7 +54,7 @@ namespace Quark {
     }
 }
 
-namespace Quark::Mem {
+namespace Quark::System::Mem {
 
     Opt<PhysMemFrame*> PhysMemFrame::split()
     {
@@ -115,4 +115,4 @@ namespace Quark::Mem {
     {
         return (PhysMemFrame*)(g_pageFrames + (address / PAGE_SIZE_4K));
     }
-} // namespace Quark::Mem
+} // namespace Quark::System::Mem

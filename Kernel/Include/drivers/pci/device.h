@@ -6,7 +6,7 @@
 #include <quark/dev/device.h>
 #include <quark/hal/ports.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
 
     class PCIDevice
         : public PCIInfo
@@ -63,4 +63,4 @@ namespace Quark::Hal {
                    (offset & 0xfc) | ((u32)0x80000000);
         }
     };
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

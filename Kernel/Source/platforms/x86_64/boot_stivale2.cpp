@@ -3,7 +3,7 @@
 #include <quark/init/boot_info.h>
 #include <quark/os/main.h>
 
-using namespace Quark::Mem;
+using namespace Quark::System::Mem;
 // static Array<OsMemRangeInfo[256]> memmaps;
 
 extern "C" [[noreturn]]
@@ -16,14 +16,14 @@ kload_st2(stivale2_struct* stInfo)
             asm volatile("hlt");
     }
 
-    OsBootConfig& bootConfig = Quark::getBootInfo();
+    OsBootConfig& bootConfig = Quark::System::getBootInfo();
 
     bootConfig._platform = {
         "AMD64",
         "1.0",
         64,
-        Quark::Hal::PlatformDefinition::AddressSpaceIsolation |
-            Quark::Hal::PlatformDefinition::ProcessContextSwitch,
+        Quark::System::Hal::PlatformDefinition::AddressSpaceIsolation |
+            Quark::System::Hal::PlatformDefinition::ProcessContextSwitch,
     };
 
     stivale2_tag* tag = reinterpret_cast<stivale2_tag*>(stInfo->tags);
@@ -103,5 +103,5 @@ kload_st2(stivale2_struct* stInfo)
             }
         }
     }
-    Quark::setupKernel(&bootConfig);
+    Quark::System::setupKernel(&bootConfig);
 }

@@ -2,7 +2,7 @@
 #include <platforms/x86_64/cpu.h>
 #include <quark/hal/ports.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     using namespace Serial;
 
     SerialPortDevice::SerialPortDevice()

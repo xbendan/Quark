@@ -7,12 +7,12 @@
 #include <quark/sched/process.h>
 #include <quark/sched/sched.h>
 
-namespace Quark::API {
-    using Quark::Io::FileSystem::File;
-    using Quark::Io::FileSystem::Folder;
-    using Quark::Task::Process;
-    using Quark::Task::Scheduler;
-    using Quark::Task::Thread;
+namespace Quark::System::API {
+    using Quark::System::Io::FileSystem::File;
+    using Quark::System::Io::FileSystem::Folder;
+    using Quark::System::Task::Process;
+    using Quark::System::Task::Scheduler;
+    using Quark::System::Task::Thread;
 
     /**
      * @brief Create a Process with specified name
@@ -60,5 +60,5 @@ namespace Quark::API {
 }
 
 #if defined(GLOBAL_API_NAMESPACE)
-using namespace Quark::API;
+using namespace Quark::System::API;
 #endif

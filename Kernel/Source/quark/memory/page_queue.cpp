@@ -1,6 +1,6 @@
 #include <quark/memory/page_alloc.h>
 
-namespace Quark::Mem {
+namespace Quark::System::Mem {
     void PhysMemQueue::enqueue(PhysMemFrame* page)
     {
         if (!m_count) {
@@ -51,4 +51,4 @@ namespace Quark::Mem {
         m_count--;
         return page;
     }
-} // namespace Quark::Mem
+} // namespace Quark::System::Mem

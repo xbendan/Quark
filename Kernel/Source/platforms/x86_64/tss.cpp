@@ -3,7 +3,7 @@
 #include <quark/api/task.h>
 #include <quark/os/main.h>
 
-namespace Quark::Platform::X64 {
+namespace Quark::System::Platform::X64 {
     TaskStateSegment::TaskStateSegment(GlobDescTbl::TssEntry& tss)
     {
         tss = GlobDescTbl::TssEntry(this);

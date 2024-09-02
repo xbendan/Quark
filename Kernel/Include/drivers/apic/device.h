@@ -2,22 +2,23 @@
 
 #include <drivers/acpi/spec.h>
 #include <drivers/apic/spec.h>
-#include <mixins/std/c++types.h>
-#include <mixins/utils/linked_list.h>
 #include <quark/dev/device.h>
 #include <quark/hal/hwobjs.h>
 #include <quark/memory/address_space.h>
 
-namespace Quark::Hal {
-    using namespace Quark::Io;
+namespace APIC {
+    using namespace Quark::System;
+    using Quark::System::Hal::ProcessorDevice;
 
-    class ApicDevice : public Device
+    class GenericControllerDevice : public Io::Device
     {
     public:
         class Local
         {
         public:
-            Local(u8 apicId, ApicDevice* apic, ProcessorDevice* processor)
+            Local(u8                       apicId,
+                  GenericControllerDevice* apic,
+                  ProcessorDevice*         processor)
                 : m_apicId(apicId)
                 , m_basePhys(apic->localBaseRead() & LOCAL_APIC_BASE)
                 , m_baseVirt(Mem::copyAsIOAddress(m_basePhys))
@@ -44,8 +45,8 @@ namespace Quark::Hal {
             ProcessorDevice* m_cpu;
         };
 
-        ApicDevice();
-        ~ApicDevice() = delete;
+        GenericControllerDevice();
+        ~GenericControllerDevice() = delete;
 
         /* --- Methods --- */
         void ioRegWrite32(u32 reg, u32 data);
@@ -73,4 +74,4 @@ namespace Quark::Hal {
         LinkedList<ACPI::MultiApicDescTable::InterruptServiceOverride*>*
             m_overrides;
     };
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

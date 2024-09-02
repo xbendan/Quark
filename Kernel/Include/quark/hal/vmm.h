@@ -3,7 +3,7 @@
 #include <mixins/std/c++types.h>
 #include <mixins/utils/flags.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     enum class VmmFlags : u64
     {
         PRESENT = 0,
@@ -18,4 +18,4 @@ namespace Quark::Hal {
         DISABLE_EXECUTE
     };
     MakeFlags$(VmmFlags);
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

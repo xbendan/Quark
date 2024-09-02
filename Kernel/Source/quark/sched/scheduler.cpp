@@ -1,6 +1,6 @@
 #include <quark/os/main.h>
 
-namespace Quark {
+namespace Quark::System {
     namespace Task {
         Scheduler scheduler;
 

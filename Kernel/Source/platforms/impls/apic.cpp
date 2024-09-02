@@ -5,10 +5,10 @@
 #include <quark/api/device.h>
 #include <quark/api/logging.h>
 
-namespace Quark::Hal {
+namespace APIC {
     using namespace API;
 
-    ApicDevice::ApicDevice()
+    GenericControllerDevice::GenericControllerDevice()
         : Device("Advanced Programmable Interrupt Controller",
                  Class::SystemDevices)
         , m_units(new LinkedList<Local*>())
@@ -16,12 +16,12 @@ namespace Quark::Hal {
     {
     }
 
-    Res<> ApicDevice::onLoad()
+    Res<> GenericControllerDevice::onLoad()
     {
         ACPI::MADT* madt;
 
-        ::getRegisteredDevice<ACPIControllerDevice>("ACPI Management Device")
-            .ifPresent([&madt](ACPIControllerDevice* acpi) {
+        ::getRegisteredDevice<ACPI::ControllerDevice>("ACPI Management Device")
+            .ifPresent([&madt](ACPI::ControllerDevice* acpi) {
                 Res<ACPI::MADT*> opt = acpi->findTable<ACPI::MADT>("APIC");
                 if (opt.has())
                     madt = opt.unwrap("MADT table not found.");
@@ -47,7 +47,8 @@ namespace Quark::Hal {
 
                         m_units->pushBack(
                             new Local(apicLocal->_apicId, this, processor));
-                        log("[APIC] Local APIC, Processor ID: %d, APIC ID: %d, "
+                        log(u8"[APIC] Local APIC, Processor ID: %d, APIC ID: "
+                            u8"%d, "
                             "Flags: %d\n",
                             apicLocal->_processorId,
                             apicLocal->_apicId,
@@ -60,7 +61,7 @@ namespace Quark::Hal {
                         static_cast<ACPI::MultiApicDescTable::IoApic*>(entry);
                     if (!apicIo->_gSiB) {
                         m_ioBasePhys = apicIo->_address;
-                        log("[APIC] I/O APIC, ID: %d, Address: %x, Global "
+                        log(u8"[APIC] I/O APIC, ID: %d, Address: %x, Global "
                             "System Interrupt Base: %d\n",
                             apicIo->_apicId,
                             apicIo->_address,
@@ -73,7 +74,7 @@ namespace Quark::Hal {
                         static_cast<ACPI::MultiApicDescTable::
                                         InterruptServiceOverride*>(entry);
                     m_overrides->pushBack(iso);
-                    log("[APIC] Interrupt Service Override, Bus Source: %d, "
+                    log(u8"[APIC] Interrupt Service Override, Bus Source: %d, "
                         "IRQ Source: %d, Global System Interrupt: %d\n",
                         iso->_busSource,
                         iso->_irqSource,
@@ -86,7 +87,8 @@ namespace Quark::Hal {
                         static_cast<
                             ACPI::MultiApicDescTable::NonMaskableInterrupt*>(
                             entry);
-                    log("[APIC] NMI Source: %d, Global System Interrupt: %d\n",
+                    log(u8"[APIC] NMI Source: %d, Global System Interrupt: "
+                        u8"%d\n",
                         nmi->_processorId,
                         nmi->_type);
                     break;
@@ -95,7 +97,7 @@ namespace Quark::Hal {
                     // ACPI::MultiApicDescTable::Nmix2Apic* nmi =
                     //     static_cast<ACPI::MultiApicDescTable::Nmix2Apic*>(
                     //         entry);
-                    // log("[APIC] NMI Source: %d, Local APIC LINT: %d\n",
+                    // log(u8"[APIC] NMI Source: %d, Local APIC LINT: %d\n",
                     //     nmi->_uid,
                     //     nmi->_lInt);
                     break;
@@ -104,7 +106,8 @@ namespace Quark::Hal {
                     ACPI::MultiApicDescTable::LocalApic* apicLocal =
                         static_cast<ACPI::MultiApicDescTable::LocalApic*>(
                             entry);
-                    log("[APIC] Local APIC Address Override, Processor ID: %d, "
+                    log(u8"[APIC] Local APIC Address Override, Processor ID: "
+                        u8"%d, "
                         "APIC ID: %d, Flags: %d\n",
                         apicLocal->_processorId,
                         apicLocal->_apicId,
@@ -115,7 +118,7 @@ namespace Quark::Hal {
                     ACPI::MultiApicDescTable::Localx2Apic* x2apicLocal =
                         static_cast<ACPI::MultiApicDescTable::Localx2Apic*>(
                             entry);
-                    log("[APIC] Local x2APIC, x2APIC ID: %d, Flags: %d, UID: "
+                    log(u8"[APIC] Local x2APIC, x2APIC ID: %d, Flags: %d, UID: "
                         "%d\n",
                         x2apicLocal->_x2apicId,
                         x2apicLocal->_flags,
@@ -126,7 +129,8 @@ namespace Quark::Hal {
                     ACPI::MultiApicDescTable::Nmix2Apic* nmi =
                         static_cast<ACPI::MultiApicDescTable::Nmix2Apic*>(
                             entry);
-                    log("[APIC] NMI Source: %d, UID: %d, Local APIC LINT: %d\n",
+                    log(u8"[APIC] NMI Source: %d, UID: %d, Local APIC LINT: "
+                        u8"%d\n",
                         nmi->_flags,
                         nmi->_uid,
                         nmi->_lInt);
@@ -152,19 +156,19 @@ namespace Quark::Hal {
         return Ok();
     }
 
-    void ApicDevice::ioRegWrite32(u32 reg, u32 data)
+    void GenericControllerDevice::ioRegWrite32(u32 reg, u32 data)
     {
         *m_ioRegSel = reg;
         *m_ioWindow = data;
     }
 
-    u32 ApicDevice::ioRegRead32(u32 reg)
+    u32 GenericControllerDevice::ioRegRead32(u32 reg)
     {
         *m_ioRegSel = reg;
         return *m_ioWindow;
     }
 
-    void ApicDevice::ioRegWrite64(u32 reg, u64 data)
+    void GenericControllerDevice::ioRegWrite64(u32 reg, u64 data)
     {
         u32 low = data & 0xFFFFFFFF, high = data >> 32;
 
@@ -172,41 +176,41 @@ namespace Quark::Hal {
         ioRegWrite32(reg + 1, high);
     }
 
-    u64 ApicDevice::ioRegRead64(u32 reg)
+    u64 GenericControllerDevice::ioRegRead64(u32 reg)
     {
         u32 low = ioRegRead32(reg), high = ioRegRead32(reg + 1);
 
         return (u64)high << 32 | low;
     }
 
-    void ApicDevice::ioRedTblWrite(u32 index, u64 data)
+    void GenericControllerDevice::ioRedTblWrite(u32 index, u64 data)
     {
         ioRegWrite64(IO_APIC_RED_TABLE_ENT(index), data);
     }
 
-    u64 ApicDevice::ioRedTblRead(u32 index)
+    u64 GenericControllerDevice::ioRedTblRead(u32 index)
     {
         return ioRegRead64(IO_APIC_RED_TABLE_ENT(index));
     }
 
-    void ApicDevice::localBaseWrite(u64 data)
+    void GenericControllerDevice::localBaseWrite(u64 data)
     {
         Platform::X64::wrmsr(MSR_APIC_BASE, data);
     }
 
-    u64 ApicDevice::localBaseRead()
+    u64 GenericControllerDevice::localBaseRead()
     {
         return Platform::X64::rdmsr(MSR_APIC_BASE);
     }
 
-    void ApicDevice::localRegWrite(u32 reg, u32 data)
+    void GenericControllerDevice::localRegWrite(u32 reg, u32 data)
     {
         *((volatile u32*)(m_ioBaseVirt + reg)) = data;
     }
 
-    u32 ApicDevice::localRegRead(u32 reg)
+    u32 GenericControllerDevice::localRegRead(u32 reg)
     {
         return *((volatile u32*)(m_ioBaseVirt + reg));
     }
 
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

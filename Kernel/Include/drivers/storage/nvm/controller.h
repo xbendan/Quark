@@ -1,6 +1,6 @@
 #include <drivers/pci/device.h>
 
-namespace Quark::Hal {
+namespace Quark::System::Hal {
     struct NVMeControllerRegs
     {
         u64 _capabilities;
@@ -26,4 +26,4 @@ namespace Quark::Hal {
 
     class NVMeControllerDevice : public PCIDevice
     {};
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

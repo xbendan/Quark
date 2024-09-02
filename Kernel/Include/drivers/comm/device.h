@@ -1,26 +1,27 @@
 #include <mixins/concurrent/spinlock.h>
-#include <mixins/io/stream.h>
+#include <mixins/io/text.h>
 
 #include <drivers/comm/spec.h>
 #include <quark/dev/device.h>
 
-namespace Quark::Hal {
-    using Quark::Io::Device;
+namespace Quark::System::Hal {
 
-    class SerialPortDevice : public Device
+    class SerialPortDevice
+        : public Io::Device
+        , public ::Io::TextWriter
     {
     public:
         SerialPortDevice();
         ~SerialPortDevice() = default;
 
-        void out(u8 data);
-        bool out(u8* data, usize len);
-        void skip(usize len);
-        void close();
+        void writeStr(string str) override;
+        void writeNewline() override;
+        void out(u8 data) override;
+        bool out(u8* data, usize len) override;
+        void skip(usize len) override;
+        void close() override;
 
     private:
         Spinlock m_lock;
     };
-
-    static_assert(OutputStream<SerialPortDevice>);
-} // namespace Quark::Hal
+} // namespace Quark::System::Hal

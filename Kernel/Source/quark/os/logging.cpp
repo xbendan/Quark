@@ -3,7 +3,7 @@
 #include <mixins/utils/array_list.h>
 #include <quark/api/logging.h>
 
-namespace Quark::API {
+namespace Quark::System::API {
     ArrayList<Io::TextWriter*> logWriters;
 
     void log(String<> msg) {}

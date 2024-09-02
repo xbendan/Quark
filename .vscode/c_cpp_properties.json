@@ -9,7 +9,7 @@
             "intelliSenseMode": "linux-gcc-x64"
         },
         {
-            "name": "Sponge (Kernel X64)",
+            "name": "Quark (Kernel X64)",
             "includePath": [
                 "${workspaceFolder}/Kernel/Include/*"
             ],
