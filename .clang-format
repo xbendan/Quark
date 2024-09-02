@@ -1,0 +1,36 @@
+Language: Cpp
+BasedOnStyle: Mozilla
+IndentWidth: 4
+AccessModifierOffset: -4
+
+AlignConsecutiveAssignments:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+  AlignCompound: false
+  PadOperators: true
+AlignConsecutiveBitFields:
+  Enabled: false
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCompound: false
+  PadOperators: false
+AlignConsecutiveDeclarations:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: true
+  AlignCompound: false
+  PadOperators: false
+AlignConsecutiveMacros:
+  Enabled: false
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCompound: false
+  PadOperators: false
+
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+
+NamespaceIndentation: All
+
+SpaceAfterTemplateKeyword: true

@@ -1,0 +1,3 @@
+namespace Quark::Hal::Spec {
+
+}

@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "Sponge (Kernel X64)",
+            "includePath": [
+                "${workspaceFolder}/Kernel/Include/*"
+            ],
+            "compilerPath": "/home/xbendan/toolchains/gcc-13.3.0-compilers/bin/x86_64-elf-g++",
+            "defines": [
+                "GLOBAL_API_NAMESPACE"
+            ],
+            "intelliSenseMode": "gcc-x64"
+        }
+    ],
+    "version": 4
+}

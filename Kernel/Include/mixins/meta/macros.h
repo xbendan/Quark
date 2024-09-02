@@ -1,0 +1,1 @@
+#define Inline$(Type, Name) static inline Type Name
