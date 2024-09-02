@@ -84,10 +84,10 @@ $(PLATFORM_ASSEMBLY): Build/%.o: Source/%.asm
 
 auto: check_arguments
 	@$(MAKE) clean
-	@$(MAKE) build-kernel-$(PLATFORM) -j4 PLATFORM=$(PLATFORM) AS=$(AS) CXX=$(CXX) LD=$(LD)  
-	@$(MAKE) run-kernel-$(PLATFORM) 
+	@$(MAKE) build-$(PLATFORM) -j4 PLATFORM=$(PLATFORM) AS=$(AS) CXX=$(CXX) LD=$(LD)  
+	@$(MAKE) run-$(PLATFORM) 
 
-build-kernel-x86_64: $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_ASSEMBLY)
+build-x86_64: $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_ASSEMBLY)
 	@echo "Building x86_64 kernel..."  
 	@echo "Making building directory $(BUILD_PATH)."  
 	@mkdir -p $(BUILD_PATH)  
@@ -106,7 +106,7 @@ build-kernel-x86_64: $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM_SOURCE) $(PL
 	../Thirdparty/limine/limine bios-install $(DIST_IMAGE)  
 	cp $(DIST_IMAGE) $(FINAL_PATH)  
 
-run-kernel-x86_64:
+run-x86_64:
 	@echo "Running x86_64 kernel..."
 	@qemu-system-x86_64.exe -cdrom $(patsubst /mnt/c/%, C:/%, $(FINAL_PATH)) -s -S \
 		-no-reboot -no-shutdown -monitor stdio \
