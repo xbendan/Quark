@@ -1,7 +1,9 @@
+#include <mixins/utils/flags.h>
+
 #define PS2_DATA_PORT 0x60
 #define PS2_COMMAND_PORT 0x64
 
-namespace Quark::System::Hal::PS2 {
+namespace PS2 {
     enum class StateReg
     {
         OutputBuffer   = 0x01,
@@ -43,4 +45,6 @@ namespace Quark::System::Hal::PS2 {
         FirstPortTranslation = 0x40,
         Reserved_1           = 0x80
     };
+    MakeFlags$(ConfigByte);
+
 } // namespace Quark::System::Hal::PS2
