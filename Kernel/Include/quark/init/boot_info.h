@@ -7,6 +7,11 @@
 #include <quark/memory/address_range.h>
 #include <quark/memory/memory_info.h>
 
+namespace Quark::System {
+    struct BootstrapConfiguration
+    {};
+}
+
 struct OsBootConfig
 {
     u64 _checksum;

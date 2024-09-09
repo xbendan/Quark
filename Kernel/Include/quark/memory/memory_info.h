@@ -4,6 +4,51 @@
 #include <mixins/utils/array.h>
 #include <quark/memory/address_range.h>
 
+namespace Quark::System::Memory {
+    struct MemmapEntry
+    {
+        AddressRange _range;
+        enum Type
+        {
+            Free,
+            Reserved,
+            AcpiReclaimable,
+            AcpiNvs,
+            Bad,
+            Kernel,
+            Module,
+            PageTable,
+            Stack,
+            Heap,
+            Data,
+            Code,
+            Bss,
+            Other,
+        } _type;
+    };
+
+    struct MemoryConfiguration
+    {
+        u64 _totalSize;
+        u64 _availableSize;
+        u64 _limit;
+        u64 _committed;
+
+        Array<MemmapEntry[256]> _addressRanges;
+    };
+
+    struct MemoryAllocationStatus
+    {
+        MemoryConfiguration& _conf;
+
+        u64 _allocatedPages;
+        u64 _freePages;
+        u64 _swappedPages;
+        u64 _totalPages;
+        u64 _pageSize;
+    };
+}
+
 enum OsMemRangeType
 {
     MEM_RANGE_TYPE_FREE,
@@ -24,8 +69,8 @@ enum OsMemRangeType
 
 struct OsMemRangeInfo
 {
-    Quark::System::Mem::AddressRange _value;
-    OsMemRangeType                   _type;
+    Quark::System::Memory::AddressRange _value;
+    OsMemRangeType                      _type;
 };
 
 struct OsMemoryConfig

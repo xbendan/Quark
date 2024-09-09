@@ -2,7 +2,7 @@
 #include <quark/sched/process.h>
 
 namespace Quark::System::Task {
-    using namespace Quark::System::Mem;
+    using namespace Quark::System::Memory;
 
     Process::Process(u32           processId,
                      String<>      name,

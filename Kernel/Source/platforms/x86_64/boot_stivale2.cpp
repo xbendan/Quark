@@ -3,7 +3,7 @@
 #include <quark/init/boot_info.h>
 #include <quark/os/main.h>
 
-using namespace Quark::System::Mem;
+using namespace Quark::System::Memory;
 // static Array<OsMemRangeInfo[256]> memmaps;
 
 extern "C" [[noreturn]]

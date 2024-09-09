@@ -9,7 +9,7 @@
 #include <quark/sched/thread.h>
 
 namespace Quark::System::Task {
-    using namespace Quark::System::Mem;
+    using namespace Quark::System::Memory;
     using namespace Quark::System::Io::FileSystem;
 
     class Process

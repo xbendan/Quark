@@ -12,7 +12,7 @@
 
 #define PAGE_SIZE_PARTITION (PAGE_SIZE_1G / 8)
 
-namespace Quark::System::Mem {
+namespace Quark::System::Memory {
     struct PhysMemFrame
     {
         PhysMemFrame* _next{};
@@ -78,4 +78,4 @@ namespace Quark::System::Mem {
     {
         return ((1 << level) * offset);
     }
-} // namespace Quark::System::Mem
+} // namespace Quark::System::Memory

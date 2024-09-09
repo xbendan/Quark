@@ -15,7 +15,7 @@ namespace Quark::System::Hal {
         enableInterrupts();
         enableMemorySpace();
 
-        m_addrVirt = Mem::copyAsIOAddress(m_addrBase);
+        m_addrVirt = Memory::copyAsIOAddress(m_addrBase);
         m_memRegs  = reinterpret_cast<AHCI::HBAMemRegs*>(m_addrVirt);
 
         m_memRegs->_ghc &= ~AHCI_GHC_IE;

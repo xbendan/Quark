@@ -5,7 +5,7 @@
 
 #include <mixins/math/compute.h>
 
-namespace Quark::System::Mem {
+namespace Quark::System::Memory {
     usize g_slabAmounts[] = {
         8,   16,  24,  32,   48,   64,   96,   128, //
         256, 384, 512, 1024, 1536, 2048, 4096,
@@ -27,7 +27,7 @@ namespace Quark::System::Mem {
 }
 
 namespace Quark::System::API {
-    using namespace Quark::System::Mem;
+    using namespace Quark::System::Memory;
 
     Res<u64> alloc(usize amount)
     {

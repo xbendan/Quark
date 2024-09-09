@@ -21,7 +21,7 @@ namespace APIC {
                   ProcessorDevice*         processor)
                 : m_apicId(apicId)
                 , m_basePhys(apic->localBaseRead() & LOCAL_APIC_BASE)
-                , m_baseVirt(Mem::copyAsIOAddress(m_basePhys))
+                , m_baseVirt(Memory::copyAsIOAddress(m_basePhys))
                 , m_cpu(processor)
             {
             }

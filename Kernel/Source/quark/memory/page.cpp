@@ -9,7 +9,7 @@
 #include <mixins/math/compute.h>
 
 namespace Quark::System {
-    using namespace Quark::System::Mem;
+    using namespace Quark::System::Memory;
 
     Res<> initPhysMemory()
     {
@@ -36,25 +36,25 @@ namespace Quark::System {
         u64 const pages      = PAGE_SIZE_PARTITION / PAGE_SIZE_4K;
         u64       partitions = divCeil(info._limit, PAGE_SIZE_PARTITION);
 
-        g_pageFrames = (Mem::PhysMemFrame**)allocPhysBlock4K(
-            partitions * sizeof(Mem::PhysMemFrame**));
+        g_pageFrames = (Memory::PhysMemFrame**)allocPhysBlock4K(
+            partitions * sizeof(Memory::PhysMemFrame**));
         for (int i = 0; i < partitions; i++) {
-            g_pageFrames[i] = (Mem::PhysMemFrame*)allocPhysBlock4K(
-                pages * sizeof(Mem::PhysMemFrame*));
+            g_pageFrames[i] = (Memory::PhysMemFrame*)allocPhysBlock4K(
+                pages * sizeof(Memory::PhysMemFrame*));
         }
 
         // Load slub allocator
         for (int i = 0; i < SLAB_CACHE_BLOCK_AMOUNT; i++) {
             g_slabCaches[i] = new (
-                (void*)::allocPhysMemory4K(sizeof(Mem::SlabCache)).unwrap())
-                Mem::SlabCache(g_slabAmounts[i], 0);
+                (void*)::allocPhysMemory4K(sizeof(Memory::SlabCache)).unwrap())
+                Memory::SlabCache(g_slabAmounts[i], 0);
         }
 
         return Ok();
     }
 }
 
-namespace Quark::System::Mem {
+namespace Quark::System::Memory {
 
     Opt<PhysMemFrame*> PhysMemFrame::split()
     {
@@ -115,4 +115,4 @@ namespace Quark::System::Mem {
     {
         return (PhysMemFrame*)(g_pageFrames + (address / PAGE_SIZE_4K));
     }
-} // namespace Quark::System::Mem
+} // namespace Quark::System::Memory

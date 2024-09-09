@@ -13,7 +13,7 @@
 #include <quark/sched/thread.h>
 
 namespace Quark::System {
-    using Quark::System::Mem::AddressSpace;
+    using Quark::System::Memory::AddressSpace;
     using Quark::System::Task::Process;
     using Quark::System::Task::Scheduler;
 

@@ -3,7 +3,7 @@
 #include <quark/memory/address_space.h>
 
 namespace Quark::System::Hal {
-    using Quark::System::Mem::AddressRange;
+    using Quark::System::Memory::AddressRange;
 
     SATADiskDevice::SATADiskDevice(int                   port,
                                    AHCI::HBAPortRegs*    portRegs,
@@ -21,7 +21,7 @@ namespace Quark::System::Hal {
         portRegs->_fbu = (controller->fbPhys() >> 32);
 
         m_commandList = reinterpret_cast<AHCI::_HBACommandHeader*>(
-            Mem::copyAsIOAddress(portRegs->_clb));
+            Memory::copyAsIOAddress(portRegs->_clb));
 
         for (int i = 0; i < 32; i++) {
             m_commandList[i]._prdtl = 8;
@@ -33,7 +33,7 @@ namespace Quark::System::Hal {
             AddressRange((u64)(m_commandList[i]._ctba), 256).clear();
 
             m_commandTable[i] = reinterpret_cast<AHCI::HBACommandTable*>(
-                Mem::copyAsIOAddress(phys));
+                Memory::copyAsIOAddress(phys));
         }
 
         startCommand();

@@ -10,8 +10,8 @@ namespace Quark::System::Hal {
     SystemManagementBIOSDevice::SystemManagementBIOSDevice()
         : Io::Device("System Management BIOS", Class::Firmware)
     {
-        u64               address = Mem::copyAsIOAddress(0xF0000);
-        Mem::AddressRange range(address, 0x10000);
+        u64                  address = Memory::copyAsIOAddress(0xF0000);
+        Memory::AddressRange range(address, 0x10000);
 
         Opt<u64> result;
         if ((result = range.find(__signatureL2, 4, 0x10)).isPresent()) {

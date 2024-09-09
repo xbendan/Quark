@@ -435,7 +435,7 @@ namespace Quark::System::Platform::X64 {
 } // namespace Quark::System::Platform::X64
 
 namespace Quark::System {
-    using Quark::System::Mem::AddressSpace;
+    using Quark::System::Memory::AddressSpace;
     using namespace Quark::System::Platform::X64;
 
     Res<AddressSpace*> initVirtMemory()

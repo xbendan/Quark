@@ -6,7 +6,7 @@
 
 #define SLAB_CACHE_BLOCK_AMOUNT 15
 
-namespace Quark::System::Mem {
+namespace Quark::System::Memory {
     struct SlabCpuCache
     {
         /*

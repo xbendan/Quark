@@ -8,8 +8,8 @@
 #include <quark/privilege/user.h>
 
 namespace Quark::System::API {
-    using Mem::AddressSpace;
-    using Mem::PhysMemFrame;
+    using Quark::System::Memory::AddressSpace;
+    using Quark::System::Memory::PhysMemFrame;
 
     Res<u64> alloc(usize amount);
     Res<>    free(u64 address);

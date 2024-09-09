@@ -10,7 +10,7 @@
 #define BUDDY_LEVEL_UPPER_LIMIT 10
 #define BUDDY_LEVEL_LOWER_LIMIT 0
 
-namespace Quark::System::Mem {
+namespace Quark::System::Memory {
     class PhysMemQueue
     {
     public:
@@ -58,4 +58,4 @@ namespace Quark::System::Mem {
     extern Array<PhysMemQueue[BUDDY_LEVEL_UPPER_LIMIT + 1]> g_pageQueues;
     extern PhysMemFrame**                                   g_pageFrames;
 
-} // namespace Quark::System::Mem
+} // namespace Quark::System::Memory

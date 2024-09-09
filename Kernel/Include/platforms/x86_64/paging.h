@@ -9,7 +9,7 @@
 #define VMM_PAGE_ENTRY_COUNT 512
 
 namespace Quark::System::Platform::X64 {
-    using namespace Quark::System::Mem;
+    using namespace Quark::System::Memory;
 
     template <u8 _Lv>
     class MapLevel
