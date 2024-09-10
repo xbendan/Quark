@@ -4,7 +4,11 @@
 #include <quark/os/main.h>
 
 using namespace Quark::System::Memory;
-// static Array<OsMemRangeInfo[256]> memmaps;
+// static Array<mapEntry[256]> memmaps;
+
+using Quark::System::LaunchConfiguration;
+using Quark::System::Hal::Platform;
+using Quark::System::Memory::MemoryConfiguration;
 
 extern "C" [[noreturn]]
 void
@@ -16,14 +20,14 @@ kload_st2(stivale2_struct* stInfo)
             asm volatile("hlt");
     }
 
-    OsBootConfig& bootConfig = Quark::System::getBootInfo();
+    LaunchConfiguration& conf = Quark::System::getLaunchConfiguration();
 
-    bootConfig._platform = {
+    conf._platform = {
         "AMD64",
         "1.0",
-        64,
-        Quark::System::Hal::PlatformDefinition::AddressSpaceIsolation |
-            Quark::System::Hal::PlatformDefinition::ProcessContextSwitch,
+        Platform::Type::Desktop,
+        Platform::Bit64,
+        Platform::AddressSpaceIsolation | Platform::ProcessContextSwitch,
     };
 
     stivale2_tag* tag = reinterpret_cast<stivale2_tag*>(stInfo->tags);
@@ -36,50 +40,42 @@ kload_st2(stivale2_struct* stInfo)
                 stivale2_struct_tag_memmap* tagMemmap =
                     reinterpret_cast<stivale2_struct_tag_memmap*>(tag);
 
-                OsMemoryConfig& osMemInfo = bootConfig._memory;
+                MemoryConfiguration& confMemory = conf._memory;
                 for (u64 i = 0; i < tagMemmap->entries; i++) {
                     stivale2_mmap_entry* entry = &tagMemmap->memmap[i];
-                    OsMemRangeInfo&      osMemRangeInfo =
-                        osMemInfo._addressRanges[i];
+                    MemmapEntry& mapEntry      = confMemory._addressRanges[i];
 
-                    osMemInfo._totalSize += entry->length;
-                    osMemRangeInfo._value =
-                        AddressRange(entry->base, entry->length);
+                    confMemory._totalSize += entry->length;
+                    mapEntry._range = AddressRange(entry->base, entry->length);
                     switch (entry->type) {
                         case STIVALE2_MMAP_USABLE: {
-                            osMemInfo._availableSize += entry->length;
-                            osMemRangeInfo._type =
-                                OsMemRangeType::MEM_RANGE_TYPE_FREE;
+                            confMemory._availableSize += entry->length;
+                            mapEntry._type = MemmapEntry::Type::Free;
                             break;
                         }
                         case STIVALE2_MMAP_KERNEL_AND_MODULES: {
-                            osMemRangeInfo._type =
-                                OsMemRangeType::MEM_RANGE_TYPE_KERNEL;
+                            mapEntry._type = MemmapEntry::Type::Kernel;
                             break;
                         }
                         case STIVALE2_MMAP_ACPI_RECLAIMABLE: {
-                            osMemRangeInfo._type =
-                                OsMemRangeType::MEM_RANGE_TYPE_ACPI_RECLAIMABLE;
+                            mapEntry._type = MemmapEntry::Type::AcpiReclaimable;
                             break;
                         }
                         case STIVALE2_MMAP_BOOTLOADER_RECLAIMABLE: {
-                            osMemRangeInfo._type =
-                                OsMemRangeType::MEM_RANGE_TYPE_FREE;
+                            confMemory._availableSize += entry->length;
+                            mapEntry._type = MemmapEntry::Type::Reclaimable;
                             break;
                         }
                         case STIVALE2_MMAP_BAD_MEMORY: {
-                            osMemRangeInfo._type =
-                                OsMemRangeType::MEM_RANGE_TYPE_BAD;
+                            mapEntry._type = MemmapEntry::Type::BadMemory;
                             break;
                         }
                         case STIVALE2_MMAP_ACPI_NVS: {
-                            osMemRangeInfo._type =
-                                OsMemRangeType::MEM_RANGE_TYPE_ACPI_NVS;
+                            mapEntry._type = MemmapEntry::Type::AcpiNvs;
                             break;
                         }
                         case STIVALE2_MMAP_RESERVED: {
-                            osMemRangeInfo._type =
-                                OsMemRangeType::MEM_RANGE_TYPE_RESERVED;
+                            mapEntry._type = MemmapEntry::Type::Reserved;
                             break;
                         }
                     }
@@ -103,5 +99,5 @@ kload_st2(stivale2_struct* stInfo)
             }
         }
     }
-    Quark::System::setupKernel(&bootConfig);
+    Quark::System::setupKernel(&conf);
 }

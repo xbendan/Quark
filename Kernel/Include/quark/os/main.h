@@ -17,11 +17,11 @@ namespace Quark::System {
     using Quark::System::Task::Process;
     using Quark::System::Task::Scheduler;
 
-    OsBootConfig& getBootInfo();
+    LaunchConfiguration& getLaunchConfiguration();
 
     [[noreturn]]
-    void  setupKernel(OsBootConfig* bootInfo);
-    Res<> setupArch(OsBootConfig* bootInfo);
+    void  setupKernel(LaunchConfiguration* bootInfo);
+    Res<> setupArch(LaunchConfiguration* bootInfo);
 
     Res<>              initPhysMemory();
     Res<AddressSpace*> initVirtMemory();

@@ -5,13 +5,13 @@
 #include <quark/api/logging.h>
 
 namespace Quark::System {
-    OsBootConfig  bootInfo;
-    Process*      kernelProcess;
-    AddressSpace* kernelAddressSpace;
+    LaunchConfiguration launchConfig;
+    Process*            kernelProcess;
+    AddressSpace*       kernelAddressSpace;
 
-    OsBootConfig& getBootInfo()
+    LaunchConfiguration& getLaunchConfiguration()
     {
-        return bootInfo;
+        return launchConfig;
     }
 
     Res<Process*> createKernelProcess()
@@ -25,18 +25,17 @@ namespace Quark::System {
     }
 
     [[noreturn]]
-    void setupKernel(OsBootConfig* bootConfig)
+    void setupKernel(LaunchConfiguration* conf)
     {
-        Hal::PlatformDefinition& platform = bootConfig->_platform;
+        Hal::Platform& platform = conf->_platform;
         log(u8"Setting up kernel...");
 
         log(u8"Initializing architecture-specific features...");
-        setupArch(bootConfig);
+        setupArch(conf);
         log(u8"OK.");
 
         log(u8"Initializing address space isolation (Virtual memory):\n");
-        if (platform._features.hasNot(
-                Hal::PlatformDefinition::AddressSpaceIsolation)) {
+        if (platform._features.hasNot(Hal::Platform::AddressSpaceIsolation)) {
             log(u8"VMM is not supported on this platform.\n");
         } else
             kernelAddressSpace = initVirtMemory().unwrap();

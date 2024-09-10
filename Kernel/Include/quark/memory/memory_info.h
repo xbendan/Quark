@@ -12,9 +12,10 @@ namespace Quark::System::Memory {
         {
             Free,
             Reserved,
+            Reclaimable,
             AcpiReclaimable,
             AcpiNvs,
-            Bad,
+            BadMemory,
             Kernel,
             Module,
             PageTable,

@@ -13,7 +13,7 @@ namespace Quark::System {
 
     Res<> initPhysMemory()
     {
-        OsMemoryConfig& info = getBootInfo()._memory;
+        OsMemoryConfig& info = getLaunchConfiguration()._memory;
 
         // Copy memory ranges and initialize a temporary page allocator
         for (u8 i = 0, j = 0; i < info._addressRanges.size(); i++) {
