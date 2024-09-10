@@ -17,7 +17,7 @@ namespace PCI {
         PCIDevice(u8 bus, u8 slot, u8 func);
         PCIDevice(u8 bus, u8 slot, u8 func, u16 vendorID, u16 deviceID);
 
-        PCIDevice(PCIInfo& info, String<Utf8> name, Type clazz)
+        PCIDevice(PCIInfo& info, string name, Type clazz)
             : PCIInfo(info)
             , Io::Device(name, clazz)
         {

@@ -15,7 +15,7 @@ namespace Quark::System::Platform::X64 {
 
     struct InterruptVector
     {
-        // String<Utf8> _name;
+        // string _name;
         const char* _name;
 
         enum Traits : u8

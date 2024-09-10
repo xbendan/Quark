@@ -13,12 +13,12 @@ namespace ACPI {
 
         template <typename _Tp>
             requires(Std::isDerived<ACPI::TableHeader, _Tp>)
-        Res<_Tp*> findTable(String<> name, unsigned index = 0);
+        Res<_Tp*> findTable(string name, unsigned index = 0);
 
         Res<> onLoad() override;
 
     private:
-        // HashTable<String<>, ACPI::TableHeader*> _tables;
+        // HashTable<string, ACPI::TableHeader*> _tables;
 
         ACPI::RootSystemDescPointer*     _rsdp;
         ACPI::RootSystemDescTable*       _rsdt;

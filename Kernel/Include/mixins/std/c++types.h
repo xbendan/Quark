@@ -23,10 +23,10 @@ using f128 = long double;
 
 using nullptr_t = decltype(nullptr);
 
-// using le8  = u8 __attribute__((bitwise));
-// using le16 = u16 __attribute__((bitwise));
-// using le32 = u32 __attribute__((bitwise));
-// using le64 = u64 __attribute__((bitwise));
+using le8  = u8 __attribute__((bitwise));
+using le16 = u16 __attribute__((bitwise));
+using le32 = u32 __attribute__((bitwise));
+using le64 = u64 __attribute__((bitwise));
 
 struct Empty
 {};

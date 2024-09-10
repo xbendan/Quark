@@ -9,7 +9,7 @@ namespace Quark::System::Graphics {
     class IVideoOutputDevice : public Io::Device
     {
     public:
-        IVideoOutputDevice(String<> name, Size resolution)
+        IVideoOutputDevice(string name, Size resolution)
             : Device(name, Device::Type::DisplayOutput)
             , m_resolution(resolution)
         {

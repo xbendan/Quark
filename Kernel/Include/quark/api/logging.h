@@ -12,17 +12,17 @@ namespace Quark::System::API {
         Fatal
     };
 
-    void log(String<> msg);
+    void log(string msg);
 
-    void log(String<> msg, fmt::_Args& args);
+    void log(string msg, fmt::_Args& args);
 
     // template <typename... Ts>
     //     requires(fmt::Translatable<Ts> && ...)
-    // void log(String<> msg, LogLevel level = LogLevel::Info, Ts...);
+    // void log(string msg, LogLevel level = LogLevel::Info, Ts...);
 
     template <typename... TArgs>
         requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void log(String<> msg, TArgs... args)
+    inline void log(string msg, TArgs... args)
     {
         fmt::Args<TArgs...> fmtArgs(Std::forward<TArgs>(args)...);
         log(msg, fmtArgs);

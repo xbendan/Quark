@@ -29,7 +29,7 @@ namespace Quark::System::Privilege {
     {
     public:
         UserAccount() = default;
-        UserAccount(String<> name, UserGroup* group)
+        UserAccount(string name, UserGroup* group)
             : _name(name)
             , _group(group)
             , _id(UUID())
@@ -44,7 +44,7 @@ namespace Quark::System::Privilege {
         constexpr bool operator==(const UserAccount& other) const = default;
 
     private:
-        String<>      _name;
+        string        _name;
         UserGroup*    _group;
         UUID          _id;
         Date          _whenCreated;
@@ -56,7 +56,7 @@ namespace Quark::System::Privilege {
     {
     public:
         UserGroup() = default;
-        UserGroup(String<> name, Level level)
+        UserGroup(string name, Level level)
             : _name(name)
             , _level(level)
             , _users(ArrayList<UserAccount>())
@@ -64,7 +64,7 @@ namespace Quark::System::Privilege {
         }
 
     private:
-        String<>               _name;
+        string                 _name;
         Level                  _level;
         ArrayList<UserAccount> _users{};
     };

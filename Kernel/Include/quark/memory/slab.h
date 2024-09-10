@@ -32,7 +32,7 @@ namespace Quark::System::Memory {
 
         void pageInitAsCached(PhysMemFrame* page, u64 address);
 
-        String<> _name;
+        string _name;
         struct Node
         {
             Spinlock     _spinlock;

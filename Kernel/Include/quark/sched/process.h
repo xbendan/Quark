@@ -16,7 +16,7 @@ namespace Quark::System::Task {
     {
     public:
         Process(u32           processId,
-                String<>      name,
+                string        name,
                 AddressSpace* addressSpace,
                 u64           entryPoint = 0,
                 u64           memHeap    = 0,
@@ -30,7 +30,7 @@ namespace Quark::System::Task {
         }
 
         u32 const           _processId;
-        String<>            _name;
+        string              _name;
         AddressSpace* const _addressSpace;
         Thread* const       _mainThread;
 
@@ -54,7 +54,7 @@ namespace Quark::System::Task {
          * @param name
          * @return Process* pointer to the created process
          */
-        RefPtr<Process> createProcess(String<Utf8> name);
+        RefPtr<Process> createProcess(string name);
         /**
          * @brief Create an idle process
          * The idle process will be started immediately after it is created,
@@ -71,9 +71,9 @@ namespace Quark::System::Task {
          */
         template <typename... Args>
         RefPtr<Process> createProcessEx( //
-            String<Utf8> name,
-            File*        file,
-            Folder*      workingDirectory,
+            string  name,
+            File*   file,
+            Folder* workingDirectory,
             Args&&... launchArgs);
         /**
          * @brief Create a thread with specified parent process
@@ -82,11 +82,11 @@ namespace Quark::System::Task {
          * @return Thread*
          */
         Thread*         createThread(Process* process);
-        Thread*         createThreadEx(Process*            process,
-                                       u8                  priority,
-                                       const String<Utf8>& name,
-                                       const String<Utf8>& description,
-                                       const String<Utf8>& command,
-                                       const String<Utf8>& arguments);
+        Thread*         createThreadEx(Process*      process,
+                                       u8            priority,
+                                       const string& name,
+                                       const string& description,
+                                       const string& command,
+                                       const string& arguments);
     };
 } // namespace Quark::System::Task

@@ -40,7 +40,7 @@ namespace Quark::System::Io {
 
         class Enumerator;
 
-        Device(String<Utf8> name)
+        Device(string name)
             : _name(name)
             , _deviceType(Type::Unknown)
             , _id(0)
@@ -48,9 +48,9 @@ namespace Quark::System::Io {
             // _uuid = UUID::generate();
         }
 
-        Device(String<Utf8> name, Type cls)
+        Device(string name, Type deviceType)
             : _name(name)
-            , _deviceType(cls)
+            , _deviceType(deviceType)
         {
             // _uuid = UUID::generate();
         }
@@ -67,10 +67,10 @@ namespace Quark::System::Io {
         virtual Res<> onShutdown() { return Error::NotImplemented(); }
 
     protected:
-        String<> _name;
-        UUID     _uuid;
-        Type     _deviceType;
-        u64      _id;
+        string _name;
+        UUID   _uuid;
+        Type   _deviceType;
+        u64    _id;
     };
 
     class EnumerationDevice : public Device

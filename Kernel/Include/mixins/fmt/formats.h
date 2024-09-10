@@ -6,8 +6,8 @@
 namespace fmt {
     struct NumberFormat
     {
-        String<>::Unit _p;
-        u8             _base;
+        string::Unit _p;
+        u8           _base;
     };
 
     static constexpr NumberFormat BinaryFormat      = { 'b', 2 };

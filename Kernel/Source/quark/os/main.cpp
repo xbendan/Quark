@@ -67,7 +67,7 @@ namespace Std {
             asm volatile("hlt; pause;");
     }
 
-    [[noreturn]] void panic(String<> msg)
+    [[noreturn]] void panic(string msg)
     {
         // TODO: Implement panic
         log(u8"---- QUARK KERNEL PANIC ----");

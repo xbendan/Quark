@@ -15,8 +15,8 @@ public:
     static constexpr bool  isIntegral = true;
     static constexpr usize bufferSize = 3;
 
-    static u64      hashCode(Type const& value);
-    static String<> toString(Type const& value);
+    static u64    hashCode(Type const& value);
+    static string toString(Type const& value);
 };
 
 template <>
@@ -30,8 +30,8 @@ public:
     static constexpr bool  isIntegral = true;
     static constexpr usize bufferSize = 5;
 
-    static u64      hashCode(Type const& value);
-    static String<> toString(Type const& value);
+    static u64    hashCode(Type const& value);
+    static string toString(Type const& value);
 };
 
 template <>
@@ -45,8 +45,8 @@ public:
     static constexpr bool  isIntegral = true;
     static constexpr usize bufferSize = 10;
 
-    static u64      hashCode(Type const& value);
-    static String<> toString(Type const& value);
+    static u64    hashCode(Type const& value);
+    static string toString(Type const& value);
 };
 
 template <>
@@ -60,6 +60,6 @@ public:
     static constexpr bool  isIntegral = true;
     static constexpr usize bufferSize = 20;
 
-    static u64      hashCode(Type const& value);
-    static String<> toString(Type const& value);
+    static u64    hashCode(Type const& value);
+    static string toString(Type const& value);
 };

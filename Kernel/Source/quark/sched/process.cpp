@@ -5,7 +5,7 @@ namespace Quark::System::Task {
     using namespace Quark::System::Memory;
 
     Process::Process(u32           processId,
-                     String<>      name,
+                     string        name,
                      AddressSpace* addressSpace,
                      u64           entryPoint,
                      u64           memHeap,

@@ -37,7 +37,7 @@ namespace Quark::System::Hal {
         u64 m_physBuffer[8];
     };
 
-    class AHCIControllerDevice : public PCIDevice
+    class AHCIControllerDevice : public PCI::PCIDevice
     {
     public:
         AHCIControllerDevice(PCIInfo& info);

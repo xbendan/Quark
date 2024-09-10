@@ -76,7 +76,7 @@ namespace ACPI {
 
     template <class _Tp>
         requires(Std::isDerived<ACPI::TableHeader, _Tp>)
-    Res<_Tp*> ControllerDevice::findTable(String<> name, //
+    Res<_Tp*> ControllerDevice::findTable(string   name, //
                                           unsigned index)
     {
         if (!_rsdp) {

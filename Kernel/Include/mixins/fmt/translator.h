@@ -21,10 +21,10 @@ namespace fmt {
 
     template <typename T>
         requires Std::isIntegral<T>
-    class Translator<String<>::Unit, T>
+    class Translator<string::Unit, T>
     {
     public:
-        using UnitType      = String<>::Unit;
+        using UnitType      = string::Unit;
         using ParameterType = T;
 
         // static constexpr bool isImplemented = true;
@@ -55,11 +55,11 @@ namespace fmt {
     };
 
     template <>
-    class Translator<String<>::Unit, String<>>
+    class Translator<string::Unit, string>
     {
     public:
-        using UnitType      = String<>::Unit;
-        using ParameterType = String<>;
+        using UnitType      = string::Unit;
+        using ParameterType = string;
 
         static void toUnitType(OutputStream<UnitType> auto& stream,
                                ParameterType const&         val)
@@ -67,20 +67,20 @@ namespace fmt {
             stream.out(val.data(), val.size());
         }
 
-        static String<> toParameterType() { return {}; }
+        static string toParameterType() { return {}; }
     };
 
     template <>
-    class Translator<String<>::Unit, const char*>
+    class Translator<string::Unit, const char*>
     {
     public:
-        using UnitType      = String<>::Unit;
+        using UnitType      = string::Unit;
         using ParameterType = const char*;
 
         static void toUnitType(OutputStream<UnitType> auto& stream,
                                ParameterType const&         val)
         {
-            String<> str(val);
+            string str(val);
             stream.out(str.data(), str.size());
         }
 
@@ -88,16 +88,16 @@ namespace fmt {
     };
 
     template <typename T>
-    class Translator<String<>::Unit, T*>
+    class Translator<string::Unit, T*>
     {
     public:
-        using UnitType      = String<>::Unit;
+        using UnitType      = string::Unit;
         using ParameterType = T*;
 
         static void toUnitType(OutputStream<UnitType> auto& stream,
                                ParameterType const&         val)
         {
-            Translator<String<>::Unit, u64>::toUnitType(
+            Translator<string::Unit, u64>::toUnitType(
                 stream, reinterpret_cast<u64>(val), HexadecimalFormat, true);
         }
 
@@ -106,9 +106,9 @@ namespace fmt {
 
     template <typename T>
     concept Translatable = requires(T t) {
-        typename Translator<String<>::Unit, T>::UnitType;
-        typename Translator<String<>::Unit, T>::ParameterType;
+        typename Translator<string::Unit, T>::UnitType;
+        typename Translator<string::Unit, T>::ParameterType;
     };
 
-    static_assert(Translatable<String<>>);
+    static_assert(Translatable<string>);
 }

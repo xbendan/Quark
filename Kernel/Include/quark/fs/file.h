@@ -59,10 +59,7 @@ namespace Quark::System::Io::FileSystem {
     class FileNode
     {
     public:
-        FileNode(FileSource source,
-                 FileType   type,
-                 String<>   name,
-                 String<>   parent)
+        FileNode(FileSource source, FileType type, string name, string parent)
             : m_source(source)
             , m_type(type)
             , m_name(name)
@@ -75,15 +72,15 @@ namespace Quark::System::Io::FileSystem {
     protected:
         FileSource m_source;
         FileType   m_type;
-        String<>   m_name;
-        String<>   m_parent;
+        string     m_name;
+        string     m_parent;
     };
 
     class Folder : public FileNode
     {
     public:
         Folder() = default;
-        Folder(String<> fullpath);
+        Folder(string fullpath);
         virtual ~Folder();
 
         virtual Res<Array<FileNode*>> listFiles() = 0;
@@ -93,7 +90,7 @@ namespace Quark::System::Io::FileSystem {
     {
     public:
         File() = default;
-        File(String<> fullpath);
+        File(string fullpath);
         virtual ~File();
 
         virtual Res<i64> read(u64 offset, u64 size, u8* buffer)  = 0;

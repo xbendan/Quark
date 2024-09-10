@@ -3,5 +3,5 @@
 
 namespace Std {
     [[noreturn]] void panic(Error err);
-    [[noreturn]] void panic(String<> msg);
+    [[noreturn]] void panic(string msg);
 }

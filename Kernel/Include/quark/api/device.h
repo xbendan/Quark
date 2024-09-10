@@ -7,7 +7,7 @@ namespace Quark::System::API {
 
     template <typename T = Device>
         requires(Std::isDerived<Device, T>)
-    Opt<T*> getRegisteredDevice(String<> name);
+    Opt<T*> getRegisteredDevice(string name);
 
     template <typename T = Device>
         requires(Std::isDerived<T, Device>)

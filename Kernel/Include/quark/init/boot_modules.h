@@ -6,8 +6,8 @@
 namespace {
     struct OsModule
     {
-        String<> _name;
-        u64      _key;
+        string _name;
+        u64    _key;
 
         Func<Quark::System::Io::Device*(void)> _init;
     };

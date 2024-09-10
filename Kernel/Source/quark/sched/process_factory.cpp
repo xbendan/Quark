@@ -6,7 +6,7 @@
 namespace Quark::System::API {
     using Quark::System::Task::Process;
 
-    Res<RefPtr<Process>> createProcess(String<> name)
+    Res<RefPtr<Process>> createProcess(string name)
     {
         Process* p = new Process(
             getScheduler()->nextPID(), name, createAddressSpace().unwrap());
@@ -28,9 +28,9 @@ namespace Quark::System::API {
 
     template <typename... Args>
     Res<RefPtr<Process>> createProcessEx( //
-        String<Utf8> name,
-        File*        file,
-        Folder*      workingDirectory,
+        string  name,
+        File*   file,
+        Folder* workingDirectory,
         Args&&... launchArgs)
     {
         if (!file) {
@@ -53,12 +53,12 @@ namespace Quark::System::API {
         return Error::NotImplemented();
     }
 
-    Res<Thread*> createThreadEx(Process*            process,
-                                u8                  priority,
-                                const String<Utf8>& name,
-                                const String<Utf8>& description,
-                                const String<Utf8>& command,
-                                const String<Utf8>& arguments)
+    Res<Thread*> createThreadEx(Process*      process,
+                                u8            priority,
+                                const string& name,
+                                const string& description,
+                                const string& command,
+                                const string& arguments)
     {
         return Error::NotImplemented();
     }

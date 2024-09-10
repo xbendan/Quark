@@ -350,7 +350,7 @@ public:
     }
 
     [[gnu::always_inline]]
-    constexpr bool operator==(String<> const& other) const
+    constexpr bool operator==(String const& other) const
     {
         if (this->size() != other.size()) {
             return false;
@@ -387,4 +387,4 @@ static_assert(EncodingFormat<Utf8>);
 static_assert(EncodingFormat<Utf16>);
 static_assert(EncodingFormat<Ascii>);
 
-using string = String<>;
+using string = String<Utf8>;

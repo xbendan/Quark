@@ -8,9 +8,9 @@
 namespace Quark::System::Hal {
     struct PlatformDefinition
     {
-        String<> _name;
-        String<> _version;
-        u8       _bits;
+        string _name;
+        string _version;
+        u8     _bits;
         enum Features : u8
         {
             AddressSpaceIsolation,

@@ -6,7 +6,7 @@ namespace Quark::System::Io {
     class DiskDevice : public Device
     {
     public:
-        DiskDevice(String<Utf8> name);
+        DiskDevice(string name);
         virtual ~DiskDevice();
 
         virtual i64 read(u64 offset, u64 size, void* buffer)  = 0;

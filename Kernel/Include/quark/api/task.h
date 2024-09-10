@@ -22,7 +22,7 @@ namespace Quark::System::API {
      * @param name
      * @return Process* pointer to the created process
      */
-    Res<RefPtr<Process>> createProcess(String<Utf8> name);
+    Res<RefPtr<Process>> createProcess(string name);
     /**
      * @brief Create an idle process
      * The idle process will be started immediately after it is created,
@@ -39,9 +39,9 @@ namespace Quark::System::API {
      */
     template <typename... Args>
     Res<RefPtr<Process>> createProcessEx( //
-        String<Utf8> name,
-        File*        file,
-        Folder*      workingDirectory,
+        string  name,
+        File*   file,
+        Folder* workingDirectory,
         Args&&... launchArgs);
     /**
      * @brief Create a thread with specified parent process
@@ -50,12 +50,12 @@ namespace Quark::System::API {
      * @return Thread*
      */
     Res<Thread*>         createThread(Process* process);
-    Res<Thread*>         createThreadEx(Process*        process,
-                                        u8              priority,
-                                        const String<>& name,
-                                        const String<>& description,
-                                        const String<>& command,
-                                        const String<>& arguments);
+    Res<Thread*>         createThreadEx(Process*      process,
+                                        u8            priority,
+                                        const string& name,
+                                        const string& description,
+                                        const string& command,
+                                        const string& arguments);
     Scheduler*           getScheduler();
 }
 

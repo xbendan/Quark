@@ -8,8 +8,8 @@ namespace Std {
 
 namespace Type {
     // template <typename T>
-    // static constexpr String<> getName()
+    // static constexpr string getName()
     // {
-    //     String<> name = __PRETTY_FUNCTION__;
+    //     string name = __PRETTY_FUNCTION__;
     // }
 }

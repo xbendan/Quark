@@ -5,7 +5,7 @@
 
 namespace Quark::System::Hal {
     AHCIControllerDevice::AHCIControllerDevice(PCIInfo& info)
-        : PCIDevice(info, "AHCI Controller Device", Class::DiskController)
+        : PCIDevice(info, "AHCI Controller Device", Type::DiskController)
         , m_clbPhys(allocPhysMemory4K(8).unwrap())
         , m_fbPhys(allocPhysMemory4K(2).unwrap())
         , m_ctbaPhys(allocPhysMemory4K(64).unwrap())

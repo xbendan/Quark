@@ -1,3 +1,3 @@
 namespace Quark::System {
-    [[noreturn]] void callPanic(String<>);
+    [[noreturn]] void callPanic(string);
 }
