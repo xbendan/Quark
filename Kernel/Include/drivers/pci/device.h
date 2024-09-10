@@ -6,7 +6,8 @@
 #include <quark/dev/device.h>
 #include <quark/hal/ports.h>
 
-namespace Quark::System::Hal {
+namespace PCI {
+    using namespace Quark::System;
 
     class PCIDevice
         : public PCIInfo
@@ -16,10 +17,45 @@ namespace Quark::System::Hal {
         PCIDevice(u8 bus, u8 slot, u8 func);
         PCIDevice(u8 bus, u8 slot, u8 func, u16 vendorID, u16 deviceID);
 
-        PCIDevice(PCIInfo& info, String<Utf8> name, Class clazz)
+        PCIDevice(PCIInfo& info, String<Utf8> name, Type clazz)
             : PCIInfo(info)
             , Io::Device(name, clazz)
         {
+        }
+        PCIDevice(PCIDevice const& other)
+            : PCIInfo(other)
+            , Io::Device(other._name, other._deviceType)
+        {
+            _bus  = other._bus;
+            _slot = other._slot;
+            _func = other._func;
+        }
+        ~PCIDevice() = default;
+
+        PCIDevice& operator=(PCIDevice const& other)
+        {
+            if (this != &other) {
+                _bus  = other._bus;
+                _slot = other._slot;
+                _func = other._func;
+            }
+            return *this;
+        }
+
+        PCIDevice& operator=(PCIDevice&& other)
+        {
+            if (this != &other) {
+                _bus  = other._bus;
+                _slot = other._slot;
+                _func = other._func;
+            }
+            return *this;
+        }
+
+        bool operator==(PCIDevice const& other)
+        {
+            return _bus == other._bus && _slot == other._slot &&
+                   _func == other._func;
         }
 
         u64 getBaseAddrRegs(u8 i)

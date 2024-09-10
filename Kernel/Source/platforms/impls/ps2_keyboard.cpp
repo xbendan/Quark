@@ -2,7 +2,7 @@
 
 namespace PS2 {
     LegacyKeyboardDevice::LegacyKeyboardDevice()
-        : Io::Device("PS/2 Legacy Keyboard Device", Device::Class::Keyboard)
+        : Io::Device("PS/2 Legacy Keyboard Device", Device::Type::Keyboard)
     {
     }
 

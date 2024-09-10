@@ -10,7 +10,7 @@ namespace APIC {
 
     GenericControllerDevice::GenericControllerDevice()
         : Device("Advanced Programmable Interrupt Controller",
-                 Class::SystemDevices)
+                 Type::SystemDevices)
         , m_units(new LinkedList<Local*>())
         , m_overrides(new LinkedList<ACPI::MADT::InterruptServiceOverride*>())
     {

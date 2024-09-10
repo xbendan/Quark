@@ -9,7 +9,7 @@ namespace APIC {
     {
     public:
         APICTimerDevice(GenericControllerDevice::Local* local)
-            : Device(u8"APIC Timer", Class::TimerOrClock)
+            : Device(u8"APIC Timer", Type::TimerOrClock)
             , m_local(local)
             , m_clockFreq(0)
             , m_clockTicks(0)

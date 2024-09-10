@@ -10,7 +10,7 @@ namespace PS2 {
 
     LegacyControllerDevice::LegacyControllerDevice()
         : Io::Device("PS/2 Legacy Controller Device",
-                     Device::Class::SystemDevices)
+                     Device::Type::SystemDevices)
     {
     }
 

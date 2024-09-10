@@ -10,7 +10,7 @@ namespace ACPI {
     static const char* _signature = "RSD PTR ";
 
     ControllerDevice::ControllerDevice()
-        : Device("ACPI Management Device", Class::SystemDevices)
+        : Device("ACPI Management Device", Type::SystemDevices)
     {
     }
 

@@ -8,7 +8,7 @@ namespace Quark::System::Hal {
     const char* __signatureL3 = "_SM3_";
 
     SystemManagementBIOSDevice::SystemManagementBIOSDevice()
-        : Io::Device("System Management BIOS", Class::Firmware)
+        : Io::Device("System Management BIOS", Type::Firmware)
     {
         u64                  address = Memory::copyAsIOAddress(0xF0000);
         Memory::AddressRange range(address, 0x10000);

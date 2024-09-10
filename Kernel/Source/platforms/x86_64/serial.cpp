@@ -6,7 +6,7 @@ namespace Quark::System::Hal {
     using namespace Serial;
 
     SerialPortDevice::SerialPortDevice()
-        : Device("Serial Port Device", Class::Firmware)
+        : Device("Serial Port Device", Type::Firmware)
     {
         pOut<u8>(Port::COM1 + PortOffset::InterruptEnable, 0x00);
         pOut<u8>(Port::COM1 + PortOffset::LineControl, 0x80);

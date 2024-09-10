@@ -10,7 +10,7 @@ namespace Quark::System::Io {
     class Device
     {
     public:
-        enum class Class
+        enum class Type
         {
             Biometric,
             Bluetooth,
@@ -42,15 +42,15 @@ namespace Quark::System::Io {
 
         Device(String<Utf8> name)
             : _name(name)
-            , _class(Class::Unknown)
+            , _deviceType(Type::Unknown)
             , _id(0)
         {
             // _uuid = UUID::generate();
         }
 
-        Device(String<Utf8> name, Class cls)
+        Device(String<Utf8> name, Type cls)
             : _name(name)
-            , _class(cls)
+            , _deviceType(cls)
         {
             // _uuid = UUID::generate();
         }
@@ -66,25 +66,26 @@ namespace Quark::System::Io {
 
         virtual Res<> onShutdown() { return Error::NotImplemented(); }
 
-    private:
+    protected:
         String<> _name;
         UUID     _uuid;
-        Class    _class;
+        Type     _deviceType;
         u64      _id;
     };
 
-    class Device::Enumerator : public Device
+    class EnumerationDevice : public Device
     {
     public:
-        Enumerator(String<Utf8> name)
-            : Device(name, Class::SoftwareDevice)
+        EnumerationDevice(string name)
+            : Device(name, Type::SystemDevices)
         {
         }
+        ~EnumerationDevice() = default;
 
-        ~Enumerator() = default;
+        virtual Res<Device*> getDeviceByName(string name) = 0;
 
-        [[nodiscard]]
-        virtual Res<Array<Device*>> enumerate() = 0;
+        virtual Res<IReadOnlyCollection<Device*>> enumerateDevices(
+            ICollection<Device*>) = 0;
     };
 }
 

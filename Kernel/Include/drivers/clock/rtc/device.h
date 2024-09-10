@@ -11,7 +11,7 @@ namespace RTC {
     {
     public:
         RealTimeClockDevice()
-            : Device(u8"RTC", Device::Class::TimerOrClock)
+            : Device(u8"RTC", Device::Type::TimerOrClock)
         {
         }
 

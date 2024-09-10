@@ -3,7 +3,9 @@
 #include <mixins/std/type_traits.h>
 #include <quark/hal/ports.h>
 
-namespace Quark::System::Hal {
+namespace PCI {
+    using namespace Quark::System;
+    using namespace Quark::System::Hal;
 
     class PCIInfo
     {
