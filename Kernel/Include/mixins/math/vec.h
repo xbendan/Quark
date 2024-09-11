@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/std/math.h>
 #include <mixins/std/type_traits.h>
 

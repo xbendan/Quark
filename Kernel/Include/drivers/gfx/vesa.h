@@ -1,11 +1,12 @@
 #include <mixins/io/text.h>
+#include <mixins/meta/buf.h>
 #include <quark/gfx/display.h>
 
 namespace VESA {
     using namespace Quark::System::Graphics;
 
     class VGATextOutputDevice
-        : public IVideoOutputDevice
+        : public IVideoDisplayDevice
         , public Io::TextWriter
     {
     public:
@@ -17,6 +18,7 @@ namespace VESA {
         void writeNewline() override;
 
     private:
+        Size  m_resolution{ 80, 25 };
         Point m_cursor{ 0, 0 };
         u16*  m_buffer{ (u16*)0xb8000 };
     };

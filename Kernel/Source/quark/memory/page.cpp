@@ -13,13 +13,12 @@ namespace Quark::System {
 
     Res<> initPhysMemory()
     {
-        OsMemoryConfig& info = getLaunchConfiguration()._memory;
+        MemoryConfiguration& info = getLaunchConfiguration()._memory;
 
         // Copy memory ranges and initialize a temporary page allocator
         for (u8 i = 0, j = 0; i < info._addressRanges.size(); i++) {
-            if (info._addressRanges[i]._type ==
-                OsMemRangeType::MEM_RANGE_TYPE_FREE)
-                (g_pageRanges[j++] = info._addressRanges[i]._value)
+            if (info._addressRanges[i]._type == MemmapEntry::Free)
+                (g_pageRanges[j++] = info._addressRanges[i]._range)
                     .innerAlign(PAGE_SIZE_4K);
         }
         auto allocPhysBlock4K = [](usize amount) -> u64 {

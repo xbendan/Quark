@@ -4,11 +4,9 @@
 #include <quark/os/main.h>
 
 using namespace Quark::System::Memory;
-// static Array<mapEntry[256]> memmaps;
-
 using Quark::System::LaunchConfiguration;
+using Quark::System::Graphics::LinearFramebufferDevice;
 using Quark::System::Hal::Platform;
-using Quark::System::Memory::MemoryConfiguration;
 
 extern "C" [[noreturn]]
 void
@@ -85,13 +83,12 @@ kload_st2(stivale2_struct* stInfo)
             case STIVALE2_STRUCT_TAG_FRAMEBUFFER_ID: {
                 stivale2_struct_tag_framebuffer* tagFb =
                     reinterpret_cast<stivale2_struct_tag_framebuffer*>(tag);
-                bootConfig._gfx = {
-                    ._width   = tagFb->framebuffer_width,
-                    ._height  = tagFb->framebuffer_height,
-                    ._address = tagFb->framebuffer_addr,
-                    ._depth   = tagFb->framebuffer_bpp,
-                    ._pitch   = tagFb->framebuffer_pitch,
-                };
+                // conf._framebuffer =
+                //     Opt<LinearFramebufferDevice>(tagFb->framebuffer_addr,
+                //                                  (u32)tagFb->framebuffer_width,
+                //                                  (u32)tagFb->framebuffer_height,
+                //                                  tagFb->framebuffer_pitch,
+                //                                  tagFb->framebuffer_bpp);
                 break;
             }
             case STIVALE2_STRUCT_TAG_MODULES_ID: {

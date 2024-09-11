@@ -14,6 +14,16 @@ struct Buf
 
     Buf(usize capacity = 0) { reserve(capacity); }
 
+    Buf(T* data, usize capacity, usize len = 0)
+        : _data(data)
+        , _cap(capacity)
+        , _len(len)
+    {
+        for (usize i = 0; i < len; i++) {
+            _data[i].ctor(data[i]);
+        }
+    }
+
     Buf(Sliceable<T> auto& other)
     {
         reserve(other.len());
@@ -22,7 +32,6 @@ struct Buf
         }
         _len = other.len();
     }
-
     Buf(Buf const& other)
     {
         reserve(other._len);
@@ -31,6 +40,15 @@ struct Buf
         for (usize i = 0; i < _len; i++) {
             _data[i].ctor(other[i]);
         }
+    }
+    Buf(Buf&& other)
+        : _data(other._data)
+        , _cap(other._cap)
+        , _len(other._len)
+    {
+        other._data = nullptr;
+        other._cap  = 0;
+        other._len  = 0;
     }
 
     ~Buf()
@@ -47,6 +65,29 @@ struct Buf
     Buf& operator=(Buf const& other)
     {
         *this = Buf(other);
+        return *this;
+    }
+
+    Buf& operator=(Buf&& other)
+    {
+        if (this == &other)
+            return *this;
+
+        if (_data) {
+            for (usize i = 0; i < _len; i++) {
+                _data[i].dtor();
+            }
+            delete[] _data;
+        }
+
+        _data = other._data;
+        _cap  = other._cap;
+        _len  = other._len;
+
+        other._data = nullptr;
+        other._cap  = 0;
+        other._len  = 0;
+
         return *this;
     }
 

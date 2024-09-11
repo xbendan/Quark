@@ -68,6 +68,13 @@ struct [[nodiscard]] Opt
             new (&_value) T(Std::move(other._value));
     }
 
+    template <typename... Args>
+    [[gnu::always_inline]] constexpr Opt(Args&&... args)
+        : _value(Std::forward<Args>(args)...)
+        , _present(true)
+    {
+    }
+
     [[gnu::always_inline]]
     constexpr ~Opt()
     {
