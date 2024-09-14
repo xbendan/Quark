@@ -18,3 +18,7 @@ namespace Quark::System::API {
 
     LinkedList<Device*>* enumerateRegisteredDevices();
 }
+
+#if defined(GLOBAL_API_NAMESPACE)
+using namespace Quark::System::API;
+#endif

@@ -34,7 +34,7 @@ namespace PS2 {
         ReadControllerOutput = 0xD0
     };
 
-    enum class ConfigByte
+    enum ConfigByte
     {
         FirstPortInterrupt   = 0x01,
         SecondPortInterrupt  = 0x02,
@@ -45,6 +45,5 @@ namespace PS2 {
         FirstPortTranslation = 0x40,
         Reserved_1           = 0x80
     };
-    MakeFlags$(ConfigByte);
 
 } // namespace Quark::System::Hal::PS2

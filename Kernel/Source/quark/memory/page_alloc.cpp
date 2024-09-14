@@ -23,7 +23,7 @@ namespace Quark::System::API {
     {
         Res<u64> phys = ::allocPhysMemory4K(amount);
 
-        if (phys.has()) {
+        if (phys.isOkay()) {
             u64 address = 0;
 
             addressSpace->map4KPages(
@@ -48,7 +48,7 @@ namespace Quark::System::API {
 
         Res<u64> phys = addressSpace->getPhysAddress(address);
 
-        if (phys.has()) {
+        if (phys.isOkay()) {
             freePhysMemory4K(phys.unwrap(), amount);
         }
 

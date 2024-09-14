@@ -3,6 +3,7 @@
 #include <mixins/meta/ref.h>
 #include <mixins/std/c++types.h>
 #include <mixins/std/string.h>
+#include <mixins/utils/array_list.h>
 #include <mixins/utils/linked_list.h>
 #include <quark/fs/file.h>
 #include <quark/memory/address_space.h>
@@ -33,6 +34,15 @@ namespace Quark::System::Task {
         string              _name;
         AddressSpace* const _addressSpace;
         Thread* const       _mainThread;
+
+        static Process*                 getKernelProcess();
+        static IReadOnlyList<Process*>* all();
+
+        static void     addProcess(Process* process);
+        static void     addProcess(Process* process, u16 id);
+        static void     destroyProcess(Process* process);
+        static void     destroyProcess(u16 id);
+        static Process* getProcessById(u16 id);
 
     private:
         LinkedList<Thread*> m_childrenThreadList;

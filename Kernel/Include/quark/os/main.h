@@ -15,7 +15,6 @@
 namespace Quark::System {
     using Quark::System::Memory::AddressSpace;
     using Quark::System::Task::Process;
-    using Quark::System::Task::Scheduler;
 
     LaunchConfiguration& getLaunchConfiguration();
 
@@ -23,11 +22,11 @@ namespace Quark::System {
     void  setupKernel(LaunchConfiguration* bootInfo);
     Res<> setupArch(LaunchConfiguration* bootInfo);
 
-    Res<>              initPhysMemory();
-    Res<AddressSpace*> initVirtMemory();
-    Res<Process*>      createKernelProcess();
-    Res<>              setupDevices();
-    Res<>              initTasks();
-    Res<>              initFileSystems();
+    Res<>                            initPhysMemory();
+    Res<AddressSpace*>               initVirtMemory();
+    Res<Process*>                    createKernelProcess(AddressSpace*);
+    Res<IReadOnlyList<Io::Device*>*> setupDevices();
+    Res<>                            initTasks();
+    Res<>                            initFileSystems();
 
 } // namespace Quark::System

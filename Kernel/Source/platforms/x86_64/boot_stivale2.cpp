@@ -81,8 +81,8 @@ kload_st2(stivale2_struct* stInfo)
                 break;
             }
             case STIVALE2_STRUCT_TAG_FRAMEBUFFER_ID: {
-                stivale2_struct_tag_framebuffer* tagFb =
-                    reinterpret_cast<stivale2_struct_tag_framebuffer*>(tag);
+                // stivale2_struct_tag_framebuffer* tagFb =
+                //     reinterpret_cast<stivale2_struct_tag_framebuffer*>(tag);
                 // conf._framebuffer =
                 //     Opt<LinearFramebufferDevice>(tagFb->framebuffer_addr,
                 //                                  (u32)tagFb->framebuffer_width,

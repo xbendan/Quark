@@ -2,26 +2,25 @@
 #include <quark/api/memory.h>
 #include <quark/api/task.h>
 #include <quark/sched/process.h>
+#include <quark/sched/sched.h>
 
 namespace Quark::System::API {
-    using Quark::System::Task::Process;
+    using namespace Quark::System::Task;
 
     Res<RefPtr<Process>> createProcess(string name)
     {
-        Process* p = new Process(
-            getScheduler()->nextPID(), name, createAddressSpace().unwrap());
-        getScheduler()->addProcess(p);
+        Process* p =
+            new Process(nextPID(), name, createAddressSpace().unwrap());
+        Process::addProcess(p);
 
         return Ok(RefPtr<Process>(p));
     }
 
     Res<RefPtr<Process>> createIdleProcess()
     {
-        Process* p =
-            new Process(getScheduler()->nextPID(),
-                        "Idle",
-                        getScheduler()->getKernelProcess()->_addressSpace);
-        getScheduler()->addProcess(p);
+        Process* p = new Process(
+            nextPID(), "Idle", Process::getKernelProcess()->_addressSpace);
+        Process::addProcess(p);
 
         return Ok(RefPtr<Process>(p));
     }
@@ -37,13 +36,9 @@ namespace Quark::System::API {
             return Error::InvalidArgument();
         }
 
-        Process* p = new Process(getScheduler()->nextPID(),
-                                 name,
-                                 createAddressSpace().unwrap(),
-                                 0,
-                                 0,
-                                 0);
-        getScheduler()->addProcess(p);
+        Process* p = new Process(
+            nextPID(), name, createAddressSpace().unwrap(), 0, 0, 0);
+        Process::addProcess(p);
 
         return Error::NotImplemented();
     }

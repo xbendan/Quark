@@ -6,7 +6,7 @@
 #include <quark/api/logging.h>
 
 namespace APIC {
-    using namespace API;
+    using namespace Quark::System::API;
 
     GenericControllerDevice::GenericControllerDevice()
         : Device("Advanced Programmable Interrupt Controller",
@@ -23,7 +23,7 @@ namespace APIC {
         ::getRegisteredDevice<ACPI::ControllerDevice>("ACPI Management Device")
             .ifPresent([&madt](ACPI::ControllerDevice* acpi) {
                 Res<ACPI::MADT*> opt = acpi->findTable<ACPI::MADT>("APIC");
-                if (opt.has())
+                if (opt.isOkay())
                     madt = opt.unwrap("MADT table not found.");
             });
         if (madt == nullptr)

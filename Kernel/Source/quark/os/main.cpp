@@ -6,22 +6,10 @@
 
 namespace Quark::System {
     LaunchConfiguration launchConfig;
-    Process*            kernelProcess;
-    AddressSpace*       kernelAddressSpace;
 
     LaunchConfiguration& getLaunchConfiguration()
     {
         return launchConfig;
-    }
-
-    Res<Process*> createKernelProcess()
-    {
-        static Inert<Process> kpInert;
-
-        if (kernelProcess)
-            return Error::InvalidState("Kernel process already exists.");
-
-        return Ok(kpInert.ctor(0, "Kernel", kernelAddressSpace, 0, 0, 0));
     }
 
     [[noreturn]]
@@ -35,6 +23,7 @@ namespace Quark::System {
         log(u8"OK.");
 
         log(u8"Initializing address space isolation (Virtual memory):\n");
+        AddressSpace* kernelAddressSpace = nullptr;
         if (platform._features.hasNot(Hal::Platform::AddressSpaceIsolation)) {
             log(u8"VMM is not supported on this platform.\n");
         } else
@@ -44,7 +33,7 @@ namespace Quark::System {
         initPhysMemory().unwrap();
 
         log(u8"Creating kernel process...\n");
-        kernelProcess = createKernelProcess().unwrap();
+        createKernelProcess(kernelAddressSpace).unwrap();
 
         log(u8"Initializing device connectivity...\n");
         setupDevices().unwrap();

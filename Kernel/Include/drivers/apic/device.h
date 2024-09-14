@@ -4,6 +4,7 @@
 #include <drivers/apic/spec.h>
 #include <quark/dev/device.h>
 #include <quark/hal/hwobjs.h>
+#include <quark/hal/task.h>
 #include <quark/memory/address_space.h>
 
 namespace APIC {
@@ -13,16 +14,15 @@ namespace APIC {
     class GenericControllerDevice : public Io::Device
     {
     public:
-        class Local
+        struct Local
         {
-        public:
             Local(u8                       apicId,
                   GenericControllerDevice* apic,
                   ProcessorDevice*         processor)
-                : m_apicId(apicId)
-                , m_basePhys(apic->localBaseRead() & LOCAL_APIC_BASE)
-                , m_baseVirt(Memory::copyAsIOAddress(m_basePhys))
-                , m_cpu(processor)
+                : _apicId(apicId)
+                , _basePhys(apic->localBaseRead() & LOCAL_APIC_BASE)
+                , _baseVirt(Memory::copyAsIOAddress(_basePhys))
+                , _cpu(processor)
             {
             }
 
@@ -31,22 +31,21 @@ namespace APIC {
             void regWrite(u32 reg, u32 data);
             u32  regRead(u32 reg);
 
-            void sendIpi(u32 vec);
-
-            void sendIpi(u32 dsh, u32 type, u8 vector)
+            void setEnabled();
+            void callIPI(u32 vec);
+            void callIPI(u32 dsh, u32 type, u8 vector)
             {
-                sendIpi(dsh | type | ICR_VECTOR(vector));
+                callIPI(dsh | type | ICR_VECTOR(vector));
             }
 
-        private:
-            u8               m_apicId;
-            u64              m_basePhys;
-            u64              m_baseVirt;
-            ProcessorDevice* m_cpu;
+            u8               _apicId;
+            u64              _basePhys;
+            u64              _baseVirt;
+            ProcessorDevice* _cpu;
         };
 
         GenericControllerDevice();
-        ~GenericControllerDevice() = delete;
+        ~GenericControllerDevice() = default;
 
         /* --- Methods --- */
         void ioRegWrite32(u32 reg, u32 data);
@@ -60,6 +59,9 @@ namespace APIC {
         u64  localBaseRead();
         void localRegWrite(u32 reg, u32 data);
         u32  localRegRead(u32 reg);
+
+        LinkedList<Local*>* getApicLocals() const { return m_units; }
+        Local*              getApicLocal(u8 id);
 
         Res<> onLoad() override;
 

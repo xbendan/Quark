@@ -9,7 +9,7 @@ namespace ACPI {
     {
     public:
         ControllerDevice();
-        ~ControllerDevice();
+        ~ControllerDevice() = default;
 
         template <typename _Tp>
             requires(Std::isDerived<ACPI::TableHeader, _Tp>)

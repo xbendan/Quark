@@ -17,6 +17,16 @@ namespace Quark::System::Hal {
         pOut<u8>(Port::COM1 + PortOffset::ModemControl, 0x0B);
     }
 
+    void SerialPortDevice::writeStr(string str)
+    {
+        static_assert(Std::isSame<string::Unit, u8>);
+    }
+
+    void SerialPortDevice::writeNewline()
+    {
+        out('\n');
+    }
+
     void SerialPortDevice::out(u8 data)
     {
         while (!(pIn<u8>(Port::COM1 + PortOffset::LineStatus) & 0x20))

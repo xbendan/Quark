@@ -5,6 +5,12 @@
 #include <platforms/x86_64/sched.h>
 #include <platforms/x86_64/tables.h>
 
+#include <drivers/acpi/device.h>
+#include <drivers/apic/device.h>
+#include <drivers/pci/enumerator.h>
+
+#include <quark/api/device.h>
+#include <quark/api/logging.h>
 #include <quark/memory/address_range.h>
 #include <quark/os/main.h>
 
@@ -18,12 +24,25 @@ extern u64 interruptVectors[];
 namespace Quark::System {
     using namespace Quark::System::Memory;
     using namespace Quark::System::Platform::X64;
+    using namespace Quark::System::API;
 
     InterruptDescTbl                kIdt = {};
     Inert<CPULocal>                 kCPULocal;
     Buf<char[3 * 8 * PAGE_SIZE_4K]> kTssEntryBuf;
+    Io::Device*                     kInitialDevices;
 
-    Res<> setupArch(OsBootConfig* bootInfo)
+    Res<IReadOnlyList<Io::Device*>*> setupDevices()
+    {
+        log(u8"Setting up devices...");
+        static ArrayList<Io::Device*> devices({
+            new ACPI::ControllerDevice(),
+            new APIC::GenericControllerDevice(),
+            new PCI::PCIEnumerationDevice(),
+        });
+        return Ok((IReadOnlyList<Io::Device*>*)&devices);
+    }
+
+    Res<> setupArch(LaunchConfiguration* launchConfig)
     {
         asm volatile("cli");
 
@@ -54,13 +73,6 @@ namespace Quark::System {
 
         asm volatile("mov %%rsp, %0" : "=r"(p->_tss._rsp[0]));
         asm volatile("ltr %%ax" ::"a"(0x28));
-
-        // setup virtual memory managements
-
-        // Setup tasking
-        // Setup logging
-        // Load devices
-        // Load filesystems
 
         return Ok();
     }

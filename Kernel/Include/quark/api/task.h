@@ -3,15 +3,15 @@
 #include <mixins/std/c++types.h>
 #include <mixins/std/string.h>
 
-#include <quark/hal/task.h>
+#include <quark/hal/multiprocessing.h>
 #include <quark/sched/process.h>
 #include <quark/sched/sched.h>
 
 namespace Quark::System::API {
+    using Quark::System::Hal::ICPULocal;
     using Quark::System::Io::FileSystem::File;
     using Quark::System::Io::FileSystem::Folder;
     using Quark::System::Task::Process;
-    using Quark::System::Task::Scheduler;
     using Quark::System::Task::Thread;
 
     /**
@@ -50,13 +50,16 @@ namespace Quark::System::API {
      * @return Thread*
      */
     Res<Thread*>         createThread(Process* process);
+    Res<Thread*>         createIdleThread();
     Res<Thread*>         createThreadEx(Process*      process,
                                         u8            priority,
                                         const string& name,
                                         const string& description,
                                         const string& command,
                                         const string& arguments);
-    Scheduler*           getScheduler();
+
+    Res<ICPULocal*> getCPULocal(u32 id);
+    Res<>           setCPULocal(u32 id, ICPULocal* local);
 }
 
 #if defined(GLOBAL_API_NAMESPACE)

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/std/c++types.h>
 #include <mixins/std/time.h>
 

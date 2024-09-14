@@ -9,9 +9,9 @@ namespace Quark::System::Platform::X64 {
         tss = GlobDescTbl::TssEntry(this);
 
         for (int i = 0; i < 3; i++) {
-            _ist[i] = allocMemory4K(
-                          8, getScheduler()->getKernelProcess()->_addressSpace)
-                          .unwrap();
+            _ist[i] =
+                allocMemory4K(8, Process::getKernelProcess()->_addressSpace)
+                    .unwrap();
             _ist[i] += PAGE_SIZE_4K * 8;
         }
         asm volatile("mov %%rsp, %0" : "=r"(_rsp[0]));

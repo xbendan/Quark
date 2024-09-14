@@ -31,7 +31,7 @@ public:
     }
     ~RefPtr()
     {
-        if (--*_refCount == 0) {
+        if (--(*_refCount) == 0) {
             delete _ptr;
             delete _refCount;
         }

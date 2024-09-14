@@ -6,24 +6,30 @@
 #include <mixins/std/assert.h>
 #include <mixins/std/c++types.h>
 #include <mixins/std/utility.h>
+#include <mixins/utils/collections.h>
 
 template <typename>
 class Array;
 
 template <typename T, usize N>
-class Array<T[N]>
+class Array<T[N]> : public Slice<T>
 {
 public:
     using InnerType = T;
 
-    Array() = default;
+    Array()
+        : Slice<T>(_data, N)
+    {
+    }
     Array(const Array& other)
+        : Slice<T>(_data, N)
     {
         for (usize i = 0; i < N; i++) {
             _data[i] = other._data[i];
         }
     }
     Array(Array&& other)
+        : Slice<T>(_data, N)
     {
         for (usize i = 0; i < N; i++) {
             _data[i] = Std::move(other._data[i]);
@@ -50,7 +56,7 @@ private:
 static_assert(Sliceable<Array<int[16]>>);
 
 template <typename T>
-class Array
+class Array : Slice<T>
 {
 public:
     Array() = default;
@@ -58,9 +64,12 @@ public:
         : _data(new T[size])
         , _size(size)
     {
+        this->_buf = _data;
+        this->_len = size;
     }
     Array(T* data, usize size)
-        : _data(data)
+        : Slice<T>{ data, size }
+        , _data(data)
         , _size(size)
     {
     }
@@ -68,12 +77,15 @@ public:
         : _data(new T[other._size])
         , _size(other._size)
     {
+        this->_buf = _data;
+        this->_len = _size;
         for (usize i = 0; i < _size; i++) {
             _data[i] = other._data[i];
         }
     }
     Array(Array&& other)
-        : _data(other._data)
+        : Slice<T>{ other._data, other._size }
+        , _data(other._data)
         , _size(other._size)
     {
         other._data = nullptr;
@@ -102,11 +114,6 @@ public:
         other._data = nullptr;
         other._size = 0;
     }
-    void operator=(T* data)
-    {
-        delete[] _data;
-        _data = data;
-    }
 
     T const& operator[](usize index) const { return _data[index]; }
 
@@ -121,6 +128,33 @@ public:
 private:
     T*    _data = nullptr;
     usize _size = 0;
+};
+
+template <typename TSource>
+class ArrayIterator : public IIterator<TSource>
+{
+public:
+    ArrayIterator(TSource* data, usize size)
+        : _data(data)
+        , _size(size)
+        , _index(0)
+    {
+    }
+
+    TSource& current() const override { return _data[_index]; }
+
+    TSource& next() override
+    {
+        assert(_index < _size, Error::IndexOutOfBounds("Index out of bounds"));
+        return _data[_index++];
+    }
+
+    bool hasNext() const override { return _index < _size; }
+
+private:
+    TSource* _data;
+    usize    _size;
+    usize    _index;
 };
 
 class Arrays

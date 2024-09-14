@@ -29,6 +29,27 @@ class LinkedList
         }
     };
 
+    struct _Iter : public IIterator<TSource>
+    {
+        _Iter(Node* node)
+            : _node(node)
+        {
+        }
+
+        TSource& current() const override { return _node->_data; }
+
+        TSource& next() override
+        {
+            _node = _node->_next;
+            return _node->_data;
+        }
+
+        bool hasNext() const override { return _node != nullptr; }
+
+    private:
+        Node* _node;
+    };
+
 public:
     LinkedList() = default;
     LinkedList(LinkedList const& other)
@@ -305,6 +326,8 @@ public:
         _size = 0;
     }
 
+    IIterator<TSource>& iter() const override { return *new _Iter(_head); }
+
     // Linq Functions
 
     TSource sum()
@@ -445,11 +468,11 @@ public:
     {
     }
 
-    TSource findFirst() { return Std::move(_head->data); }
+    TSource& findFirst() { return _head->_data; }
 
-    TSource findLast() { return Std::move(_tail->data); }
+    TSource& findLast() { return _tail->_data; }
 
-    TSource findAny() {}
+    TSource& findAny() {}
 
     IList<TSource>& take(usize n)
     {
@@ -480,6 +503,18 @@ public:
         return *newList;
     }
 
+    TSource takeFirst()
+    {
+        if (_size == 0) {
+            Std::panic("Sequence contains no elements");
+        }
+
+        TSource data = Std::move(_head->_data);
+        removeAt(0);
+
+        return data;
+    }
+
     IList<TSource>& takeLast(usize n)
     {
         auto newList = new LinkedList<TSource>();
@@ -491,6 +526,18 @@ public:
             }
         }
         return *newList;
+    }
+
+    TSource takeLast()
+    {
+        if (_size == 0) {
+            Std::panic("Sequence contains no elements");
+        }
+
+        TSource data = Std::move(_tail->_data);
+        removeAt(_size - 1);
+
+        return data;
     }
 
     IList<TSource>& takeWhile(Func<bool(TSource const&)> predicate)
@@ -564,6 +611,15 @@ public:
     // TCollection<T>& groupBy(Func<TKey(TSource const&)> keySelector)
     // {
     // }
+
+    void forEach(Consumer<TSource> action)
+    {
+        Node* node = _head;
+        while (node) {
+            action(node->_data);
+            node = node->_next;
+        }
+    }
 
     template <typename TResult>
     IList<TResult>& select(Func<TResult(TSource const&)> selector)

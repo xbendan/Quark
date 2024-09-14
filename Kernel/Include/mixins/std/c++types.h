@@ -1,5 +1,7 @@
 #pragma once
 
+#define def$(type, name, value) static constexpr type name = value;
+
 using u8  = unsigned char;
 using u16 = unsigned short;
 using u32 = unsigned int;
@@ -23,10 +25,15 @@ using f128 = long double;
 
 using nullptr_t = decltype(nullptr);
 
-using le8  = u8 __attribute__((bitwise));
-using le16 = u16 __attribute__((bitwise));
-using le32 = u32 __attribute__((bitwise));
-using le64 = u64 __attribute__((bitwise));
+// using le8  = u8 __attribute__((bitwise));
+// using le16 = u16 __attribute__((bitwise));
+// using le32 = u32 __attribute__((bitwise));
+// using le64 = u64 __attribute__((bitwise));
+
+using le8  = u8;
+using le16 = u16;
+using le32 = u32;
+using le64 = u64;
 
 struct Empty
 {};

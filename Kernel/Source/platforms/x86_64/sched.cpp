@@ -7,14 +7,14 @@
 namespace Quark::System::Task {
     using namespace Quark::System::Platform::X64;
 
-    void Scheduler::schedule(Scheduler::Context* context, Thread* thread)
+    void schedule(ProcessContext* ctx, Thread* thread)
     {
         ThreadEx* t = static_cast<ThreadEx*>(thread);
 
         asm volatile("fxrstor64 (%0)" ::"r"((u64)t->_fxState) : "memory");
         wrmsr(MSR_FS_BASE, (u64)t->_fsBase);
 
-        context->_currentThread     = t;
+        ctx->_currentThread         = t;
         getCPULocal()->_tss._rsp[0] = reinterpret_cast<u64>(t->_stackKernel);
 
         asm volatile(
@@ -44,8 +44,7 @@ namespace Quark::System::Task {
                     ->_pml4Phys));
     }
 
-    Scheduler::Context* Scheduler::context()
-    {
-        return &(getCPULocal()->_schedule);
-    }
+    void schedule(ProcessContext* ctx) {}
+
+    void scheduleAll() {}
 }

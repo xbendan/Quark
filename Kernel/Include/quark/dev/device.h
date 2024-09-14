@@ -60,11 +60,35 @@ namespace Quark::System::Io {
             //
         }
 
-        virtual Res<> onLoad() { return Error::NotImplemented(); }
+        /**
+         * @brief called in the early stage of kernel bootup
+         *
+         * This method is called in the early stage, when most features of the
+         * kernel are not yet available, except for the basic memory management,
+         * the console, and the logging system.
+         *
+         * @return Res<>
+         */
+        virtual Res<> onLoad() { return Ok(); }
 
-        virtual Res<> onStartup() { return Error::NotImplemented(); }
+        /**
+         * @brief called when most features of the kernel are available
+         *
+         * This method is called when most features, such as the memory manager,
+         * the scheduler, and the filesystem, are available. Before entering the
+         * main loop of the kernel, this method is called to complete the
+         * initialization of the device. (Before entering user mode)
+         *
+         * @return Res<>
+         */
+        virtual Res<> onStartup() { return Ok(); }
 
-        virtual Res<> onShutdown() { return Error::NotImplemented(); }
+        /**
+         * @brief called when the system is shutting down
+         *
+         * @return Res<>
+         */
+        virtual Res<> onShutdown() { return Ok(); }
 
     protected:
         string _name;
@@ -84,8 +108,8 @@ namespace Quark::System::Io {
 
         virtual Res<Device*> getDeviceByName(string name) = 0;
 
-        virtual Res<IReadOnlyCollection<Device*>> enumerateDevices(
-            ICollection<Device*>) = 0;
+        virtual Res<IReadOnlyCollection<Device*>*> enumerateDevices(
+            ICollection<Device*>*) = 0;
     };
 }
 

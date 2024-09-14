@@ -19,8 +19,6 @@ namespace Quark::System {
 
         MemoryConfiguration _memory;
 
-        IReadOnlyCollection<Io::Device*>* _initialDevices;
-
         Hal::Platform _platform;
     };
 }

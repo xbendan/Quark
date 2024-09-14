@@ -12,8 +12,17 @@ namespace PCI {
 
         ~PCIEnumerationDevice() = default;
 
-        Res<IReadOnlyCollection<Io::Device*>> enumerateDevices(
-            ICollection<Device*>) override;
+        Res<Device*> getDeviceByName(string name) override
+        {
+            return Error::NotImplemented();
+        }
+
+        Res<IReadOnlyCollection<Io::Device*>*> enumerateDevices(
+            ICollection<Device*>*) override
+        {
+            return Error::NotImplemented();
+        }
+
         bool     checkDevice(u8 bus, u8 slot, u8 func);
         bool     checkDevice(PCIInfo& info);
         PCIInfo* getDevice(u16 deviceId, u16 vendorId);

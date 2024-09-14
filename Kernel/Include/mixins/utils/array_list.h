@@ -1,5 +1,9 @@
+#pragma once
+
 #include <mixins/std/assert.h>
 #include <mixins/std/c++types.h>
+#include <mixins/std/initializer_list.h>
+#include <mixins/utils/array.h>
 #include <mixins/utils/collections.h>
 #include <mixins/utils/iterator.h>
 
@@ -42,6 +46,18 @@ public:
         other._count    = 0;
         other._capacity = 0;
     }
+    template <typename... TTypes>
+    ArrayList(std::initializer_list<TSource> args)
+        : _data(new TSource[args.size()])
+        , _count(args.size())
+        , _capacity(args.size())
+    {
+        usize i = 0;
+        for (auto const& arg : args) {
+            _data[i++] = arg;
+        }
+    }
+
     ~ArrayList() { delete[] _data; }
 
     ArrayList& operator=(ArrayList const& other)
@@ -223,6 +239,11 @@ public:
     {
         assert(index < _count, Error::IndexOutOfBounds("Index out of bounds"));
         return _data[index];
+    }
+
+    IIterator<TSource>& iter() const override
+    {
+        return *new ArrayIterator<TSource>(_data, _count);
     }
 
     // MARK: IEnumerable<TSource> Implementation
@@ -542,6 +563,13 @@ public:
     {
         for (usize i = 0; i < _count; i++) {
             action(_data[i]);
+        }
+    }
+
+    void forEachOrdered(Func<void(TSource const&, usize)> action) const
+    {
+        for (usize i = 0; i < _count; i++) {
+            action(_data[i], i);
         }
     }
 

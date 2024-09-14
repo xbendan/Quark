@@ -72,7 +72,13 @@ struct Res
     /* --- Methods --- */
 
     [[gnu::always_inline]]
-    constexpr bool has() const
+    constexpr bool isErr() const
+    {
+        return _inner.template is<E>();
+    }
+
+    [[gnu::always_inline]]
+    constexpr bool isOkay() const
     {
         return _inner.template is<Ok<V>>();
     }

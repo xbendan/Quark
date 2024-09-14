@@ -79,7 +79,7 @@ $(PLATFORM_SOURCE): Build/%.o: Source/%.cpp
 	@$(CXX) $(CXXFLAGS) -I Include -c $< -o $@
 $(PLATFORM_ASSEMBLY): Build/%.o: Source/%.asm
 	@mkdir -p $(dir $@)
-	@echo "AS $(patsubst Source/%.asm, %.asm, $<)..."
+	@echo "AS  $(patsubst Source/%.asm, %.asm, $<)..."
 	@$(AS) -f elf64 $< -o $@
 
 auto: check_arguments

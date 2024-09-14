@@ -7,37 +7,15 @@
 
 namespace Quark::System::Task {
 
-    class Scheduler
+    struct ProcessContext
     {
-    public:
-        struct Context
-        {
-            u32     _id;
-            Thread* _currentThread;
-            Thread* _idleThread;
-        };
-
-        Scheduler()
-            : m_processes()
-            , m_nextPID(1)
-        {
-            static Process kernelProcess(0, "Kernel", nullptr);
-
-            m_kernelProcess = &kernelProcess;
-        }
-
-        void     schedule(Context* context, Thread* thread);
-        Context* context();
-
-        Process*        getKernelProcess() { return m_kernelProcess; }
-        void            addProcess(Process* process);
-        RefPtr<Process> getProcessById(u16 id);
-
-        u16 nextPID() { return m_nextPID++; }
-
-    private:
-        Process*               m_kernelProcess;
-        Array<RefPtr<Process>> m_processes;
-        u16                    m_nextPID;
+        u32     _id;
+        Thread* _currentThread;
+        Thread* _idleThread;
     };
+
+    void schedule(ProcessContext* context, Thread* thread);
+    void schedule(ProcessContext* context);
+    void scheduleAll();
+    u32  nextPID();
 } // namespace Quark::System::Task

@@ -53,10 +53,9 @@ namespace Quark::System::API {
 
             cache->pageInitAsCached(
                 page,
-                address =
-                    ::allocVirtMemory4K(
-                        1, getScheduler()->getKernelProcess()->_addressSpace)
-                        .unwrap());
+                address = ::allocVirtMemory4K(
+                              1, Process::getKernelProcess()->_addressSpace)
+                              .unwrap());
             ::mapAddress(page->_address, address, 1, nullptr, 0);
         } else
             address = (u64)page->_freelist;
