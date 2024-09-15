@@ -3,13 +3,12 @@
 #include <drivers/acpi/spec.h>
 #include <drivers/apic/spec.h>
 #include <quark/dev/device.h>
-#include <quark/hal/hwobjs.h>
-#include <quark/hal/task.h>
+#include <quark/hal/multiprocessing.h>
 #include <quark/memory/address_space.h>
 
 namespace APIC {
     using namespace Quark::System;
-    using Quark::System::Hal::ProcessorDevice;
+    using namespace Quark::System::Hal;
 
     class GenericControllerDevice : public Io::Device
     {
@@ -18,11 +17,11 @@ namespace APIC {
         {
             Local(u8                       apicId,
                   GenericControllerDevice* apic,
-                  ProcessorDevice*         processor)
+                  ICPULocalDevice*         device)
                 : _apicId(apicId)
                 , _basePhys(apic->localBaseRead() & LOCAL_APIC_BASE)
                 , _baseVirt(Memory::copyAsIOAddress(_basePhys))
-                , _cpu(processor)
+                , _device(device)
             {
             }
 
@@ -33,15 +32,12 @@ namespace APIC {
 
             void setEnabled();
             void callIPI(u32 vec);
-            void callIPI(u32 dsh, u32 type, u8 vector)
-            {
-                callIPI(dsh | type | ICR_VECTOR(vector));
-            }
+            void callIPI(u32 dsh, u32 type, u8 vector);
 
             u8               _apicId;
             u64              _basePhys;
             u64              _baseVirt;
-            ProcessorDevice* _cpu;
+            ICPULocalDevice* _device;
         };
 
         GenericControllerDevice();
@@ -61,7 +57,7 @@ namespace APIC {
         u32  localRegRead(u32 reg);
 
         LinkedList<Local*>* getApicLocals() const { return m_units; }
-        Local*              getApicLocal(u8 id);
+        Local*              getApicLocal(u8 id) { return (*m_units)[id]; }
 
         Res<> onLoad() override;
 

@@ -38,12 +38,9 @@ namespace Quark::System::Io {
             Unknown
         };
 
-        class Enumerator;
-
         Device(string name)
             : _name(name)
             , _deviceType(Type::Unknown)
-            , _id(0)
         {
             // _uuid = UUID::generate();
         }
@@ -94,7 +91,7 @@ namespace Quark::System::Io {
         string _name;
         UUID   _uuid;
         Type   _deviceType;
-        u64    _id;
+        bool   _isStarted;
     };
 
     class EnumerationDevice : public Device
@@ -106,10 +103,7 @@ namespace Quark::System::Io {
         }
         ~EnumerationDevice() = default;
 
-        virtual Res<Device*> getDeviceByName(string name) = 0;
-
-        virtual Res<IReadOnlyCollection<Device*>*> enumerateDevices(
-            ICollection<Device*>*) = 0;
+        virtual Res<IReadOnlyCollection<Device*>*> enumerateDevices() = 0;
     };
 }
 

@@ -4,13 +4,12 @@
 #include <platforms/x86_64/tables.h>
 
 #include <quark/hal/multiprocessing.h>
-#include <quark/hal/task.h>
 #include <quark/sched/sched.h>
 
 #include <mixins/concurrent/atomic.h>
 
 namespace Quark::System::Platform::X64 {
-    using Quark::System::Hal::ICPULocal;
+    using Quark::System::Hal::ICPULocalDevice;
     using Quark::System::Task::Thread;
 
     struct InterruptRetainer
@@ -46,7 +45,7 @@ namespace Quark::System::Platform::X64 {
         Registers _syscall;
     };
 
-    struct CPULocal : ICPULocal
+    struct CPULocalDevice : ICPULocalDevice
     {
         GlobDescTbl            _gdt;
         GlobDescTbl::Pack      _gdtPtr;
@@ -55,9 +54,9 @@ namespace Quark::System::Platform::X64 {
         Task::ProcessContext   _schedule;
         InterruptRetainer      _interruptRetainer;
 
-        CPULocal() = delete;
-        CPULocal(u32 id, Thread* idleThread = nullptr)
-            : ICPULocal{ id }
+        CPULocalDevice() = delete;
+        CPULocalDevice(u32 id, Thread* idleThread = nullptr)
+            : ICPULocalDevice{ id }
             , _gdt(&_tss)
             , _gdtPtr({
                   ._size   = sizeof(_gdt) - 1,
@@ -68,6 +67,6 @@ namespace Quark::System::Platform::X64 {
             , _schedule({ id, nullptr, idleThread })
         {
         }
-        ~CPULocal() = default;
+        ~CPULocalDevice() = default;
     };
 } // namespace Quark::System::Platform::X64

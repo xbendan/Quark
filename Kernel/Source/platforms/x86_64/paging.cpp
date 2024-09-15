@@ -455,3 +455,10 @@ namespace Quark::System {
         }
     }
 }
+
+namespace Quark::System::Memory {
+    u64 copyAsIOAddress(u64 address)
+    {
+        return address + IO_VIRTUAL_BASE;
+    }
+}

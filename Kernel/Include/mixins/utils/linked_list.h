@@ -612,7 +612,7 @@ public:
     // {
     // }
 
-    void forEach(Consumer<TSource> action)
+    void forEach(Func<void(TSource const&)> action) const override
     {
         Node* node = _head;
         while (node) {
@@ -621,8 +621,18 @@ public:
         }
     }
 
+    void forEachOrdered(Func<void(TSource const&, usize)> action) const override
+    {
+        Node* node = _head;
+        usize i    = 0;
+        while (node) {
+            action(node->_data, i++);
+            node = node->_next;
+        }
+    }
+
     template <typename TResult>
-    IList<TResult>& select(Func<TResult(TSource const&)> selector)
+    IList<TResult>* select(Func<TResult(TSource const&)> selector)
     {
     }
 

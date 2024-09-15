@@ -27,26 +27,27 @@ namespace Quark::System {
     using namespace Quark::System::API;
 
     InterruptDescTbl                kIdt = {};
-    Inert<CPULocal>                 kCPULocal;
+    Inert<CPULocalDevice>           kCPULocal;
     Buf<char[3 * 8 * PAGE_SIZE_4K]> kTssEntryBuf;
-    Io::Device*                     kInitialDevices;
 
     Res<IReadOnlyList<Io::Device*>*> setupDevices()
     {
         log(u8"Setting up devices...");
-        static ArrayList<Io::Device*> devices({
+        auto* devices = new ArrayList<Io::Device*>({
             new ACPI::ControllerDevice(),
             new APIC::GenericControllerDevice(),
             new PCI::PCIEnumerationDevice(),
         });
-        return Ok((IReadOnlyList<Io::Device*>*)&devices);
+        devices->forEach([](Io::Device* device) { device->onLoad().unwrap(); });
+
+        return Ok((IReadOnlyList<Io::Device*>*)devices);
     }
 
     Res<> setupArch(LaunchConfiguration* launchConfig)
     {
         asm volatile("cli");
 
-        CPULocal* p = kCPULocal(0);
+        CPULocalDevice* p = kCPULocal(0);
 
         /* load global descriptor table */
         _lgdt(&p->_gdtPtr);

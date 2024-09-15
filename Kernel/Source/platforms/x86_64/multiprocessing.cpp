@@ -13,8 +13,8 @@
 #include <quark/hal/multiprocessing.h>
 
 namespace Quark::System {
-    extern Inert<Platform::X64::CPULocal>  kCPULocal;
-    extern Platform::X64::InterruptDescTbl kIdt;
+    extern Inert<Platform::X64::CPULocalDevice> kCPULocal;
+    extern Platform::X64::InterruptDescTbl      kIdt;
 }
 
 namespace Quark::System::Platform::X64 {
@@ -25,14 +25,14 @@ namespace Quark::System::Platform::X64 {
     volatile u64* TrampolineEntry2 = (u64*)SMP_TRAMPOLINE_ENTRY2;
     volatile bool DoneInit         = false;
 
-    CPULocal* CPU0;
+    CPULocalDevice* CPU0;
 
     GlobDescTbl::Pack* TrampolineGdtPack =
         (GlobDescTbl::Pack*)SMP_TRAMPOLINE_GDT_PTR;
 
     void TrampolineEntry(u16 cpuID)
     {
-        CPULocal* cpu = (CPULocal*)Hal::getCPULocal(cpuID);
+        CPULocalDevice* cpu = (CPULocalDevice*)Hal::getCPULocal(cpuID);
 
         setCPULocal(cpu);
 
@@ -73,9 +73,9 @@ namespace Quark::System::Platform::X64 {
 namespace Quark::System::Hal {
     using namespace Quark::System::Platform::X64;
 
-    ArrayList<ICPULocal*>* _cpuLocals = nullptr;
+    IList<ICPULocalDevice*>* _cpuLocals = nullptr;
 
-    Res<IReadOnlyCollection<ICPULocal*>*> setupMultiprocessing()
+    Res<IReadOnlyCollection<ICPULocalDevice*>*> setupMultiprocessing()
     {
         auto* apic = getRegisteredDevice<APIC::GenericControllerDevice>(
                          "Advanced Programmable Interrupt Controller")
@@ -85,7 +85,10 @@ namespace Quark::System::Hal {
 
         assert(_cpuLocals == nullptr,
                "Do not call setupMultiprocessing() more than once");
-        _cpuLocals = new ArrayList<ICPULocal*>();
+        _cpuLocals = apic->getApicLocals()->select<ICPULocalDevice*>(
+            [](APIC::GenericControllerDevice::Local* const& apicLocal) {
+                return apicLocal->_device;
+            });
 
         (*_cpuLocals)[0] = &(kCPULocal.unwrap());
         apic->getApicLocals()->forEach(
@@ -127,27 +130,27 @@ namespace Quark::System::Hal {
                 DoneInit = false;
             });
 
-        return Ok((IReadOnlyCollection<ICPULocal*>*)_cpuLocals);
+        return Ok((IReadOnlyCollection<ICPULocalDevice*>*)_cpuLocals);
     }
 
-    ICPULocal* getCPULocal(u32 id)
+    ICPULocalDevice* getCPULocal(u32 id)
     {
         return (*_cpuLocals)[id];
     }
 
-    ICPULocal* getCPULocal()
+    ICPULocalDevice* getCPULocal()
     {
         return Platform::X64::getCPULocal();
     }
 
-    void setCPULocal(u32 id, ICPULocal* local)
+    void setCPULocal(u32 id, ICPULocalDevice* local)
     {
         (*_cpuLocals)[id] = local;
     }
 
-    void setCPULocal(ICPULocal* local)
+    void setCPULocal(ICPULocalDevice* local)
     {
         Platform::X64::setCPULocal(
-            static_cast<Platform::X64::CPULocal*>(local));
+            static_cast<Platform::X64::CPULocalDevice*>(local));
     }
 }

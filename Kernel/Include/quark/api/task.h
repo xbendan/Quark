@@ -8,7 +8,7 @@
 #include <quark/sched/sched.h>
 
 namespace Quark::System::API {
-    using Quark::System::Hal::ICPULocal;
+    using Quark::System::Hal::ICPULocalDevice;
     using Quark::System::Io::FileSystem::File;
     using Quark::System::Io::FileSystem::Folder;
     using Quark::System::Task::Process;
@@ -58,8 +58,8 @@ namespace Quark::System::API {
                                         const string& command,
                                         const string& arguments);
 
-    Res<ICPULocal*> getCPULocal(u32 id);
-    Res<>           setCPULocal(u32 id, ICPULocal* local);
+    Res<ICPULocalDevice*> getCPULocal(u32 id);
+    Res<>                 setCPULocal(u32 id, ICPULocalDevice* local);
 }
 
 #if defined(GLOBAL_API_NAMESPACE)

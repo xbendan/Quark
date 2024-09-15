@@ -158,7 +158,7 @@ namespace Quark::System::Platform::X64 {
         asm volatile("swapgs");
     }
 
-    static inline void setCPULocal(CPULocal* cpu)
+    static inline void setCPULocal(CPULocalDevice* cpu)
     {
         asm volatile("wrmsr" ::"a"((u64)cpu & 0xffffffff) /* Value low */,
                      "d"(((u64)cpu >> 32) & 0xffffffff) /* Value high */,
@@ -168,9 +168,9 @@ namespace Quark::System::Platform::X64 {
                      "c"(MSR_USER_GS_BASE) /* Set Kernel GS Base */);
     }
 
-    static inline CPULocal* getCPULocal()
+    static inline CPULocalDevice* getCPULocal()
     {
-        CPULocal* cpu;
+        CPULocalDevice* cpu;
         asm volatile("swapgs; movq %%gs:0, %0; swapgs;" : "=r"(cpu));
         return cpu;
     }

@@ -2,11 +2,13 @@
 #include <drivers/apic/device.h>
 #include <drivers/apic/spec.h>
 #include <platforms/x86_64/cpu.h>
+#include <platforms/x86_64/sched.h>
 #include <quark/api/device.h>
 #include <quark/api/logging.h>
 
 namespace APIC {
     using namespace Quark::System::API;
+    using namespace Platform::X64;
 
     GenericControllerDevice::GenericControllerDevice()
         : Device("Advanced Programmable Interrupt Controller",
@@ -41,12 +43,12 @@ namespace APIC {
                         static_cast<ACPI::MultiApicDescTable::LocalApic*>(
                             entry);
                     if (apicLocal->_flags & 0x3) {
-                        ProcessorDevice* processor = new ProcessorDevice(
+                        CPULocalDevice* device = new CPULocalDevice(
                             apicLocal->_processorId, nullptr);
-                        ::registerDevice(processor);
+                        ::registerDevice(device);
 
                         m_units->pushBack(
-                            new Local(apicLocal->_apicId, this, processor));
+                            new Local(apicLocal->_apicId, this, device));
                         log(u8"[APIC] Local APIC, Processor ID: %d, APIC ID: "
                             u8"%d, "
                             "Flags: %d\n",

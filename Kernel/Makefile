@@ -28,9 +28,12 @@ LDFLAGS = \
 DIRS := $(shell find ./Source/$(FILENAME)/ -maxdepth 1 -type d)  
 DIRS := $(basename $(patsubst ./%,%,$(DIRS)))  
 
+DRIVERS_FOLDERS := $(shell find ./Source/platforms/impls -type d)
+DRIVERS_FOLDERS := $(basename $(patsubst ./%,%,$(DRIVERS_FOLDERS)))
+
 SOURCE_GENERICS := $(foreach dir, $(DIRS), $(wildcard $(dir)/*.cpp))
 GENERIC_SOURCE := $(patsubst Source/%.cpp, Build/%.o, $(SOURCE_GENERICS))
-DRIVERS_SOURCE := $(patsubst Source/%.cpp, Build/%.o, $(wildcard Source/platforms/impls/*.cpp))
+DRIVERS_SOURCE := $(patsubst Source/%.cpp, Build/%.o, $(foreach dir, $(DRIVERS_FOLDERS), $(wildcard $(dir)/*.cpp)))
 
 PLATFORM_SOURCE = $(patsubst Source/%.cpp, Build/%.o, $(wildcard Source/platforms/$(PLATFORM)/*.cpp))
 PLATFORM_ASSEMBLY = $(patsubst Source/%.asm, Build/%.o, $(wildcard Source/platforms/$(PLATFORM)/*.asm))
@@ -96,7 +99,7 @@ build-x86_64: $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_
 	@echo "Linking objects..."  
 	@$(LD) $(LDFLAGS) -o $(DIST_PATH) \
 		-T Target/LinkerScript-$(PLATFORM).ld \
-		$(GENERIC_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_ASSEMBLY)  
+		$(GENERIC_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_ASSEMBLY) $(DRIVERS_SOURCE)  
 	cp $(DIST_PATH) Target/limine_root/boot/$(FILENAME)-$(PLATFORM)-$(BUILD_MODE).elf  
 	xorriso -as mkisofs -b boot/limine/limine-bios-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \

@@ -625,8 +625,8 @@ namespace Std {
 
     namespace _ {
         template <class T>
-        auto tReturnable(int) -> decltype(void(static_cast<T (*)()>(nullptr)),
-                                          TrueType{});
+        auto tReturnable(int)
+            -> decltype(void(static_cast<T (*)()>(nullptr)), TrueType{});
         template <class>
         auto tReturnable(...) -> FalseType;
 
@@ -639,12 +639,20 @@ namespace Std {
         auto tImplicitlyConvertible(...) -> FalseType;
     }
 
+    // template <typename From, typename To>
+    // struct _isConvertible
+    //     : Constant<bool,
+    //                (decltype(_::tReturnable<To>(0))::value &&
+    //                 decltype(_::tImplicitlyConvertible<From, To>(0))::value)
+    //                 ||
+    //                    (isVoid<From> && isVoid<To>)>
+    // {};
+
+    // template <typename From, typename To>
+    // inline constexpr bool isConvertible = _isConvertible<From, To>::value;
+
     template <typename From, typename To>
-    struct _isConvertible
-        : Constant<bool,
-                   (decltype(_::tReturnable<To>(0))::value &&
-                    decltype(_::tImplicitlyConvertible<From, To>(0))::value) ||
-                       (isVoid<From> && isVoid<To>)>
+    struct _isConvertible : public Constant<bool, __is_convertible(From, To)>
     {};
 
     template <typename From, typename To>

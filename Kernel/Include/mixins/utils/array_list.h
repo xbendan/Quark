@@ -559,14 +559,14 @@ public:
         return true;
     }
 
-    void forEach(Consumer<TSource const&> action) const
+    void forEach(Func<void(TSource const&)> action) const override
     {
         for (usize i = 0; i < _count; i++) {
             action(_data[i]);
         }
     }
 
-    void forEachOrdered(Func<void(TSource const&, usize)> action) const
+    void forEachOrdered(Func<void(TSource const&, usize)> action) const override
     {
         for (usize i = 0; i < _count; i++) {
             action(_data[i], i);

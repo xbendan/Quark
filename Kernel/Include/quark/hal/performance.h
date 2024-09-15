@@ -1,0 +1,2 @@
+namespace Quark::System::Hal {
+}

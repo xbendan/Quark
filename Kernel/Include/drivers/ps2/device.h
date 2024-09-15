@@ -17,13 +17,15 @@ namespace PS2 {
     class LegacyMouseDevice : public Io::Device
     {};
 
-    class LegacyControllerDevice : public Io::Device
+    class LegacyControllerDevice : public Io::EnumerationDevice
     {
     public:
         LegacyControllerDevice();
         ~LegacyControllerDevice();
 
         Res<> onLoad() override;
+
+        Res<IReadOnlyCollection<Device*>*> enumerateDevices() override;
 
         void send(PS2::Command);
         void flush();

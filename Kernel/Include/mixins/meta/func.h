@@ -14,6 +14,14 @@ public:
     Func() = delete;
 
     template <Callable<Args...> Call>
+        requires(Std::isConvertible<Call, Ret(Args...)>)
+    Func(Call&& call)
+        : _isWrapped(false)
+    {
+        _func = reinterpret_cast<Ret (*)(Args...)>(call);
+    }
+
+    template <Callable<Args...> Call>
         requires(Std::isConvertible<Call, Ret(Args...)>) &&
                 (sizeof(Call) <= sizeof(Ret(*)(Args...)))
     Func(Call&& call)
@@ -28,7 +36,7 @@ public:
     Func(Call&& call)
         : _isWrapped(true)
     {
-        _wrap = new FuncImpl<Call>(Std::move(call));
+        _wrap = new FuncWrapImpl<Call>(Std::move(call));
     }
 
     Func(Ret (*func)(Args...))
@@ -37,17 +45,17 @@ public:
         _func = func;
     }
 
-    Func(Func const& other)
+    Func(Func<Ret(Args...)> const& other)
         : _isWrapped(other._isWrapped)
     {
         if (_isWrapped) {
-            _wrap = new FuncImpl<Args...>(*other._wrap);
+            _wrap = new FuncWrapImpl<Args...>(*other._wrap);
         } else {
             _func = other._func;
         }
     }
 
-    Func(Func&& other)
+    Func(Func<Ret(Args...)>&& other)
         : _isWrapped(other._isWrapped)
     {
         if (_isWrapped) {
@@ -89,8 +97,7 @@ public:
     }
 
     template <Callable<Args...> _Callable>
-        requires(Std::isConvertible<_Callable, Ret(Args...)>) &&
-                (sizeof(_Callable) <= sizeof(Ret(*)(Args...)))
+        requires(Std::isConvertible<_Callable, Ret(Args...)>)
     Func& operator=(_Callable&& call)
     {
         if (_isWrapped) {
@@ -102,15 +109,14 @@ public:
     }
 
     template <Callable<Args...> _Callable>
-        requires(!Std::isConvertible<_Callable, Ret(Args...)>) ||
-                (sizeof(_Callable) > sizeof(Ret(*)(Args...)))
+        requires(!Std::isConvertible<_Callable, Ret(Args...)>)
     Func& operator=(_Callable&& call)
     {
         if (_isWrapped) {
             delete _wrap;
         }
         _isWrapped = true;
-        _wrap      = new FuncImpl<_Callable>(Std::move(call));
+        _wrap      = new FuncWrapImpl<_Callable>(Std::move(call));
         return *this;
     }
 
@@ -121,7 +127,7 @@ public:
         }
         _isWrapped = other._isWrapped;
         if (_isWrapped) {
-            _wrap = new FuncImpl<Args...>(*other._wrap);
+            _wrap = new FuncWrapImpl<Args...>(*other._wrap);
         } else {
             _func = other._func;
         }
@@ -151,9 +157,9 @@ private:
     };
 
     template <Callable<Args...> _Callable>
-    struct FuncImpl : FuncWrap
+    struct FuncWrapImpl : FuncWrap
     {
-        FuncImpl(_Callable&& call)
+        FuncWrapImpl(_Callable&& call)
             : _call(Std::move(call))
         {
         }

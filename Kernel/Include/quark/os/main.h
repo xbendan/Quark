@@ -25,6 +25,7 @@ namespace Quark::System {
     Res<>                            initPhysMemory();
     Res<AddressSpace*>               initVirtMemory();
     Res<Process*>                    createKernelProcess(AddressSpace*);
+    Res<IReadOnlyList<Io::Device*>*> enumerateInitialDevices();
     Res<IReadOnlyList<Io::Device*>*> setupDevices();
     Res<>                            initTasks();
     Res<>                            initFileSystems();

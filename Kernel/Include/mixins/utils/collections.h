@@ -127,6 +127,8 @@ public:
     virtual bool     isEmpty() const            = 0;
     virtual void     clear()                    = 0;
 
+    virtual void forEach(Func<void(TSource const&)> action) const = 0;
+
     virtual IIterator<TSource>& iter() const = 0;
 
     virtual ICollection<TSource>& operator+=(TSource const& e)
@@ -149,6 +151,8 @@ public:
     virtual bool  contains(TSource const& e) const = 0;
     virtual usize count() const                    = 0;
     virtual bool  isEmpty() const                  = 0;
+
+    virtual void forEach(Func<void(TSource const&)> action) const = 0;
 
     virtual IIterator<TSource>& iter() const = 0;
 };
@@ -176,6 +180,9 @@ public:
     virtual TSource& insert(TSource const& e, usize i)   = 0;
     virtual int      indexOf(TSource const& e) const     = 0;
     virtual int      lastIndexOf(TSource const& e) const = 0;
+
+    virtual void forEachOrdered(
+        Func<void(TSource const&, usize)> action) const = 0;
 };
 
 template <typename TSource>
@@ -186,6 +193,9 @@ class IReadOnlyList
 public:
     virtual int indexOf(TSource const& e) const     = 0;
     virtual int lastIndexOf(TSource const& e) const = 0;
+
+    virtual void forEachOrdered(
+        Func<void(TSource const&, usize)> action) const = 0;
 };
 
 template <typename TSource>

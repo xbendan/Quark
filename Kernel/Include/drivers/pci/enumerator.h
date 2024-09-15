@@ -12,13 +12,7 @@ namespace PCI {
 
         ~PCIEnumerationDevice() = default;
 
-        Res<Device*> getDeviceByName(string name) override
-        {
-            return Error::NotImplemented();
-        }
-
-        Res<IReadOnlyCollection<Io::Device*>*> enumerateDevices(
-            ICollection<Device*>*) override
+        Res<IReadOnlyCollection<Io::Device*>*> enumerateDevices() override
         {
             return Error::NotImplemented();
         }

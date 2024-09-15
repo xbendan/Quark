@@ -9,8 +9,7 @@ namespace PS2 {
     using namespace Quark::System::API;
 
     LegacyControllerDevice::LegacyControllerDevice()
-        : Io::Device("PS/2 Legacy Controller Device",
-                     Device::Type::SystemDevices)
+        : Io::EnumerationDevice("PS/2 Legacy Controller Device")
     {
     }
 

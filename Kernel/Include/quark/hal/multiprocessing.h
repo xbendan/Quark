@@ -2,18 +2,37 @@
 
 #include <mixins/meta/result.h>
 #include <mixins/utils/collections.h>
+#include <quark/dev/device.h>
 
 namespace Quark::System::Hal {
-    struct ICPULocal
+    enum class Signal
     {
-        u32 _id;
+        INIT    = 0,
+        STARTUP = 1,
+        HALT    = 2,
+        RESET   = 3,
+        SCHED   = 4,
+        IPI     = 5,
+        EOI     = 6,
     };
 
-    Res<> setupCPULocal(u32 id, ICPULocal* local);
-    Res<IReadOnlyCollection<ICPULocal*>*> setupMultiprocessing();
+    struct ICPULocalDevice : public Io::Device
+    {
+        u32 _id;
 
-    ICPULocal* getCPULocal(u32 id);
-    ICPULocal* getCPULocal();
-    void       setCPULocal(u32 id, ICPULocal* local);
-    void       setCPULocal(ICPULocal* local);
+        ICPULocalDevice(u32 id)
+            : Device("Logical Processor Device", Type::Processor)
+            , _id(id)
+        {
+        }
+
+        virtual void sendSignal(Signal signal, u32 data = 0);
+    };
+
+    Res<IReadOnlyCollection<ICPULocalDevice*>*> setupMultiprocessing();
+
+    ICPULocalDevice* getCPULocal(u32 id);
+    ICPULocalDevice* getCPULocal();
+    void             setCPULocal(u32 id, ICPULocalDevice* local);
+    void             setCPULocal(ICPULocalDevice* local);
 }

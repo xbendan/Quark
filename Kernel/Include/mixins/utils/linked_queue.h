@@ -35,6 +35,12 @@ public:
 
     void clear() override { LinkedList<TSource>::clear(); }
 
+    void forEach(Func<void(TSource const&)> action) const override
+    {
+        LinkedList<TSource>::forEach(
+            Std::forward<Func<void(TSource const&)>>(action));
+    }
+
     IIterator<TSource>& iter() const override
     {
         return LinkedList<TSource>::iter();

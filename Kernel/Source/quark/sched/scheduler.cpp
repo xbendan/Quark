@@ -4,8 +4,8 @@
 #include <quark/os/main.h>
 
 namespace Quark::System::Task {
-    IReadOnlyCollection<Hal::ICPULocal*>* _cpus;
-    Array<IQueue<Thread*>*>               _threadQueues;
+    IReadOnlyCollection<Hal::ICPULocalDevice*>* _cpus;
+    Array<IQueue<Thread*>*>                     _threadQueues;
 
     void Process::addProcess(Process* process) {}
 
@@ -19,12 +19,6 @@ namespace Quark::System::Task {
     {
         return nullptr;
     }
-
-    void schedule(ProcessContext* context, Thread* thread) {}
-
-    void schedule(ProcessContext* context) {}
-
-    void scheduleAll() {}
 }
 
 namespace Quark::System {
@@ -33,10 +27,10 @@ namespace Quark::System {
     Res<> initTasks()
     {
         _cpus = Hal::setupMultiprocessing().unwrap();
-
-        static_cast<ArrayList<Hal::ICPULocal*>*>(_cpus)->forEachOrdered(
-            [](Hal::ICPULocal* const& cpu, usize i) {
+        static_cast<IReadOnlyList<Hal::ICPULocalDevice*>*>(_cpus)
+            ->forEachOrdered([](Hal::ICPULocalDevice* const& cpu, usize i) {
                 _threadQueues[i] = new LinkedQueue<Thread*>();
+                cpu->sendSignal(Hal::Signal::SCHED);
             });
 
         return Ok();
