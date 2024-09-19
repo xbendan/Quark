@@ -7,16 +7,23 @@ namespace Quark::System::API {
 
     template <typename T = Device>
         requires(Std::isDerived<Device, T>)
-    Opt<T*> getRegisteredDevice(string name);
+    Opt<T*> getRegisteredDevice(string name)
+    {
+        return getRegisteredDevice(name).map<T*>(
+            [](Device* device) { return static_cast<T*>(device); });
+    }
 
-    template <typename T = Device>
-        requires(Std::isDerived<T, Device>)
-    Opt<T*> getRegisteredDevice(UUID uuid);
+    // template <typename T = Device>
+    //     requires(Std::isDerived<T, Device>)
+    // Opt<T*> getRegisteredDevice(UUID uuid);
+
+    Opt<Device*> getRegisteredDevice(string name);
+
+    IReadOnlyCollection<Device*>* listDevices();
+    IReadOnlyCollection<Device*>* listDevices(Device::Type type);
 
     Res<> registerDevice(Device* device);
     Res<> unregisterDevice(Device* device);
-
-    LinkedList<Device*>* enumerateRegisteredDevices();
 }
 
 #if defined(GLOBAL_API_NAMESPACE)

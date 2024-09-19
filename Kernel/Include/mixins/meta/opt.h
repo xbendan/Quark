@@ -246,6 +246,15 @@ struct [[nodiscard]] Opt
         return v;
     }
 
+    template <typename To>
+    [[gnu::always_inline]]
+    constexpr Opt<To> map(Func<To(T)> f) const
+    {
+        if (_present)
+            return f(_value);
+        return Opt<To>();
+    }
+
     template <typename... Args>
     [[gnu::always_inline]]
     constexpr auto operator()(Args&&... args) const

@@ -9,7 +9,7 @@ namespace PS2 {
     using namespace Quark::System::API;
 
     LegacyControllerDevice::LegacyControllerDevice()
-        : Io::EnumerationDevice("PS/2 Legacy Controller Device")
+        : Io::Device("PS/2 Legacy Controller")
     {
     }
 
@@ -19,7 +19,8 @@ namespace PS2 {
         /* PS2 Controller is not supported while the bit 1 of
            'IA PC Boot Architecture Flags' is clear (0). */
         ACPI::FixedAcpiDescTable* fadt;
-        getRegisteredDevice<ACPI::ControllerDevice>("ACPI Controller Device")
+        getRegisteredDevice<ACPI::ControllerDevice>(
+            "Advanced Configuration & Power Interface Controller")
             .ifPresent([&](ACPI::ControllerDevice* device) {
                 fadt = device->findTable<ACPI::FixedAcpiDescTable>("FACP")
                            .unwrap();
@@ -59,7 +60,8 @@ namespace PS2 {
 
             // pOut<>(PS2_DATA_PORT, 0xF0);
             // pOut<>(PS2_DATA_PORT, 0x02);
-            m_keyboard = new LegacyKeyboardDevice();
+
+            ::registerDevice(m_keyboard = new LegacyKeyboardDevice());
         }
 
         return Ok();

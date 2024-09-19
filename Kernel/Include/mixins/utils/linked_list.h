@@ -1,6 +1,8 @@
 #pragma once
 
+#include <mixins/meta/opt.h>
 #include <mixins/std/c++types.h>
+#include <mixins/std/initializer_list.h>
 #include <mixins/std/panic.h>
 #include <mixins/utils/collections.h>
 #include <mixins/utils/iterator.h>
@@ -40,6 +42,8 @@ class LinkedList
 
         TSource& next() override
         {
+            assert(_node->_next, "Iterator out of bounds.");
+
             _node = _node->_next;
             return _node->_data;
         }
@@ -71,6 +75,29 @@ public:
         other._head = nullptr;
         other._tail = nullptr;
         other._size = 0;
+    }
+    LinkedList(ICollection<TSource> const& collection)
+        : _head(nullptr)
+        , _tail(nullptr)
+        , _size(0)
+    {
+        collection.forEach([&](TSource const& data) { add(data); });
+    }
+    LinkedList(IReadOnlyCollection<TSource> const& collection)
+        : _head(nullptr)
+        , _tail(nullptr)
+        , _size(0)
+    {
+        collection.forEach([&](TSource const& data) { add(data); });
+    }
+    LinkedList(std::initializer_list<TSource> const& list)
+        : _head(nullptr)
+        , _tail(nullptr)
+        , _size(0)
+    {
+        for (auto& data : list) {
+            add(data);
+        }
     }
     ~LinkedList()
     {
@@ -107,6 +134,20 @@ public:
         other._head = nullptr;
         other._tail = nullptr;
         other._size = 0;
+        return *this;
+    }
+
+    LinkedList& operator=(ICollection<TSource> const& collection)
+    {
+        clear();
+        collection.forEach([&](TSource const& data) { add(data); });
+        return *this;
+    }
+
+    LinkedList& operator=(IReadOnlyCollection<TSource> const& collection)
+    {
+        clear();
+        collection.forEach([&](TSource const& data) { add(data); });
         return *this;
     }
 
@@ -470,6 +511,18 @@ public:
 
     TSource& findFirst() { return _head->_data; }
 
+    Opt<TSource&> findFirst(Predicate<TSource const&> predicate)
+    {
+        Node* node = _head;
+        while (node) {
+            if (predicate(node->_data)) {
+                return node->_data;
+            }
+            node = node->_next;
+        }
+        return Empty();
+    }
+
     TSource& findLast() { return _tail->_data; }
 
     TSource& findAny() {}
@@ -513,6 +566,25 @@ public:
         removeAt(0);
 
         return data;
+    }
+
+    Opt<TSource> takeFirst(Predicate<TSource const&> predicate)
+    {
+        if (_size == 0) {
+            Std::panic("Sequence contains no elements");
+        }
+
+        Node* node = _head;
+        while (node) {
+            if (predicate(node->_data)) {
+                TSource data = Std::move(node->_data);
+                remove(data);
+                return data;
+            }
+            node = node->_next;
+        }
+
+        return Empty();
     }
 
     IList<TSource>& takeLast(usize n)
@@ -634,6 +706,42 @@ public:
     template <typename TResult>
     IList<TResult>* select(Func<TResult(TSource const&)> selector)
     {
+    }
+
+    bool allMatch(Func<bool(TSource const&)> predicate) const
+    {
+        Node* node = _head;
+        while (node) {
+            if (!predicate(node->_data)) {
+                return false;
+            }
+            node = node->_next;
+        }
+        return true;
+    }
+
+    bool anyMatch(Func<bool(TSource const&)> predicate) const
+    {
+        Node* node = _head;
+        while (node) {
+            if (predicate(node->_data)) {
+                return true;
+            }
+            node = node->_next;
+        }
+        return false;
+    }
+
+    bool noneMatch(Func<bool(TSource const&)> predicate) const
+    {
+        Node* node = _head;
+        while (node) {
+            if (predicate(node->_data)) {
+                return false;
+            }
+            node = node->_next;
+        }
+        return true;
     }
 
     LinkedList<TSource>& operator+=(TSource const& data) override

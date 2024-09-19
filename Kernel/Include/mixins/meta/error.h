@@ -31,6 +31,7 @@ struct [[nodiscard]] Error
         // Device related errors
         DEVICE_NOT_FOUND,
         DEVICE_FAULT,
+        DEVICE_DUPLICATED,
 
         // File related errors
         FILE_NOT_FOUND,
@@ -113,6 +114,7 @@ struct [[nodiscard]] Error
     MakeError$(AllocateFailed, ALLOCATE_FAILED, "Failed to allocate memory");
     MakeError$(DeviceNotFound, DEVICE_NOT_FOUND, "Device not found");
     MakeError$(DeviceFault, DEVICE_FAULT, "Device fault");
+    MakeError$(DeviceDuplicated, DEVICE_DUPLICATED, "Device duplicated");
     MakeError$(FileNotFound, FILE_NOT_FOUND, "File not found");
     MakeError$(FileAlreadyExists, FILE_ALREADY_EXISTS, "File already exists");
     MakeError$(FileLocked, FILE_LOCKED, "File is locked");

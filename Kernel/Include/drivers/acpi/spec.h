@@ -146,7 +146,7 @@ namespace ACPI {
     {
         u64 __reserved__;
 
-        struct AddressPack
+        struct AddressPacket
         {
             u64 _base;
             u16 _sgn;

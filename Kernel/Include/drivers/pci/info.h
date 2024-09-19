@@ -10,7 +10,15 @@ namespace PCI {
     class PCIInfo
     {
     public:
-        template <typename _T>
+        PCIInfo() = default;
+        PCIInfo(u8 bus, u8 slot, u8 func)
+            : _bus(bus)
+            , _slot(slot)
+            , _func(func)
+        {
+        }
+
+        template <typename _T = u8>
             requires(Std::isSame<_T, u8> || Std::isSame<_T, u16> ||
                      Std::isSame<_T, u32>)
         _T read(u8 offset)
@@ -29,7 +37,9 @@ namespace PCI {
             // TODO: throw exception
         }
 
-        template <typename _T>
+        template <typename _T = u8>
+            requires(Std::isSame<_T, u8> || Std::isSame<_T, u16> ||
+                     Std::isSame<_T, u32>)
         _T read(PCI::ConfigRegs reg)
         {
             return read<_T>(static_cast<u8>(reg));
@@ -65,7 +75,7 @@ namespace PCI {
             write<_T>(static_cast<u8>(reg), value);
         }
 
-        u64 getAddressPackage(u8 offset)
+        inline u64 getAddressPackage(u8 offset)
         {
             return ((_bus << 16) | (_slot << 11) | (_func << 8) |
                     (offset & 0xFC)) |

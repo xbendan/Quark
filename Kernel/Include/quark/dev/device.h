@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mixins/meta/func.h>
 #include <mixins/meta/result.h>
 #include <mixins/std/string.h>
 #include <mixins/utils/array.h>
@@ -87,6 +88,12 @@ namespace Quark::System::Io {
          */
         virtual Res<> onShutdown() { return Ok(); }
 
+        string getName() const { return _name; }
+
+        UUID getUniqueId() const { return _uuid; }
+
+        Type getType() const { return _deviceType; }
+
     protected:
         string _name;
         UUID   _uuid;
@@ -103,7 +110,7 @@ namespace Quark::System::Io {
         }
         ~EnumerationDevice() = default;
 
-        virtual Res<IReadOnlyCollection<Device*>*> enumerateDevices() = 0;
+        virtual IReadOnlyCollection<Device*>* enumerateDevices() = 0;
     };
 }
 

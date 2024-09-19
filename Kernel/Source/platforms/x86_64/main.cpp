@@ -7,7 +7,8 @@
 
 #include <drivers/acpi/device.h>
 #include <drivers/apic/device.h>
-#include <drivers/pci/enumerator.h>
+#include <drivers/pci/enumeration.h>
+#include <drivers/ps2/device.h>
 
 #include <quark/api/device.h>
 #include <quark/api/logging.h>
@@ -37,6 +38,7 @@ namespace Quark::System {
             new ACPI::ControllerDevice(),
             new APIC::GenericControllerDevice(),
             new PCI::PCIEnumerationDevice(),
+            new PS2::LegacyControllerDevice(),
         });
         devices->forEach([](Io::Device* device) { device->onLoad().unwrap(); });
 

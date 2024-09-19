@@ -191,6 +191,21 @@ namespace Std {
     using RemoveCv = typename _removeCv<T>::Type;
 
     template <typename T>
+    struct _removePointer
+    {
+        using Type = T;
+    };
+
+    template <typename T>
+    struct _removePointer<T*>
+    {
+        using Type = T;
+    };
+
+    template <typename T>
+    using RemovePointer = typename _removePointer<T>::Type;
+
+    template <typename T>
     struct _removeRef
     {
         using Type = T;

@@ -17,94 +17,96 @@ class Array;
 template <typename TSource>
 class IList;
 
-// template <typename TSource>
-// class IEnumerable
-// {
-// public:
-//     virtual TSource sum()
-//         requires(Computable<TSource>)
-//     = 0;
-//     virtual TSource average()
-//         requires(Computable<TSource>)
-//     = 0;
+template <typename TSource>
+class IEnumerable
+{
+public:
+    //     virtual TSource sum()
+    //         requires(Computable<TSource>)
+    //     = 0;
+    //     virtual TSource average()
+    //         requires(Computable<TSource>)
+    //     = 0;
 
-//     virtual TSource max()
-//         requires(Comparable<TSource>)
-//     = 0;
-//     virtual TSource min()
-//         requires(Comparable<TSource>)
-//     = 0;
+    //     virtual TSource max()
+    //         requires(Comparable<TSource>)
+    //     = 0;
+    //     virtual TSource min()
+    //         requires(Comparable<TSource>)
+    //     = 0;
 
-//     template <Computable TResult>
-//     virtual TResult sum(Func<TResult(TSource const&)> mapper) = 0;
-//     template <Computable TResult>
-//     virtual TResult average(Func<TResult(TSource const&)> mapper) = 0;
-//     template <Comparable TResult>
-//     virtual TResult max(Func<TResult(TSource const&)> mapper) = 0;
-//     template <Comparable TResult>
-//     virtual TResult min(Func<TResult(TSource const&)> mapper) = 0;
+    //     template <Computable TResult>
+    //     virtual TResult sum(Func<TResult(TSource const&)> mapper) = 0;
+    //     template <Computable TResult>
+    //     virtual TResult average(Func<TResult(TSource const&)> mapper) = 0;
+    //     template <Comparable TResult>
+    //     virtual TResult max(Func<TResult(TSource const&)> mapper) = 0;
+    //     template <Comparable TResult>
+    //     virtual TResult min(Func<TResult(TSource const&)> mapper) = 0;
 
-//     template <Comparable TKey>
-//     virtual TSource maxBy(Func<TKey(TSource const&)> selector) = 0;
-//     template <Comparable TKey>
-//     virtual TSource minBy(Func<TKey(TSource const&)> selector) = 0;
+    //     template <Comparable TKey>
+    //     virtual TSource maxBy(Func<TKey(TSource const&)> selector) = 0;
+    //     template <Comparable TKey>
+    //     virtual TSource minBy(Func<TKey(TSource const&)> selector) = 0;
 
-//     virtual IEnumerable<TSource>& order(bool ascending = true)
-//         requires(Comparable<TSource>)
-//     = 0;
-//     template <Comparable TKey>
-//     virtual IEnumerable<TSource>& orderBy(
-//         Func<TKey(TSource const&)> keySelector,
-//         bool                       ascending) = 0;
+    //     virtual IEnumerable<TSource>& order(bool ascending = true)
+    //         requires(Comparable<TSource>)
+    //     = 0;
+    //     template <Comparable TKey>
+    //     virtual IEnumerable<TSource>& orderBy(
+    //         Func<TKey(TSource const&)> keySelector,
+    //         bool                       ascending) = 0;
 
-//     virtual TSource findFirst() = 0;
-//     virtual TSource findLast()  = 0;
-//     virtual TSource findAny()   = 0;
+    virtual TSource findFirst() = 0;
+    virtual TSource findLast()  = 0;
+    virtual TSource findAny()   = 0;
 
-//     virtual IEnumerable<TSource>& take(usize n)                   = 0;
-//     virtual IEnumerable<TSource>& take(Tuple<usize, usize> range) = 0;
-//     virtual IEnumerable<TSource>& takeLast(usize n)               = 0;
-//     virtual IEnumerable<TSource>& takeWhile(
-//         Func<bool(TSource const&)> predicate) = 0;
+    virtual IEnumerable<TSource>& take(usize n)                   = 0;
+    virtual IEnumerable<TSource>& take(Tuple<usize, usize> range) = 0;
+    virtual IEnumerable<TSource>& takeLast(usize n)               = 0;
+    virtual IEnumerable<TSource>& takeWhile(
+        Func<bool(TSource const&)> predicate) = 0;
 
-//     virtual TSource single()                                     = 0;
-//     virtual TSource singleOrDefault(TSource const& defaultValue) = 0;
-//     virtual TSource defaultIfEmpty()
-//         requires(Constructible<TSource>)
-//     = 0;
-//     virtual TSource defaultIfEmpty(TSource const& defaultValue) = 0;
+    //     virtual TSource single()                                     = 0;
+    //     virtual TSource singleOrDefault(TSource const& defaultValue) = 0;
+    //     virtual TSource defaultIfEmpty()
+    //         requires(Constructible<TSource>)
+    //     = 0;
+    //     virtual TSource defaultIfEmpty(TSource const& defaultValue) = 0;
 
-//     virtual IEnumerable<TSource>& skip(usize n)     = 0;
-//     virtual IEnumerable<TSource>& skipLast(usize n) = 0;
-//     virtual IEnumerable<TSource>& skipWhile(
-//         Func<bool(TSource const&)> predicate) = 0;
+    //     virtual IEnumerable<TSource>& skip(usize n)     = 0;
+    //     virtual IEnumerable<TSource>& skipLast(usize n) = 0;
+    //     virtual IEnumerable<TSource>& skipWhile(
+    //         Func<bool(TSource const&)> predicate) = 0;
 
-//     template <class TCollection, typename TKey>
-//     virtual TCollection<T>& groupBy(Func<TKey(TSource const&)> keySelector) =
-//     0;
+    //     template <class TCollection, typename TKey>
+    //     virtual TCollection<T>& groupBy(Func<TKey(TSource const&)>
+    //     keySelector) = 0;
 
-//     template <typename TResult>
-//     virtual IEnumerable<TResult>& select(
-//         Func<TResult(TSource const&)> selector) = 0;
+    //     template <typename TResult>
+    //     virtual IEnumerable<TResult>& select(
+    //         Func<TResult(TSource const&)> selector) = 0;
 
-//     virtual bool  contains(T const& e) = 0;
-//     virtual usize count()              = 0;
+    //     virtual bool  contains(T const& e) = 0;
+    //     virtual usize count()              = 0;
 
-//     virtual bool allMatch(Func<bool(TSource const&)> predicate) const  = 0;
-//     virtual bool anyMatch(Func<bool(TSource const&)> predicate) const  = 0;
-//     virtual bool noneMatch(Func<bool(TSource const&)> predicate) const = 0;
+    virtual bool allMatch(Func<bool(TSource const&)> predicate) const  = 0;
+    virtual bool anyMatch(Func<bool(TSource const&)> predicate) const  = 0;
+    virtual bool noneMatch(Func<bool(TSource const&)> predicate) const = 0;
 
-//     virtual void forEach(Func<void(T const&)> action) = 0;
+    virtual void forEach(Func<void(TSource const&)> action) = 0;
 
-//     virtual Array<TSource>& toArray() = 0;
-//     virtual IList<TSource>& toList()  = 0;
-//     virtual ISet<TSource>& toSet()    = 0;
-// };
+    //     virtual Array<TSource>& toArray() = 0;
+    //     virtual IList<TSource>& toList()  = 0;
+    //     virtual ISet<TSource>& toSet()    = 0;
+};
 
 template <typename TSource>
 class IIterator
 {
 public:
+    virtual ~IIterator() = default;
+
     virtual TSource& current() const = 0;
     virtual TSource& next()          = 0;
     virtual bool     hasNext() const = 0;

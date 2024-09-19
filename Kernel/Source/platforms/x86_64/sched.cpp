@@ -7,7 +7,7 @@
 namespace Quark::System::Task {
     using namespace Quark::System::Platform::X64;
 
-    void schedule(ProcessContext* ctx, Thread* thread)
+    void Scheduler::schedule(ProcessContext* ctx, Thread* thread)
     {
         ThreadEx* t = static_cast<ThreadEx*>(thread);
 
@@ -44,7 +44,7 @@ namespace Quark::System::Task {
                     ->_pml4Phys));
     }
 
-    void schedule(ProcessContext* ctx) {}
+    void Scheduler::schedule(ProcessContext* ctx) {}
 
-    void scheduleAll() {}
+    void Scheduler::scheduleAll() {}
 }

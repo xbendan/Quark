@@ -57,6 +57,24 @@ public:
             _data[i++] = arg;
         }
     }
+    ArrayList(IReadOnlyCollection<TSource> const& collection)
+        : _data(new TSource[collection.count()])
+        , _count(collection.count())
+        , _capacity(collection.count())
+    {
+        usize    i    = 0;
+        auto&    iter = collection.iter();
+        TSource& data = iter.current();
+        while (true) {
+            _data[i++] = data;
+            if (!iter.hasNext()) {
+                break;
+            }
+            data = iter.next();
+        }
+
+        delete &iter;
+    }
 
     ~ArrayList() { delete[] _data; }
 

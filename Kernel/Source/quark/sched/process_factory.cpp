@@ -9,8 +9,8 @@ namespace Quark::System::API {
 
     Res<RefPtr<Process>> createProcess(string name)
     {
-        Process* p =
-            new Process(nextPID(), name, createAddressSpace().unwrap());
+        Process* p = new Process(
+            Scheduler::nextPID(), name, createAddressSpace().unwrap());
         Process::addProcess(p);
 
         return Ok(RefPtr<Process>(p));
@@ -18,8 +18,9 @@ namespace Quark::System::API {
 
     Res<RefPtr<Process>> createIdleProcess()
     {
-        Process* p = new Process(
-            nextPID(), "Idle", Process::getKernelProcess()->_addressSpace);
+        Process* p = new Process(Scheduler::nextPID(),
+                                 "Idle",
+                                 Process::getKernelProcess()->_addressSpace);
         Process::addProcess(p);
 
         return Ok(RefPtr<Process>(p));
@@ -37,7 +38,7 @@ namespace Quark::System::API {
         }
 
         Process* p = new Process(
-            nextPID(), name, createAddressSpace().unwrap(), 0, 0, 0);
+            Scheduler::nextPID(), name, createAddressSpace().unwrap(), 0, 0, 0);
         Process::addProcess(p);
 
         return Error::NotImplemented();
