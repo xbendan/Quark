@@ -57,15 +57,15 @@ namespace Quark::System::Privilege {
     public:
         UserGroup() = default;
         UserGroup(string name, Level level)
-            : _name(name)
-            , _level(level)
-            , _users(ArrayList<UserAccount>())
+            : m_name(name)
+            , m_level(level)
+            , m_users(ArrayList<UserAccount>())
         {
         }
 
     private:
-        string                 _name;
-        Level                  _level;
-        ArrayList<UserAccount> _users{};
+        string                 m_name;
+        Level                  m_level;
+        ArrayList<UserAccount> m_users{};
     };
 }

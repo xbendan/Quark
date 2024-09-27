@@ -26,7 +26,7 @@ namespace Quark::System::API {
         if (phys.isOkay()) {
             u64 address = 0;
 
-            addressSpace->map4KPages(
+            addressSpace->Map4KPages(
                 phys.unwrap(),
                 address =
                     ::allocVirtMemory4K(amount, addressSpace, flags).unwrap(),
@@ -46,7 +46,7 @@ namespace Quark::System::API {
             return Error::InvalidArgument();
         }
 
-        Res<u64> phys = addressSpace->getPhysAddress(address);
+        Res<u64> phys = addressSpace->GetPhysAddress(address);
 
         if (phys.isOkay()) {
             freePhysMemory4K(phys.unwrap(), amount);
@@ -66,7 +66,7 @@ namespace Quark::System::API {
             return Error::InvalidArgument();
         }
 
-        addressSpace->map4KPages(phys, virt, amount, flags);
+        addressSpace->Map4KPages(phys, virt, amount, flags);
 
         return Ok();
     }
@@ -94,10 +94,10 @@ namespace Quark::System::API {
             return Error::OutOfMemory();
         }
 
-        PhysMemFrame* p = g_pageQueues[level].dequeue().take();
+        PhysMemFrame* p = g_pageQueues[level].dequeue().Take();
         while ((1 << level) > amount && level > 0) {
             level--;
-            g_pageQueues[level].enqueue(p->split().take());
+            g_pageQueues[level].enqueue(p->split().Take());
         }
 
         p->_flags.clear(Hal::PmmFlags::FREE);
@@ -130,7 +130,7 @@ namespace Quark::System::API {
                 or the another page needed is not free, then jump
                 out of the loop
              */
-            u64           offset  = getLevelAsOffset(page->_level);
+            u64           offset  = GetLevelAsOffset(page->_level);
             u64           newAddr = (page->_address % (1 << (offset * 2)))
                                         ? page->_address + offset
                                         : page->_address - offset;
@@ -141,7 +141,7 @@ namespace Quark::System::API {
                     g_pageQueues[newPage->_level].dequeue(newPage);
                 }
 
-                PhysMemFrame* result = page->merge(newPage).take();
+                PhysMemFrame* result = page->merge(newPage).Take();
                 if (result != nullptr) {
                     page = result;
                     continue;
@@ -163,7 +163,7 @@ namespace Quark::System::API {
             return Error::InvalidArgument();
         }
 
-        return addressSpace->alloc4KPages(amount, flags);
+        return addressSpace->Alloc4KPages(amount, flags);
     }
 
     Res<> freeVirtMemory4K(usize         address,
@@ -174,6 +174,6 @@ namespace Quark::System::API {
             return Error::InvalidArgument();
         }
 
-        return addressSpace->free4KPages(address, amount);
+        return addressSpace->Free4KPages(address, amount);
     }
 }

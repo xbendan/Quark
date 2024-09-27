@@ -58,8 +58,8 @@ namespace Quark::System::API {
                                         const string& command,
                                         const string& arguments);
 
-    Res<ICPULocalDevice*> getCPULocal(u32 id);
-    Res<>                 setCPULocal(u32 id, ICPULocalDevice* local);
+    Res<ICPULocalDevice*> GetCPULocal(u32 id);
+    Res<>                 SetCPULocal(u32 id, ICPULocalDevice* local);
 }
 
 #if defined(GLOBAL_API_NAMESPACE)

@@ -42,9 +42,9 @@ namespace Quark::System::Memory {
 
         u64 _address;
 
-        Opt<PhysMemFrame*> split();
-        Opt<PhysMemFrame*> merge(PhysMemFrame* page);
-        Opt<PhysMemFrame*> merge();
+        Optional<PhysMemFrame*> split();
+        Optional<PhysMemFrame*> merge(PhysMemFrame* page);
+        Optional<PhysMemFrame*> merge();
 
         static PhysMemFrame* at(u64 address);
     };
@@ -59,7 +59,7 @@ namespace Quark::System::Memory {
         return !(address % ((1 << level) * PAGE_SIZE_4K));
     }
 
-    static inline u8 getSizeAsLevel(usize size)
+    static inline u8 GetSizeAsLevel(usize size)
     {
         u8 level = 0;
         while (size > 1) {
@@ -69,12 +69,12 @@ namespace Quark::System::Memory {
         return level;
     }
 
-    static inline u64 getLevelAsSize(u8 level)
+    static inline u64 GetLevelAsSize(u8 level)
     {
         return (1 << level);
     }
 
-    static inline u64 getLevelAsOffset(u8 level, u64 offset = PAGE_SIZE_4K)
+    static inline u64 GetLevelAsOffset(u8 level, u64 offset = PAGE_SIZE_4K)
     {
         return ((1 << level) * offset);
     }

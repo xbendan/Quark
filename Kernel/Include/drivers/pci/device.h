@@ -25,7 +25,7 @@ namespace PCI {
         }
         PCIDevice(PCIDevice const& other)
             : PCIInfo(other)
-            , Io::Device(other._name, other._deviceType)
+            , Io::Device(other.m_name, other.m_deviceType)
         {
             _bus  = other._bus;
             _slot = other._slot;

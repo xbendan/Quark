@@ -33,7 +33,7 @@ namespace Quark::System {
     using Quark::System::Memory::AddressSpace;
     using Quark::System::Task::Process;
 
-    Res<Process*> createKernelProcess(AddressSpace* addressSpace)
+    Res<Process*> CreateKernelProcess(AddressSpace* addressSpace)
     {
         if (Task::_kernelProcess)
             return Error::InvalidState("Kernel process already exists.");

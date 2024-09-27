@@ -137,27 +137,27 @@ namespace Quark::System::Platform::X64 {
         X64AddressSpace();
         ~X64AddressSpace();
 
-        Res<u64> alloc4KPages(
+        Res<u64> Alloc4KPages(
             usize amount, //
             Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
                                    Hal::VmmFlags::WRITABLE |
                                    Hal::VmmFlags::USER) override;
-        Res<u64> alloc2MPages(
+        Res<u64> Alloc2MPages(
             usize amount, //
             Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
                                    Hal::VmmFlags::WRITABLE |
                                    Hal::VmmFlags::USER) override;
 
-        Res<> free4KPages(u64   address, //
+        Res<> Free4KPages(u64   address, //
                           usize amount) override;
-        Res<> free2MPages(u64   address, //
+        Res<> Free2MPages(u64   address, //
                           usize amount) override;
 
-        Res<> map4KPages(u64                  phys, //
+        Res<> Map4KPages(u64                  phys, //
                          u64                  virt,
                          usize                amount,
                          Flags<Hal::VmmFlags> flags) override;
-        Res<> map2MPages(u64                  phys, //
+        Res<> Map2MPages(u64                  phys, //
                          u64                  virt,
                          usize                amount,
                          Flags<Hal::VmmFlags> flags) override;
@@ -170,7 +170,7 @@ namespace Quark::System::Platform::X64 {
         //                                           Flags<Hal::VmmFlags> flags,
         //                                           bool set = true) override;
 
-        Res<u64> getPhysAddress(u64 address) override;
+        Res<u64> GetPhysAddress(u64 address) override;
 
         Pml4                     _pml4;
         Pdpt                     _pdpt;
@@ -220,27 +220,27 @@ namespace Quark::System::Platform::X64 {
         X64AddressSpace();
         ~X64AddressSpace() = default;
 
-        Res<u64> alloc4KPages(
+        Res<u64> Alloc4KPages(
             usize amount, //
             Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
                                    Hal::VmmFlags::WRITABLE) override;
-        Res<u64> alloc2MPages(
+        Res<u64> Alloc2MPages(
             usize amount, //
             Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
                                    Hal::VmmFlags::WRITABLE) override;
 
-        Res<> map4KPages(u64                  phys, //
+        Res<> Map4KPages(u64                  phys, //
                          u64                  virt,
                          usize                amount,
                          Flags<Hal::VmmFlags> flags) override;
-        Res<> map2MPages(u64                  phys, //
+        Res<> Map2MPages(u64                  phys, //
                          u64                  virt,
                          usize                amount,
                          Flags<Hal::VmmFlags> flags) override;
 
-        Res<> free4KPages(u64   address, //
+        Res<> Free4KPages(u64   address, //
                           usize amount) override;
-        Res<> free2MPages(u64   address, //
+        Res<> Free2MPages(u64   address, //
                           usize amount) override;
 
         Res<Flags<Hal::VmmFlags>> getFlags(u64 address) override;
@@ -251,7 +251,7 @@ namespace Quark::System::Platform::X64 {
         //                                           Flags<Hal::VmmFlags> flags,
         //                                           bool set = true) override;
 
-        Res<u64> getPhysAddress(u64 address) override;
+        Res<u64> GetPhysAddress(u64 address) override;
 
         Pml4                     _pml4;
         Pdpt                     _pdpt;

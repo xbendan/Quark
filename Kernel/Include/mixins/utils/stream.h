@@ -147,16 +147,16 @@ public:
         return *this;
     }
 
-    Opt<TSource> reduce(BinaryOperator<TSource> op)
+    Optional<TSource> reduce(BinaryOperator<TSource> op)
     {
         if (_size == 0) {
-            return Opt<TSource>();
+            return Optional<TSource>();
         }
         TSource result = _data[_p];
         for (usize i = _p + 1; i < _size; ++i) {
             result = op(result, _data[i]);
         }
-        return Opt<TSource>(result);
+        return Optional<TSource>(result);
     }
 
     TSource reduce(TSource identity, BinaryOperator<TSource> op)
@@ -207,15 +207,15 @@ public:
         return true;
     }
 
-    Opt<TSource> findFirst()
+    Optional<TSource> findFirst()
     {
         if (_size == 0) {
-            return Opt<TSource>();
+            return Optional<TSource>();
         }
-        return Opt<TSource>(_data[_p]);
+        return Optional<TSource>(_data[_p]);
     }
 
-    Opt<TSource> findAny() {}
+    Optional<TSource> findAny() {}
 
     usize count() { return _size - _p; }
 

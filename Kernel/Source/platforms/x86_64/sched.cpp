@@ -15,7 +15,7 @@ namespace Quark::System::Task {
         wrmsr(MSR_FS_BASE, (u64)t->_fsBase);
 
         ctx->_currentThread         = t;
-        getCPULocal()->_tss._rsp[0] = reinterpret_cast<u64>(t->_stackKernel);
+        GetCPULocal()->_tss._rsp[0] = reinterpret_cast<u64>(t->_stackKernel);
 
         asm volatile(
             R"(mov %0, %%rsp;

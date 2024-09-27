@@ -50,7 +50,7 @@ namespace Quark::System::Platform::X64 {
         // I hate nested pointers.
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::User>::alloc4KPages(
+    Res<u64> X64AddressSpace<Privilege::Level::User>::Alloc4KPages(
         usize                amount, //
         Flags<Hal::VmmFlags> flags)
     {
@@ -87,14 +87,14 @@ namespace Quark::System::Platform::X64 {
         return Ok(index << 12);
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::User>::alloc2MPages(
+    Res<u64> X64AddressSpace<Privilege::Level::User>::Alloc2MPages(
         usize                amount,
         Flags<Hal::VmmFlags> flags)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::free4KPages(u64   address,
+    Res<> X64AddressSpace<Privilege::Level::User>::Free4KPages(u64   address,
                                                                usize amount)
     {
         u64 index = address >> 12;
@@ -118,13 +118,13 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::free2MPages(u64   address,
+    Res<> X64AddressSpace<Privilege::Level::User>::Free2MPages(u64   address,
                                                                usize amount)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::map4KPages(
+    Res<> X64AddressSpace<Privilege::Level::User>::Map4KPages(
         u64                  phys, //
         u64                  virt,
         usize                amount,
@@ -172,7 +172,7 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::map2MPages(
+    Res<> X64AddressSpace<Privilege::Level::User>::Map2MPages(
         u64                  phys, //
         u64                  virt,
         usize                amount,
@@ -246,7 +246,7 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::User>::getPhysAddress(
+    Res<u64> X64AddressSpace<Privilege::Level::User>::GetPhysAddress(
         u64 address)
     {
         // u64 index = address >> 12;
@@ -368,7 +368,7 @@ namespace Quark::System::Platform::X64 {
         _pml4Phys = (u64)&_pml4 - KERNEL_VIRTUAL_BASE;
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::System>::alloc4KPages(
+    Res<u64> X64AddressSpace<Privilege::Level::System>::Alloc4KPages(
         usize                amount,
         Flags<Hal::VmmFlags> flags)
     {
@@ -376,26 +376,26 @@ namespace Quark::System::Platform::X64 {
         return Error::NotImplemented();
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::System>::alloc2MPages(
+    Res<u64> X64AddressSpace<Privilege::Level::System>::Alloc2MPages(
         usize                amount,
         Flags<Hal::VmmFlags> flags)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::free4KPages(u64   address,
+    Res<> X64AddressSpace<Privilege::Level::System>::Free4KPages(u64   address,
                                                                  usize amount)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::free2MPages(u64   address,
+    Res<> X64AddressSpace<Privilege::Level::System>::Free2MPages(u64   address,
                                                                  usize amount)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::map4KPages(
+    Res<> X64AddressSpace<Privilege::Level::System>::Map4KPages(
         u64                  phys, //
         u64                  virt,
         usize                amount,
@@ -404,7 +404,7 @@ namespace Quark::System::Platform::X64 {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::map2MPages(
+    Res<> X64AddressSpace<Privilege::Level::System>::Map2MPages(
         u64                  phys, //
         u64                  virt,
         usize                amount,
@@ -427,7 +427,7 @@ namespace Quark::System::Platform::X64 {
         return Error::NotImplemented();
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::System>::getPhysAddress(
+    Res<u64> X64AddressSpace<Privilege::Level::System>::GetPhysAddress(
         u64 address)
     {
         return Error::NotImplemented();
@@ -438,7 +438,7 @@ namespace Quark::System {
     using Quark::System::Memory::AddressSpace;
     using namespace Quark::System::Platform::X64;
 
-    Res<AddressSpace*> initVirtMemory()
+    Res<AddressSpace*> InitVirtMemory()
     {
         AddressSpace* p = &kAddressSpace;
         if (!kAddressSpace._pml4Phys) {

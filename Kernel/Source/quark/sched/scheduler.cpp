@@ -24,11 +24,11 @@ namespace Quark::System::Task {
 namespace Quark::System {
     using namespace Quark::System::Task;
 
-    Res<> initTasks()
+    Res<> InitTasks()
     {
         _cpus = Hal::setupMultiprocessing().unwrap();
         static_cast<IReadOnlyList<Hal::ICPULocalDevice*>*>(_cpus)
-            ->forEachOrdered([](Hal::ICPULocalDevice* const& cpu, usize i) {
+            ->ForEachOrdered([](Hal::ICPULocalDevice* const& cpu, usize i) {
                 _threadQueues[i] = new LinkedQueue<Thread*>();
                 cpu->sendSignal(Hal::Signal::SCHED);
             });

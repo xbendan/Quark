@@ -31,8 +31,8 @@ namespace Quark::System::Hal {
 
     Res<IReadOnlyCollection<ICPULocalDevice*>*> setupMultiprocessing();
 
-    ICPULocalDevice* getCPULocal(u32 id);
+    ICPULocalDevice* GetCPULocal(u32 id);
     ICPULocalDevice* getCPULocal();
-    void             setCPULocal(u32 id, ICPULocalDevice* local);
-    void             setCPULocal(ICPULocalDevice* local);
+    void             SetCPULocal(u32 id, ICPULocalDevice* local);
+    void             SetCPULocal(ICPULocalDevice* local);
 }

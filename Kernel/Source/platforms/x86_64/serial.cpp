@@ -36,7 +36,7 @@ namespace Quark::System::Hal {
 
     bool SerialPortDevice::out(u8* data, usize len)
     {
-        if (Platform::X64::checkInterrupts()) {
+        if (Platform::X64::CheckInterrupts()) {
             m_lock.acquireIntDisable();
             while (len--) {
                 while (!(pIn<u8>(Port::COM1 + PortOffset::LineStatus) & 0x20))

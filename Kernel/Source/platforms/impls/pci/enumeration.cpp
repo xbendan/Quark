@@ -14,11 +14,11 @@ namespace PCI {
     {
         auto acpi = ::getRegisteredDevice<ACPI::ControllerDevice>(
             "ACPI Management Device");
-        if (!acpi.isPresent()) {
+        if (!acpi.IsPresent()) {
             return Error::DeviceNotFound();
         }
 
-        auto table = acpi.take()->findTable<ACPI::PCIExpressSpecTable>("MCFG");
+        auto table = acpi.Take()->findTable<ACPI::PCIExpressSpecTable>("MCFG");
 
         if (table.isOkay()) {
             m_pciExpressTable = table.unwrap();
@@ -26,29 +26,29 @@ namespace PCI {
         } else
             m_accessMode = ConfigAccessMode::Legacy;
 
-        m_devices = enumerateDevices();
+        m_devices = EnumerateDevices();
         return Ok();
     }
 
-    IReadOnlyCollection<Io::Device*>* PCIEnumerationDevice::enumerateDevices()
+    IReadOnlyCollection<Io::Device*>* PCIEnumerationDevice::EnumerateDevices()
     {
         ArrayList<Io::Device*>* devices = new ArrayList<Io::Device*>();
         for (u16 i = 0; i < 256; i++) {
             for (u16 j = 0; j < 32; j++) {
-                if (checkDevice(i, j, 0)) {
+                if (CheckDevice(i, j, 0)) {
                     PCIInfo info(i, j, 0);
-                    devices->add(new PCI::PCIDevice(info));
+                    devices->Add(new PCI::PCIDevice(info));
 
                     if (info.read<>(PCI::ConfigRegs::HeaderType) & 0x80) {
                         for (int k = 1; k < 8; k++) { // Func
-                            if (checkDevice(i, j, k)) {
-                                devices->add(new PCI::PCIDevice(i, j, k));
+                            if (CheckDevice(i, j, k)) {
+                                devices->Add(new PCI::PCIDevice(i, j, k));
                             }
                         }
                     }
                 }
             }
         }
-        return devices;
+        return static_cast<IReadOnlyList<Io::Device*>*>(devices);
     }
 }

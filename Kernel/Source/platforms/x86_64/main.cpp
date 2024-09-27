@@ -31,7 +31,7 @@ namespace Quark::System {
     Inert<CPULocalDevice>           kCPULocal;
     Buf<char[3 * 8 * PAGE_SIZE_4K]> kTssEntryBuf;
 
-    Res<IReadOnlyList<Io::Device*>*> setupDevices()
+    Res<IReadOnlyList<Io::Device*>*> SetupDevices()
     {
         log(u8"Setting up devices...");
         auto* devices = new ArrayList<Io::Device*>({
@@ -40,12 +40,12 @@ namespace Quark::System {
             new PCI::PCIEnumerationDevice(),
             new PS2::LegacyControllerDevice(),
         });
-        devices->forEach([](Io::Device* device) { device->onLoad().unwrap(); });
+        devices->ForEach([](Io::Device* device) { device->onLoad().unwrap(); });
 
         return Ok((IReadOnlyList<Io::Device*>*)devices);
     }
 
-    Res<> setupArch(LaunchConfiguration* launchConfig)
+    Res<> SetupArch(LaunchConfiguration* launchConfig)
     {
         asm volatile("cli");
 
@@ -65,7 +65,7 @@ namespace Quark::System {
         p->_idtPtr = { sizeof(kIdt) - 1, (u64)&kIdt };
         _lidt(&p->_idtPtr);
 
-        setCPULocal(p);
+        SetCPULocal(p);
 
         p->_gdt._tss = GlobDescTbl::TssEntry(&p->_tss);
         for (int i = 0; i < 3; i++) {

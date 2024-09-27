@@ -13,13 +13,13 @@ namespace Quark::System {
     }
 
     [[noreturn]]
-    void setupKernel(LaunchConfiguration* conf)
+    void SetupKernel(LaunchConfiguration* conf)
     {
         Hal::Platform& platform = conf->_platform;
         log(u8"Setting up kernel...");
 
         log(u8"Initializing architecture-specific features...");
-        setupArch(conf);
+        SetupArch(conf);
         log(u8"OK.");
 
         log(u8"Initializing address space isolation (Virtual memory):\n");
@@ -27,19 +27,19 @@ namespace Quark::System {
         if (platform._features.hasNot(Hal::Platform::AddressSpaceIsolation)) {
             log(u8"VMM is not supported on this platform.\n");
         } else
-            kernelAddressSpace = initVirtMemory().unwrap();
+            kernelAddressSpace = InitVirtMemory().unwrap();
 
         log(u8"Initializing memory management...\n");
-        initPhysMemory().unwrap();
+        InitPhysMemory().unwrap();
 
         log(u8"Creating kernel process...\n");
-        createKernelProcess(kernelAddressSpace).unwrap();
+        CreateKernelProcess(kernelAddressSpace).unwrap();
 
         log(u8"Initializing device connectivity...\n");
-        setupDevices().unwrap();
+        SetupDevices().unwrap();
 
         log(u8"Initializing task scheduler...\n");
-        initTasks().unwrap();
+        InitTasks().unwrap();
 
         log(u8"Done!");
 

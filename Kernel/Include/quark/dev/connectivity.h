@@ -35,23 +35,23 @@ namespace Quark::System::Io {
 
         static Res<> removeDevice(Device* device);
 
-        static Opt<Device*> findByName(string name);
+        static Optional<Device*> findByName(string name);
 
         template <typename T>
             requires(Std::isDerived<Device, T>)
-        static inline Opt<T*> findByName(string name)
+        static inline Optional<T*> findByName(string name)
         {
-            return findByName(name).map<T*>(
+            return findByName(name).Select<T*>(
                 [](Device* device) { return static_cast<T*>(device); });
         }
 
-        static Opt<Device*> findByUUID(UUID uuid);
+        static Optional<Device*> findByUUID(UUID uuid);
 
         template <typename T>
             requires(Std::isDerived<Device, T>)
-        static inline Opt<T*> findByUUID(UUID uuid)
+        static inline Optional<T*> findByUUID(UUID uuid)
         {
-            return findByUUID(uuid).map<T*>(
+            return findByUUID(uuid).Select<T*>(
                 [](Device* device) { return static_cast<T*>(device); });
         }
 

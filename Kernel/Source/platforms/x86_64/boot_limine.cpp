@@ -129,7 +129,7 @@ kload_limine(void)
         }
     }
 
-    Quark::System::setupKernel(&conf);
+    Quark::System::SetupKernel(&conf);
 
     while (true)
         asm volatile("hlt; pause;");

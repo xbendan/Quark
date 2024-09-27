@@ -78,7 +78,7 @@ namespace Quark::System::Memory {
             return *this;
         }
 
-        Opt<u64> find(u8* val, u64 size, u64 offset = 0x1)
+        Optional<u64> find(u8* val, u64 size, u64 offset = 0x1)
         {
             if (!_size || !_base) {
                 return Empty();
@@ -100,12 +100,12 @@ namespace Quark::System::Memory {
         }
 
         template <typename _T>
-        Opt<u64> find(_T* val, u64 size, u64 offset = 0x1)
+        Optional<u64> find(_T* val, u64 size, u64 offset = 0x1)
         {
             return find((u8*)val, size * sizeof(_T), offset);
         }
 
-        Opt<u64> takeFront(u64 size)
+        Optional<u64> takeFront(u64 size)
         {
             if (_size < size) {
                 return Empty();
@@ -116,7 +116,7 @@ namespace Quark::System::Memory {
             return base;
         }
 
-        Opt<u64> takeBack(u64 size)
+        Optional<u64> takeBack(u64 size)
         {
             if (_size < size) {
                 return Empty();

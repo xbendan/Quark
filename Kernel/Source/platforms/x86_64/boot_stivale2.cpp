@@ -96,5 +96,5 @@ kload_st2(stivale2_struct* stInfo)
             }
         }
     }
-    Quark::System::setupKernel(&conf);
+    Quark::System::SetupKernel(&conf);
 }

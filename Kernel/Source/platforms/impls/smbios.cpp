@@ -13,14 +13,14 @@ namespace Quark::System::Hal {
         u64                  address = Memory::copyAsIOAddress(0xF0000);
         Memory::AddressRange range(address, 0x10000);
 
-        Opt<u64> result;
-        if ((result = range.find(__signatureL2, 4, 0x10)).isPresent()) {
+        Optional<u64> result;
+        if ((result = range.find(__signatureL2, 4, 0x10)).IsPresent()) {
             m_majorVer   = 2;
-            m_smbiosInfo = (void*)result.take();
+            m_smbiosInfo = (void*)result.Take();
             log(u8"[SMBIOS] Found SMBIOS 2.0 at %p\n", m_smbiosInfo);
-        } else if ((result = range.find(__signatureL3, 5, 0x10)).isPresent()) {
+        } else if ((result = range.find(__signatureL3, 5, 0x10)).IsPresent()) {
             m_majorVer   = 3;
-            m_smbiosInfo = (void*)result.take();
+            m_smbiosInfo = (void*)result.Take();
             log(u8"[SMBIOS] Found SMBIOS 3.0 at %p\n", m_smbiosInfo);
         }
     }

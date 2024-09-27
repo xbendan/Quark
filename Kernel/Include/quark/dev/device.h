@@ -40,15 +40,15 @@ namespace Quark::System::Io {
         };
 
         Device(string name)
-            : _name(name)
-            , _deviceType(Type::Unknown)
+            : m_name(name)
+            , m_deviceType(Type::Unknown)
         {
             // _uuid = UUID::generate();
         }
 
         Device(string name, Type deviceType)
-            : _name(name)
-            , _deviceType(deviceType)
+            : m_name(name)
+            , m_deviceType(deviceType)
         {
             // _uuid = UUID::generate();
         }
@@ -88,17 +88,27 @@ namespace Quark::System::Io {
          */
         virtual Res<> onShutdown() { return Ok(); }
 
-        string getName() const { return _name; }
+        string getName() const { return m_name; }
 
-        UUID getUniqueId() const { return _uuid; }
+        UUID getUniqueId() const { return m_uniqueId; }
 
-        Type getType() const { return _deviceType; }
+        Type getType() const { return m_deviceType; }
+
+        static Optional<Device*>       FindByName(string name);
+        static Optional<Device*>       FindByUniqueId(UUID uuid);
+        static IReadOnlyList<Device*>* EnumerateDevices();
+        static IReadOnlyList<Device*>* EnumerateDevices(Type type);
+        static IReadOnlyList<Device*>* EnumerateDevices(
+            Predicate<Device*> predicate);
+        static Res<> Load(Device* device);
+        static Res<> Unload(Device* device);
+        static Res<> Rescan();
 
     protected:
-        string _name;
-        UUID   _uuid;
-        Type   _deviceType;
-        bool   _isStarted;
+        string m_name;
+        UUID   m_uniqueId;
+        Type   m_deviceType;
+        bool   m_isStarted;
     };
 
     class EnumerationDevice : public Device
@@ -110,7 +120,7 @@ namespace Quark::System::Io {
         }
         ~EnumerationDevice() = default;
 
-        virtual IReadOnlyCollection<Device*>* enumerateDevices() = 0;
+        virtual IReadOnlyCollection<Device*>* EnumerateDevices() = 0;
     };
 }
 

@@ -7,24 +7,24 @@
 namespace Quark::System::Io {
     IReadOnlyList<Device*>* Connectivity::listAll()
     {
-        return new ArrayList<Device*>(m_devices);
+        return static_cast<IReadOnlyList<Device*>*>(&m_devices);
     }
 
     IReadOnlyList<Device*>* Connectivity::listAll(Device::Type type)
     {
-        return reinterpret_cast<IReadOnlyList<Device*>*>(&(m_devices.takeWhile(
+        return static_cast<IReadOnlyList<Device*>*>(&(m_devices.TakeWhile(
             [&](Device* device) { return device->getType() == type; })));
     }
 
     IReadOnlyList<Device*>* Connectivity::listAll(Predicate<Device*> predicate)
     {
-        return reinterpret_cast<IReadOnlyList<Device*>*>(
-            &(m_devices.takeWhile(Std::move(predicate))));
+        return static_cast<IReadOnlyList<Device*>*>(
+            &(m_devices.TakeWhile(Std::move(predicate))));
     }
 
     Res<> Connectivity::addDevice(Device* device)
     {
-        if (m_devices.anyMatch([&](Device* d) {
+        if (m_devices.AnyMatch([&](Device* d) {
                 return d->getUniqueId() == device->getUniqueId();
             })) {
             return Error::DeviceDuplicated();
@@ -36,24 +36,27 @@ namespace Quark::System::Io {
 
     Res<> Connectivity::removeDevice(Device* device)
     {
-        if (!m_devices.remove(device)) {
+        if (!m_devices.Remove(device)) {
             return Error::DeviceNotFound();
         }
 
         return Ok();
     }
 
-    Opt<Device*> Connectivity::findByName(string name)
+    Optional<Device*> Connectivity::findByName(string name)
     {
         return m_devices
-            .findFirst(
-                [&](Device* device) { return device->getName() == name; })
-            .map<Device*>([](Device*& device) { return device; });
+            .FindFirst([&](Device* const& device) {
+                return device->getName() == name;
+            })
+            .Take();
     }
 
-    Opt<Device*> Connectivity::findByUUID(UUID uuid)
+    Optional<Device*> Connectivity::findByUUID(UUID uuid)
     {
-        return m_devices.findFirst(
-            [&](Device* device) { return device->getUniqueId() == uuid; });
+        return m_devices
+            .FindFirst(
+                [&](Device* device) { return device->getUniqueId() == uuid; })
+            .Take();
     }
 }

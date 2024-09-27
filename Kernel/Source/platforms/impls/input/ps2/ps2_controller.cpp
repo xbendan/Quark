@@ -21,7 +21,7 @@ namespace PS2 {
         ACPI::FixedAcpiDescTable* fadt;
         getRegisteredDevice<ACPI::ControllerDevice>(
             "Advanced Configuration & Power Interface Controller")
-            .ifPresent([&](ACPI::ControllerDevice* device) {
+            .IfPresent([&](ACPI::ControllerDevice* device) {
                 fadt = device->findTable<ACPI::FixedAcpiDescTable>("FACP")
                            .unwrap();
             });

@@ -14,7 +14,7 @@ namespace Quark::System::Memory {
         m_count++;
     }
 
-    Opt<PhysMemFrame*> PhysMemQueue::dequeue()
+    Optional<PhysMemFrame*> PhysMemQueue::dequeue()
     {
         if (!m_count) {
             return Empty{};

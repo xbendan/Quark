@@ -19,13 +19,13 @@ namespace ACPI {
         u64 address = Memory::copyAsIOAddress( //
             AddressRange(0x0, 0x7bff + 1)
                 .find((u8*)_signature, 8, 0x10)
-                .orElse(0) |
+                .OrElse(0) |
             AddressRange(0x80000, 0x9ffff + 1)
                 .find((u8*)_signature, 8, 0x10)
-                .orElse(0) |
+                .OrElse(0) |
             AddressRange(0xe0000, 0xfffff + 1)
                 .find((u8*)_signature, 8, 0x10)
-                .orElse(0));
+                .OrElse(0));
         /*
             Detect ACPI Root System Description Pointer (RSDP)
             We cannot initialize ACPI without it.

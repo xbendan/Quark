@@ -11,7 +11,7 @@
 namespace Quark::System {
     using namespace Quark::System::Memory;
 
-    Res<> initPhysMemory()
+    Res<> InitPhysMemory()
     {
         MemoryConfiguration& info = getLaunchConfiguration()._memory;
 
@@ -23,10 +23,10 @@ namespace Quark::System {
         }
         auto allocPhysBlock4K = [](usize amount) -> u64 {
             alignUpRef(amount, PAGE_SIZE_4K);
-            Opt<u64> address = 0;
+            Optional<u64> address = 0;
             for (usize i = 0; i < 256; i++) {
-                if ((address = g_pageRanges[i].takeFront(amount)).isPresent())
-                    return address.take();
+                if ((address = g_pageRanges[i].takeFront(amount)).IsPresent())
+                    return address.Take();
             }
             return 0;
         };
@@ -55,7 +55,7 @@ namespace Quark::System {
 
 namespace Quark::System::Memory {
 
-    Opt<PhysMemFrame*> PhysMemFrame::split()
+    Optional<PhysMemFrame*> PhysMemFrame::split()
     {
         if (_level == 0 || not _flags.has(Hal::PmmFlags::FREE)) {
             return Empty();
@@ -63,7 +63,7 @@ namespace Quark::System::Memory {
 
         _level--;
 
-        u64 offset = getLevelAsOffset(_level, sizeof(PhysMemFrame));
+        u64 offset = GetLevelAsOffset(_level, sizeof(PhysMemFrame));
         // PhysMemFrame* page   = (PhysMemFrame*)(this + offset);
 
         // *page = {
@@ -81,18 +81,18 @@ namespace Quark::System::Memory {
         };
     }
 
-    Opt<PhysMemFrame*> PhysMemFrame::merge(PhysMemFrame* page)
+    Optional<PhysMemFrame*> PhysMemFrame::merge(PhysMemFrame* page)
     {
         if (/* Ensure both pages are free and can be merged */
             !(_flags.has(Hal::PmmFlags::FREE) &&
               page->_flags.has(Hal::PmmFlags::FREE)) //
             ||
             /* Ensure these pages are connected in address */
-            (abs(_address - page->_address) != (getLevelAsOffset(_level)))) {
+            (abs(_address - page->_address) != (GetLevelAsOffset(_level)))) {
             return nullptr;
         }
 
-        PhysMemFrame* result = (_address % (getLevelAsOffset(_level) * 2)) //
+        PhysMemFrame* result = (_address % (GetLevelAsOffset(_level) * 2)) //
                                    ? this
                                    : page;
         result->_level++;
@@ -100,9 +100,9 @@ namespace Quark::System::Memory {
         return result;
     }
 
-    Opt<PhysMemFrame*> PhysMemFrame::merge()
+    Optional<PhysMemFrame*> PhysMemFrame::merge()
     {
-        u64 offset = getLevelAsOffset(_level);
+        u64 offset = GetLevelAsOffset(_level);
         if (!isPageAligned(_address, _level + 1)) {
             offset = -offset;
         }

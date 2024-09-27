@@ -23,7 +23,7 @@ namespace APIC {
         ACPI::MADT* madt;
 
         ::getRegisteredDevice<ACPI::ControllerDevice>("ACPI Management Device")
-            .ifPresent([&madt](ACPI::ControllerDevice* acpi) {
+            .IfPresent([&madt](ACPI::ControllerDevice* acpi) {
                 Res<ACPI::MADT*> opt = acpi->findTable<ACPI::MADT>("APIC");
                 if (opt.isOkay())
                     madt = opt.unwrap("MADT table not found.");

@@ -28,23 +28,23 @@ namespace Quark::System::Memory {
 
         virtual ~AddressSpace() {}
 
-        virtual Res<u64> alloc4KPages(
+        virtual Res<u64> Alloc4KPages(
             usize amount, //
             Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
                                    Hal::VmmFlags::WRITABLE) = 0;
-        virtual Res<u64> alloc2MPages(
+        virtual Res<u64> Alloc2MPages(
             usize amount, //
             Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
                                    Hal::VmmFlags::WRITABLE) = 0;
 
-        virtual Res<> free4KPages(u64 address, usize amount) = 0;
-        virtual Res<> free2MPages(u64 address, usize amount) = 0;
+        virtual Res<> Free4KPages(u64 address, usize amount) = 0;
+        virtual Res<> Free2MPages(u64 address, usize amount) = 0;
 
-        virtual Res<> map4KPages(u64                  phys, //
+        virtual Res<> Map4KPages(u64                  phys, //
                                  u64                  virt,
                                  usize                amount,
                                  Flags<Hal::VmmFlags> flags) = 0;
-        virtual Res<> map2MPages(u64                  phys, //
+        virtual Res<> Map2MPages(u64                  phys, //
                                  u64                  virt,
                                  usize                amount,
                                  Flags<Hal::VmmFlags> flags) = 0;
@@ -89,7 +89,7 @@ namespace Quark::System::Memory {
             });
         }
 
-        virtual Res<u64> getPhysAddress(u64) = 0;
+        virtual Res<u64> GetPhysAddress(u64) = 0;
 
     protected:
         struct Stats

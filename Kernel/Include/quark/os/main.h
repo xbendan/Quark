@@ -19,15 +19,15 @@ namespace Quark::System {
     LaunchConfiguration& getLaunchConfiguration();
 
     [[noreturn]]
-    void  setupKernel(LaunchConfiguration* bootInfo);
-    Res<> setupArch(LaunchConfiguration* bootInfo);
+    void  SetupKernel(LaunchConfiguration* bootInfo);
+    Res<> SetupArch(LaunchConfiguration* bootInfo);
 
-    Res<>                            initPhysMemory();
-    Res<AddressSpace*>               initVirtMemory();
-    Res<Process*>                    createKernelProcess(AddressSpace*);
+    Res<>                            InitPhysMemory();
+    Res<AddressSpace*>               InitVirtMemory();
+    Res<Process*>                    CreateKernelProcess(AddressSpace*);
     Res<IReadOnlyList<Io::Device*>*> enumerateInitialDevices();
-    Res<IReadOnlyList<Io::Device*>*> setupDevices();
-    Res<>                            initTasks();
-    Res<>                            initFileSystems();
+    Res<IReadOnlyList<Io::Device*>*> SetupDevices();
+    Res<>                            InitTasks();
+    Res<>                            InitFileSystems();
 
 } // namespace Quark::System
