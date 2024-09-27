@@ -534,7 +534,7 @@ class Arrays
     }
 
     template <typename TSource>
-    static void forEach(Slice<TSource>& src, Consumer<TSource&> action)
+    static void forEach(Slice<TSource>& src, Action<TSource&> action)
     {
         for (usize i = 0; i < src.size(); i++) {
             action(src[i]);

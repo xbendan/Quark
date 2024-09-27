@@ -8,9 +8,7 @@
 #include <mixins/utils/iterator.h>
 
 template <typename TSource>
-class ArrayList
-    : public IList<TSource>
-    , public IReadOnlyList<TSource>
+class ArrayList : public IList<TSource>
 {
     static constexpr usize DefaultCapacity = 8;
 
@@ -58,22 +56,22 @@ public:
         }
     }
     ArrayList(IReadOnlyCollection<TSource> const& collection)
-        : _data(new TSource[collection.count()])
-        , _count(collection.count())
-        , _capacity(collection.count())
+        : _data(new TSource[collection.Count()])
+        , _count(collection.Count())
+        , _capacity(collection.Count())
     {
         usize    i    = 0;
-        auto&    iter = collection.iter();
-        TSource& data = iter.current();
+        auto*    iter = collection.iter();
+        TSource& data = iter->current();
         while (true) {
             _data[i++] = data;
-            if (!iter.hasNext()) {
+            if (!iter->hasNext()) {
                 break;
             }
-            data = iter.next();
+            data = iter->next();
         }
 
-        delete &iter;
+        delete iter;
     }
 
     ~ArrayList() { delete[] _data; }
@@ -110,7 +108,7 @@ public:
 
     // MARK: ICollection<TSource> Implementation
 
-    TSource& add(TSource const& value) override
+    TSource& Add(TSource const& value) override
     {
         if (_count == _capacity) {
             _capacity     = _capacity * 2 + 1;
@@ -125,7 +123,7 @@ public:
         return _data[_count - 1];
     }
 
-    bool remove(TSource const& value) override
+    bool Remove(TSource const& value) override
     {
         for (usize i = 0; i < _count; i++) {
             if (_data[i] == const_cast<TSource&>(value)) {
@@ -139,7 +137,7 @@ public:
         return false;
     }
 
-    bool contains(TSource const& value) override
+    bool Contains(TSource const& value) const override
     {
         for (usize i = 0; i < _count; i++) {
             if (_data[i] == value) {
@@ -149,21 +147,11 @@ public:
         return false;
     }
 
-    bool contains(TSource const& value) const override
-    {
-        for (usize i = 0; i < _count; i++) {
-            if (_data[i] == value) {
-                return true;
-            }
-        }
-        return false;
-    }
+    usize Count() const override { return _count; }
 
-    usize count() const override { return _count; }
+    bool IsEmpty() const override { return _count == 0; }
 
-    bool isEmpty() const override { return _count == 0; }
-
-    void clear() override
+    void Clear() override
     {
         delete[] _data;
         _data     = nullptr;
@@ -173,19 +161,19 @@ public:
 
     ArrayList<TSource>& operator+=(TSource const& value) override
     {
-        add(value);
+        Add(value);
         return *this;
     }
 
     ArrayList<TSource>& operator-=(TSource const& value) override
     {
-        remove(value);
+        Remove(value);
         return *this;
     }
 
     // MARK: IList<TSource> Implementation
 
-    bool removeAt(usize index) override
+    bool RemoveAt(usize index) override
     {
         if (index >= _count) {
             return false;
@@ -197,10 +185,10 @@ public:
         return true;
     }
 
-    TSource& insert(TSource const& value, usize index) override
+    TSource& Insert(TSource const& value, usize index) override
     {
         if (index >= _count) {
-            return add(value);
+            return Add(value);
         }
         if (_count == _capacity) {
             _capacity     = _capacity * 2 + 1;
@@ -225,7 +213,7 @@ public:
         return _data[index];
     }
 
-    int indexOf(TSource const& value) const override
+    int IndexOf(TSource const& value) const override
     {
         for (usize i = 0; i < _count; i++) {
             if (_data[i] == value) {
@@ -235,7 +223,7 @@ public:
         return -1;
     }
 
-    int lastIndexOf(TSource const& value) const override
+    int LastIndexOf(TSource const& value) const override
     {
         for (int i = _count - 1; i >= 0; i--) {
             if (_data[i] == value) {
@@ -259,14 +247,14 @@ public:
         return _data[index];
     }
 
-    IIterator<TSource>& iter() const override
+    IIterator<TSource>* iter() const override
     {
-        return *new ArrayIterator<TSource>(_data, _count);
+        return new ArrayIterator<TSource>(_data, _count);
     }
 
     // MARK: IEnumerable<TSource> Implementation
 
-    TSource sum()
+    TSource Sum()
         requires(Computable<TSource>)
     {
         TSource result = 0;
@@ -276,13 +264,13 @@ public:
         return result;
     }
 
-    TSource average()
+    TSource Average()
         requires(Computable<TSource>)
     {
-        return _count ? (sum() / _count) : 0;
+        return _count ? (Sum() / _count) : 0;
     }
 
-    TSource max()
+    TSource Max()
         requires(Comparable<TSource>)
     {
         if (_count == 0) {
@@ -298,7 +286,7 @@ public:
         return result;
     }
 
-    TSource min()
+    TSource Min()
         requires(Comparable<TSource>)
     {
         if (_count == 0) {
@@ -315,7 +303,7 @@ public:
     }
 
     template <Computable TResult>
-    TResult sum(Func<TResult(TSource const&)> mapper)
+    TResult Sum(Func<TResult(TSource const&)> mapper)
     {
         TResult result = 0;
         for (usize i = 0; i < _count; i++) {
@@ -325,13 +313,13 @@ public:
     }
 
     template <Computable TResult>
-    TResult average(Func<TResult(TSource const&)> mapper)
+    TResult Average(Func<TResult(TSource const&)> mapper)
     {
-        return _count ? (sum(mapper) / _count) : 0;
+        return _count ? (Sum(mapper) / _count) : 0;
     }
 
     template <Comparable TResult>
-    TResult max(Func<TResult(TSource const&)> mapper)
+    TResult Max(Func<TResult(TSource const&)> mapper)
     {
         if (_count == 0) {
             return TResult();
@@ -348,7 +336,7 @@ public:
     }
 
     template <Comparable TResult>
-    TResult min(Func<TResult(TSource const&)> mapper)
+    TResult Min(Func<TResult(TSource const&)> mapper)
     {
         if (_count == 0) {
             return TResult();
@@ -365,7 +353,7 @@ public:
     }
 
     template <Comparable TKey>
-    TSource maxBy(Func<TKey(TSource const&)> selector)
+    TSource MaxBy(Func<TKey(TSource const&)> selector)
     {
         if (_count == 0) {
             return TSource();
@@ -384,7 +372,7 @@ public:
     }
 
     template <Comparable TKey>
-    TSource minBy(Func<TKey(TSource const&)> selector)
+    TSource MinBy(Func<TKey(TSource const&)> selector)
     {
         if (_count == 0) {
             return TSource();
@@ -402,62 +390,83 @@ public:
         return result;
     }
 
-    ArrayList<TSource>& order(bool ascending = true)
+    ArrayList<TSource>& Order(bool ascending = true)
         requires(Comparable<TSource>)
     {
     }
 
     template <Comparable TKey>
-    ArrayList<TSource>& orderBy(Func<TKey(TSource const&)> keySelector,
+    ArrayList<TSource>& OrderBy(Func<TKey(TSource const&)> keySelector,
                                 bool                       ascending)
     {
     }
 
-    TSource findFirst() { return _count ? _data[0] : TSource(); }
-
-    TSource findLast() { return _count ? _data[_count - 1] : TSource(); }
-
-    TSource findAny() { return _count ? _data[0] : TSource(); }
-
-    ArrayList<TSource>& take(usize n)
+    Optional<TSource&> FindFirst() override
     {
-        auto newList = new ArrayList<TSource>(n);
+        if (_count == 0) {
+            return Empty();
+        }
+
+        return _data[0];
+    }
+
+    Optional<TSource&> FindLast() override
+    {
+        if (_count == 0) {
+            return Empty();
+        }
+
+        return _data[_count - 1];
+    }
+
+    Optional<TSource&> FindAny() override
+    {
+        if (_count == 0) {
+            return Empty();
+        }
+
+        return _data[0];
+    }
+
+    ArrayList<TSource>& Take(usize n) override
+    {
+        ArrayList* newList = new ArrayList<TSource>(n);
         for (usize i = 0; i < n && i < _count; i++) {
-            newList->add(_data[i]);
+            newList->Add(_data[i]);
         }
         return *newList;
     }
 
-    ArrayList<TSource>& take(Tuple<usize, usize> range)
+    ArrayList<TSource>& Take(Tuple<usize, usize> range) override
     {
         auto newList = new ArrayList<TSource>(range.get<1>() - range.get<0>());
         for (usize i = range.get<0>(); i < range.get<1>() && i < _count; i++) {
-            newList->add(_data[i]);
+            newList->Add(_data[i]);
         }
         return *newList;
     }
 
-    ArrayList<TSource>& takeLast(usize n)
+    ArrayList<TSource>& TakeLast(usize n) override
     {
         auto newList = new ArrayList<TSource>(n);
         for (usize i = _count - n; i < _count; i++) {
-            newList->add(_data[i]);
+            newList->Add(_data[i]);
         }
         return *newList;
     }
 
-    ArrayList<TSource>& takeWhile(Predicate<TSource const&> predicate)
+    ArrayList<TSource>& TakeWhile(Predicate<TSource const&> predicate) override
     {
         auto newList = new ArrayList<TSource>();
         for (usize i = 0; i < _count; i++) {
             if (predicate(_data[i])) {
-                newList->add(_data[i]);
+                newList->Add(_data[i]);
             }
         }
         return *newList;
     }
 
-    TSource& single()
+    TSource& Single()
     {
         assert(
             _count == 1,
@@ -465,7 +474,7 @@ public:
         return _data[0];
     }
 
-    TSource& single(Predicate<TSource const&> predicate)
+    TSource& Single(Predicate<TSource const&> predicate)
     {
         usize index = -1;
         for (usize i = 0; i < _count; i++) {
@@ -483,51 +492,51 @@ public:
         return _data[index];
     }
 
-    TSource& singleOrDefault(TSource const& defaultValue)
+    TSource& SingleOrDefault(TSource const& defaultValue)
     {
         assert(
             _count <= 1,
             Error::InvalidOperation("Sequence contains more than one element"));
-        return _count ? _data[0] : defaultValue;
+        return _count ? _data[0] : const_cast<TSource&>(defaultValue);
     }
 
-    TSource& defaultIfEmpty()
+    TSource& DefaultIfEmpty()
         requires(Constructible<TSource>)
     {
         return _count ? _data[0] : TSource();
     }
 
-    TSource& defaultIfEmpty(TSource const& defaultValue)
+    TSource& DefaultIfEmpty(TSource const& defaultValue)
     {
-        return _count ? _data[0] : defaultValue;
+        return _count ? _data[0] : const_cast<TSource&>(defaultValue);
     }
 
-    ArrayList<TSource>& skip(usize n)
+    ArrayList<TSource>& Skip(usize n)
     {
         auto newList = new ArrayList<TSource>(_count - n);
         for (usize i = n; i < _count; i++) {
-            newList->add(_data[i]);
+            newList->Add(_data[i]);
         }
         return *newList;
     }
 
-    ArrayList<TSource>& skipLast(usize n)
+    ArrayList<TSource>& SkipLast(usize n)
     {
         auto newList = new ArrayList<TSource>(_count - n);
         for (usize i = 0; i < _count - n; i++) {
-            newList->add(_data[i]);
+            newList->Add(_data[i]);
         }
         return *newList;
     }
 
-    ArrayList<TSource>& skipWhile(Predicate<TSource const&> predicate)
+    ArrayList<TSource>& SkipWhile(Predicate<TSource const&> predicate)
     {
         auto newList = new ArrayList<TSource>();
         for (usize i = 0; i < _count; i++) {
             if (!predicate(_data[i])) {
                 continue;
             }
-            newList->add(_data[i]);
+            newList->Add(_data[i]);
         }
         return *newList;
     }
@@ -538,16 +547,16 @@ public:
     // }
 
     template <typename TResult>
-    ArrayList<TResult>& select(Func<TResult(TSource const&)> selector)
+    ArrayList<TResult>& Select(Func<TResult(TSource const&)> selector)
     {
         auto newList = new ArrayList<TResult>(_count);
         for (usize i = 0; i < _count; i++) {
-            newList->add(selector(_data[i]));
+            newList->Add(selector(_data[i]));
         }
         return *newList;
     }
 
-    bool allMatch(Predicate<TSource const&> predicate) const
+    bool AllMatch(Predicate<TSource const&> predicate) const
     {
         for (usize i = 0; i < _count; i++) {
             if (!predicate(_data[i])) {
@@ -557,7 +566,7 @@ public:
         return true;
     }
 
-    bool anyMatch(Predicate<TSource const&> predicate) const
+    bool AnyMatch(Predicate<TSource const&> predicate) const
     {
         for (usize i = 0; i < _count; i++) {
             if (predicate(_data[i])) {
@@ -567,7 +576,7 @@ public:
         return false;
     }
 
-    bool noneMatch(Predicate<TSource const&> predicate) const
+    bool NoneMatch(Predicate<TSource const&> predicate) const
     {
         for (usize i = 0; i < _count; i++) {
             if (predicate(_data[i])) {
@@ -577,14 +586,14 @@ public:
         return true;
     }
 
-    void forEach(Func<void(TSource const&)> action) const override
+    void ForEach(Func<void(TSource const&)> action) const
     {
         for (usize i = 0; i < _count; i++) {
             action(_data[i]);
         }
     }
 
-    void forEachOrdered(Func<void(TSource const&, usize)> action) const override
+    void ForEachOrdered(Func<void(TSource const&, usize)> action) const
     {
         for (usize i = 0; i < _count; i++) {
             action(_data[i], i);

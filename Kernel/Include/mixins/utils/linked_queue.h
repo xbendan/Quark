@@ -9,46 +9,46 @@ class LinkedQueue
     , protected LinkedList<TSource>
 {
 public:
-    TSource& add(TSource const& e) override
+    TSource& Add(TSource const& e) override
     {
-        LinkedList<TSource>::add(e);
+        LinkedList<TSource>::Add(e);
         return const_cast<TSource&>(e);
     }
 
-    bool remove(TSource const& e) override
+    bool Remove(TSource const& e) override
     {
         if (LinkedList<TSource>::findFirst() != e)
             return false;
 
-        LinkedList<TSource>::removeAt(0);
+        LinkedList<TSource>::RemoveAt(0);
         return true;
     }
 
-    bool contains(TSource const& e) override
+    bool Contains(TSource const& e) override
     {
-        return LinkedList<TSource>::contains(e);
+        return LinkedList<TSource>::Contains(e);
     }
 
-    usize count() const override { return LinkedList<TSource>::count(); }
+    usize Count() const override { return LinkedList<TSource>::Count(); }
 
-    bool isEmpty() const override { return LinkedList<TSource>::isEmpty(); }
+    bool IsEmpty() const override { return LinkedList<TSource>::IsEmpty(); }
 
-    void clear() override { LinkedList<TSource>::clear(); }
+    void Clear() override { LinkedList<TSource>::Clear(); }
 
-    void forEach(Func<void(TSource const&)> action) const override
+    void ForEach(Func<void(TSource const&)> action) const override
     {
-        LinkedList<TSource>::forEach(
+        LinkedList<TSource>::ForEach(
             Std::forward<Func<void(TSource const&)>>(action));
     }
 
-    IIterator<TSource>& iter() const override
+    IIterator<TSource>* iter() const override
     {
         return LinkedList<TSource>::iter();
     }
 
-    TSource& enqueue(TSource const& e) override { return add(e); }
+    TSource& Enqueue(TSource const& e) override { return Add(e); }
 
-    TSource dequeue() override { return LinkedList<TSource>::takeFirst(); }
+    TSource Dequeue() override { return LinkedList<TSource>::takeFirst(); }
 
     TSource peek() override { return LinkedList<TSource>::findFirst(); }
 };

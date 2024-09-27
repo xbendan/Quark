@@ -182,7 +182,7 @@ template <typename T>
 using Predicate = Func<bool(T)>;
 
 template <typename T>
-using Consumer = Func<void(T)>;
+using Action = Func<void(T)>;
 
 template <typename T>
 using Supplier = Func<T()>;

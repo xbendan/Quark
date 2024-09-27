@@ -4,14 +4,16 @@
 #include <mixins/std/c++types.h>
 #include <mixins/std/initializer_list.h>
 #include <mixins/std/panic.h>
+#include <mixins/utils/array_list.h>
 #include <mixins/utils/collections.h>
 #include <mixins/utils/iterator.h>
 
 template <typename TSource>
-class LinkedList
-    : public IList<TSource>
-    , public IReadOnlyList<TSource>
+class LinkedList : public IList<TSource>
 {
+    using TSourceReference =
+        Std::Conditional<Std::isScalar<TSource>, TSource, TSource const&>;
+
     struct Node
     {
         TSource _data;
@@ -63,7 +65,7 @@ public:
     {
         Node* node = other._head;
         while (node) {
-            add(node->_data);
+            Add(node->_data);
             node = node->_next;
         }
     }
@@ -81,14 +83,14 @@ public:
         , _tail(nullptr)
         , _size(0)
     {
-        collection.forEach([&](TSource const& data) { add(data); });
+        collection.ForEach([&](TSource const& data) { Add(data); });
     }
     LinkedList(IReadOnlyCollection<TSource> const& collection)
         : _head(nullptr)
         , _tail(nullptr)
         , _size(0)
     {
-        collection.forEach([&](TSource const& data) { add(data); });
+        collection.ForEach([&](TSource const& data) { Add(data); });
     }
     LinkedList(std::initializer_list<TSource> const& list)
         : _head(nullptr)
@@ -96,7 +98,7 @@ public:
         , _size(0)
     {
         for (auto& data : list) {
-            add(data);
+            Add(data);
         }
     }
     ~LinkedList()
@@ -113,7 +115,7 @@ public:
         if (this == &other) {
             return *this;
         }
-        clear();
+        Clear();
         Node* node = other._head;
         while (node) {
             pushBack(node->_data);
@@ -127,7 +129,7 @@ public:
         if (this == &other) {
             return *this;
         }
-        clear();
+        Clear();
         _head       = other._head;
         _tail       = other._tail;
         _size       = other._size;
@@ -139,19 +141,19 @@ public:
 
     LinkedList& operator=(ICollection<TSource> const& collection)
     {
-        clear();
-        collection.forEach([&](TSource const& data) { add(data); });
+        Clear();
+        collection.ForEach([&](TSource const& data) { Add(data); });
         return *this;
     }
 
     LinkedList& operator=(IReadOnlyCollection<TSource> const& collection)
     {
-        clear();
-        collection.forEach([&](TSource const& data) { add(data); });
+        Clear();
+        collection.ForEach([&](TSource const& data) { Add(data); });
         return *this;
     }
 
-    TSource& add(TSource const& data) override
+    TSource& Add(TSource const& data) override
     {
         Node* node = new Node(data);
         if (!_head) {
@@ -166,7 +168,7 @@ public:
         return node->_data;
     }
 
-    bool remove(TSource const& data) override
+    bool Remove(TSource const& data) override
     {
         Node* node = _head;
         while (node) {
@@ -190,7 +192,7 @@ public:
         return false;
     }
 
-    bool removeAt(usize index) override
+    bool RemoveAt(usize index) override
     {
         if (index >= _size) {
             return false;
@@ -214,13 +216,13 @@ public:
         return true;
     }
 
-    TSource& pushBack(TSource const& data) { return add(data); }
+    TSource& pushBack(TSource const& data) { return Add(data); }
 
     TSource& pushFront(TSource const& data)
     {
         Node* node = new Node(data, _head, nullptr);
         if (_head) {
-            _head->prev = node;
+            _head->_prev = node;
         } else {
             _tail = node;
         }
@@ -267,7 +269,7 @@ public:
         return data;
     }
 
-    bool contains(TSource const& data) override
+    bool Contains(TSource const& data) const override
     {
         Node* node = _head;
         while (node) {
@@ -279,24 +281,12 @@ public:
         return false;
     }
 
-    bool contains(TSource const& data) const override
-    {
-        Node* node = _head;
-        while (node) {
-            if (node->_data == data) {
-                return true;
-            }
-            node = node->_next;
-        }
-        return false;
-    }
+    usize Count() const override { return _size; }
 
-    usize count() const override { return _size; }
-
-    TSource& insert(TSource const& data, usize index) override
+    TSource& Insert(TSource const& data, usize index) override
     {
         if (index >= _size) {
-            return add(data);
+            return Add(data);
         }
         Node* node = _head;
         while (index--) {
@@ -325,7 +315,7 @@ public:
     //     return node->_data;
     // }
 
-    int indexOf(TSource const& data) const override
+    int IndexOf(TSource const& data) const override
     {
         Node* node  = _head;
         int   index = 0;
@@ -339,7 +329,7 @@ public:
         return -1;
     }
 
-    int lastIndexOf(TSource const& data) const override
+    int LastIndexOf(TSource const& data) const override
     {
         Node* node  = _tail;
         int   index = _size - 1;
@@ -353,9 +343,9 @@ public:
         return -1;
     }
 
-    bool isEmpty() const override { return _size == 0; }
+    bool IsEmpty() const override { return _size == 0; }
 
-    void clear() override
+    void Clear() override
     {
         while (_head) {
             Node* node = _head;
@@ -367,11 +357,11 @@ public:
         _size = 0;
     }
 
-    IIterator<TSource>& iter() const override { return *new _Iter(_head); }
+    IIterator<TSource>* iter() const override { return new _Iter(_head); }
 
     // Linq Functions
 
-    TSource sum()
+    TSource Sum()
         requires(Computable<TSource>)
     {
         TSource total = 0;
@@ -386,10 +376,10 @@ public:
     TSource average()
         requires(Computable<TSource>)
     {
-        return sum() / count();
+        return Sum() / Count();
     }
 
-    TSource max()
+    TSource Max()
         requires(Computable<TSource>)
     {
         TSource max  = _head->data;
@@ -403,7 +393,7 @@ public:
         return max;
     }
 
-    TSource min()
+    TSource Min()
         requires(Computable<TSource>)
     {
         TSource min  = _head->data;
@@ -418,7 +408,7 @@ public:
     }
 
     template <Computable TResult>
-    TResult sum(Func<TResult(TSource const&)> mapper)
+    TResult Sum(Func<TResult(TSource const&)> mapper)
     {
         TResult total = 0;
         Node*   node  = _head;
@@ -430,13 +420,13 @@ public:
     }
 
     template <Computable TResult>
-    TResult average(Func<TResult(TSource const&)> mapper)
+    TResult Average(Func<TResult(TSource const&)> mapper)
     {
-        return sum(mapper) / count();
+        return Sum<TResult>(mapper) / Count();
     }
 
     template <Comparable TResult>
-    TResult max(Func<TResult(TSource const&)> mapper)
+    TResult Max(Func<TResult(TSource const&)> mapper)
     {
         TResult max  = mapper(_head->data);
         Node*   node = _head->next;
@@ -451,7 +441,7 @@ public:
     }
 
     template <Comparable TResult>
-    TResult min(Func<TResult(TSource const&)> mapper)
+    TResult Min(Func<TResult(TSource const&)> mapper)
     {
         TResult min  = mapper(_head->data);
         Node*   node = _head->next;
@@ -466,7 +456,7 @@ public:
     }
 
     template <Comparable TKey>
-    TSource maxBy(Func<TKey(TSource const&)> selector)
+    TSource MaxBy(Func<TKey(TSource const&)> selector)
     {
         TSource& max  = _head->data;
         TKey     key  = selector(_head->data);
@@ -482,7 +472,7 @@ public:
         return max;
     }
     template <Comparable TKey>
-    TSource minBy(Func<TKey(TSource const&)> selector)
+    TSource MinBy(Func<TKey(TSource const&)> selector)
     {
         TSource& min  = _head->data;
         TKey     key  = selector(_head->data);
@@ -498,49 +488,49 @@ public:
         return min;
     }
 
-    IList<TSource>& order(bool ascending = true)
+    IList<TSource>& Order(bool ascending = true)
         requires(Comparable<TSource>)
     {
     }
 
     template <Comparable TKey>
-    IList<TSource>& orderBy(Func<TKey(TSource const&)> keySelector,
+    IList<TSource>& OrderBy(Func<TKey(TSource const&)> keySelector,
                             bool                       ascending)
     {
     }
 
-    TSource& findFirst() { return _head->_data; }
+    Optional<TSource&> FindFirst() { return _head->_data; }
 
-    Opt<TSource&> findFirst(Predicate<TSource const&> predicate)
+    Optional<TSource&> FindFirst(Predicate<TSource const&> predicate)
     {
         Node* node = _head;
         while (node) {
             if (predicate(node->_data)) {
-                return node->_data;
+                return &node->_data;
             }
             node = node->_next;
         }
         return Empty();
     }
 
-    TSource& findLast() { return _tail->_data; }
+    Optional<TSource&> FindLast() { return _tail->_data; }
 
-    TSource& findAny() {}
+    Optional<TSource&> FindAny() {}
 
-    IList<TSource>& take(usize n)
+    LinkedList<TSource>& Take(usize n)
     {
         auto newList = new LinkedList<TSource>();
         if (n > 0) {
             Node* node = _head;
             while (n-- && node) {
-                newList->add(node->_data);
+                newList->Add(node->_data);
                 node = node->_next;
             }
         }
         return *newList;
     }
 
-    IList<TSource>& take(Tuple<usize, usize> range)
+    LinkedList<TSource>& Take(Tuple<usize, usize> range)
     {
         auto newList = new LinkedList<TSource>();
         if (range.get<0>() > 0) {
@@ -549,26 +539,26 @@ public:
                 node = node->_next;
             }
             while (range.get<1>()-- && node) {
-                newList->add(node->_data);
+                newList->Add(node->_data);
                 node = node->_next;
             }
         }
         return *newList;
     }
 
-    TSource takeFirst()
+    Optional<TSource> TakeFirst()
     {
         if (_size == 0) {
-            Std::panic("Sequence contains no elements");
+            return Empty();
         }
 
         TSource data = Std::move(_head->_data);
-        removeAt(0);
+        RemoveAt(0);
 
         return data;
     }
 
-    Opt<TSource> takeFirst(Predicate<TSource const&> predicate)
+    Optional<TSource> TakeFirst(Predicate<TSource const&> predicate)
     {
         if (_size == 0) {
             Std::panic("Sequence contains no elements");
@@ -578,7 +568,7 @@ public:
         while (node) {
             if (predicate(node->_data)) {
                 TSource data = Std::move(node->_data);
-                remove(data);
+                Remove(data);
                 return data;
             }
             node = node->_next;
@@ -587,7 +577,7 @@ public:
         return Empty();
     }
 
-    IList<TSource>& takeLast(usize n)
+    LinkedList<TSource>& TakeLast(usize n)
     {
         auto newList = new LinkedList<TSource>();
         if (n > 0) {
@@ -600,66 +590,68 @@ public:
         return *newList;
     }
 
-    TSource takeLast()
+    Optional<TSource> TakeLast()
     {
         if (_size == 0) {
-            Std::panic("Sequence contains no elements");
+            return Empty();
         }
 
         TSource data = Std::move(_tail->_data);
-        removeAt(_size - 1);
+        RemoveAt(_size - 1);
 
         return data;
     }
 
-    IList<TSource>& takeWhile(Func<bool(TSource const&)> predicate)
+    LinkedList<TSource>& TakeWhile(Func<bool(TSource const&)> predicate)
     {
         auto  newList = new LinkedList<TSource>();
         Node* node    = _head;
         while (node && predicate(node->_data)) {
-            newList->add(node->_data);
+            newList->Add(node->_data);
             node = node->_next;
         }
         return *newList;
     }
 
-    TSource single()
+    TSource& Single()
     {
         if (_size != 1) {
             Std::panic("Sequence contains more than one element");
         }
-        return Std::move(_head->data);
+        return _head->_data;
     }
 
-    TSource singleOrDefault(TSource const& defaultValue)
+    TSource& Single(Predicate<TSource const&> predicate) {}
+
+    TSource& SingleOrDefault(TSource const& defaultValue)
     {
         if (_size > 1) {
             Std::panic("Sequence contains more than one element");
         }
         if (_size == 0) {
-            return defaultValue;
+            return const_cast<TSource&>(defaultValue);
         }
-        return Std::move(_head->data);
+        return _head->_data;
     }
 
-    TSource defaultIfEmpty()
+    TSource& DefaultIfEmpty()
         requires(Constructible<TSource>)
     {
         if (_size == 0) {
             return TSource();
         }
-        return Std::move(_head->data);
+        return _head->data;
     }
 
-    TSource defaultIfEmpty(TSource const& defaultValue)
+    TSource& DefaultIfEmpty(TSource const& defaultValue)
     {
         if (_size == 0) {
-            return defaultValue;
+            return const_cast<TSource&>(defaultValue);
         }
-        return Std::move(_head->data);
+        return Count() ? _head->_data : const_cast<TSource&>(defaultValue);
     }
 
-    IList<TSource>& skip(usize n)
+    LinkedList<TSource>& Skip(usize n)
     {
         auto newList = new LinkedList<TSource>();
         if (n < _size) {
@@ -668,23 +660,23 @@ public:
                 node = node->_next;
             }
             while (node) {
-                newList->add(node->_data);
+                newList->Add(node->_data);
                 node = node->_next;
             }
         }
         return *newList;
     }
 
-    IList<TSource>& skipLast(usize n) {}
+    LinkedList<TSource>& SkipLast(usize n) {}
 
-    IList<TSource>& skipWhile(Func<bool(TSource const&)> predicate) {}
+    LinkedList<TSource>& SkipWhile(Func<bool(TSource const&)> predicate) {}
 
     // template <class TCollection, typename TKey>
     // TCollection<T>& groupBy(Func<TKey(TSource const&)> keySelector)
     // {
     // }
 
-    void forEach(Func<void(TSource const&)> action) const override
+    void ForEach(Func<void(TSource const&)> action) const
     {
         Node* node = _head;
         while (node) {
@@ -693,7 +685,7 @@ public:
         }
     }
 
-    void forEachOrdered(Func<void(TSource const&, usize)> action) const override
+    void ForEachOrdered(Func<void(TSource const&, usize)> action) const
     {
         Node* node = _head;
         usize i    = 0;
@@ -704,11 +696,18 @@ public:
     }
 
     template <typename TResult>
-    IList<TResult>* select(Func<TResult(TSource const&)> selector)
+    IList<TResult>* Select(Func<TResult(TSource const&)> selector)
     {
+        auto* newList = new ArrayList<TResult>(this->Count());
+        Node* node    = _head;
+        while (node) {
+            newList->Add(selector(node->_data));
+            node = node->_next;
+        }
+        return newList;
     }
 
-    bool allMatch(Func<bool(TSource const&)> predicate) const
+    bool AllMatch(Func<bool(TSource const&)> predicate) const
     {
         Node* node = _head;
         while (node) {
@@ -720,7 +719,7 @@ public:
         return true;
     }
 
-    bool anyMatch(Func<bool(TSource const&)> predicate) const
+    bool AnyMatch(Func<bool(TSource const&)> predicate) const
     {
         Node* node = _head;
         while (node) {
@@ -732,7 +731,7 @@ public:
         return false;
     }
 
-    bool noneMatch(Func<bool(TSource const&)> predicate) const
+    bool NoneMatch(Func<bool(TSource const&)> predicate) const
     {
         Node* node = _head;
         while (node) {
@@ -746,13 +745,13 @@ public:
 
     LinkedList<TSource>& operator+=(TSource const& data) override
     {
-        add(data);
+        Add(data);
         return *this;
     }
 
     LinkedList<TSource>& operator-=(TSource const& data) override
     {
-        remove(data);
+        Remove(data);
         return *this;
     }
 

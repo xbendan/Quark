@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mixins/meta/func.h>
+#include <mixins/meta/opt.h>
 #include <mixins/meta/tuple.h>
 #include <mixins/std/concepts.h>
 
@@ -12,15 +13,15 @@ class IIterable
 };
 
 template <typename TSource>
-class Array;
-
-template <typename TSource>
-class IList;
-
-template <typename TSource>
-class IEnumerable
+    requires(Computable<TSource> && Comparable<TSource>)
+class Enumerable
 {
 public:
+    virtual TSource Sum()     = 0;
+    virtual TSource Average() = 0;
+    virtual TSource Max()     = 0;
+    virtual TSource Min()     = 0;
+
     //     virtual TSource sum()
     //         requires(Computable<TSource>)
     //     = 0;
@@ -57,27 +58,27 @@ public:
     //         Func<TKey(TSource const&)> keySelector,
     //         bool                       ascending) = 0;
 
-    virtual TSource findFirst() = 0;
-    virtual TSource findLast()  = 0;
-    virtual TSource findAny()   = 0;
+    virtual TSource& findFirst() = 0;
+    virtual TSource& findLast()  = 0;
+    virtual TSource& findAny()   = 0;
 
-    virtual IEnumerable<TSource>& take(usize n)                   = 0;
-    virtual IEnumerable<TSource>& take(Tuple<usize, usize> range) = 0;
-    virtual IEnumerable<TSource>& takeLast(usize n)               = 0;
-    virtual IEnumerable<TSource>& takeWhile(
+    virtual Enumerable<TSource>& take(usize n)                   = 0;
+    virtual Enumerable<TSource>& take(Tuple<usize, usize> range) = 0;
+    virtual Enumerable<TSource>& takeLast(usize n)               = 0;
+    virtual Enumerable<TSource>& takeWhile(
         Func<bool(TSource const&)> predicate) = 0;
 
-    //     virtual TSource single()                                     = 0;
-    //     virtual TSource singleOrDefault(TSource const& defaultValue) = 0;
-    //     virtual TSource defaultIfEmpty()
-    //         requires(Constructible<TSource>)
-    //     = 0;
-    //     virtual TSource defaultIfEmpty(TSource const& defaultValue) = 0;
+    virtual TSource single()                                     = 0;
+    virtual TSource singleOrDefault(TSource const& defaultValue) = 0;
+    // virtual TSource defaultIfEmpty()
+    //     requires(Constructible<TSource>)
+    // = 0;
+    virtual TSource defaultIfEmpty(TSource const& defaultValue)  = 0;
 
-    //     virtual IEnumerable<TSource>& skip(usize n)     = 0;
-    //     virtual IEnumerable<TSource>& skipLast(usize n) = 0;
-    //     virtual IEnumerable<TSource>& skipWhile(
-    //         Func<bool(TSource const&)> predicate) = 0;
+    virtual Enumerable<TSource>& skip(usize n)     = 0;
+    virtual Enumerable<TSource>& skipLast(usize n) = 0;
+    virtual Enumerable<TSource>& skipWhile(
+        Func<bool(TSource const&)> predicate) = 0;
 
     //     template <class TCollection, typename TKey>
     //     virtual TCollection<T>& groupBy(Func<TKey(TSource const&)>
@@ -94,12 +95,40 @@ public:
     virtual bool anyMatch(Func<bool(TSource const&)> predicate) const  = 0;
     virtual bool noneMatch(Func<bool(TSource const&)> predicate) const = 0;
 
-    virtual void forEach(Func<void(TSource const&)> action) = 0;
+    virtual void forEach(Func<void(TSource const&)> action) const = 0;
 
     //     virtual Array<TSource>& toArray() = 0;
     //     virtual IList<TSource>& toList()  = 0;
     //     virtual ISet<TSource>& toSet()    = 0;
 };
+
+// template <template <typename> typename TClass, typename TSource>
+// concept IEnumerable =
+//     requires(TClass<TSource>                   t,
+//              TSource const&                    e,
+//              Predicate<TSource const&>         predicate,
+//              Action<TSource const&>            action,
+//              Func<void(TSource const&, usize)> actionIndexed) {
+//         { t.FindFirst() } -> SameAs<Optional<TSource&>>;
+//         { t.FindLast() } -> SameAs<Optional<TSource&>>;
+//         { t.FindAny() } -> SameAs<Optional<TSource&>>;
+//         { t.Take(0) } -> SameAs<TClass<TSource>&>;
+//         { t.Take(Tuple<usize, usize>()) } -> SameAs<TClass<TSource>&>;
+//         { t.TakeLast(0) } -> SameAs<TClass<TSource>&>;
+//         { t.TakeWhile(predicate) } -> SameAs<TClass<TSource>&>;
+//         { t.Skip(0) } -> SameAs<TClass<TSource>&>;
+//         { t.SkipLast(0) } -> SameAs<TClass<TSource>&>;
+//         { t.SkipWhile(predicate) } -> SameAs<TClass<TSource>&>;
+//         { t.Single() } -> SameAs<TSource&>;
+//         { t.Single(predicate) } -> SameAs<TSource&>;
+//         { t.SingleOrDefault(e) } -> SameAs<TSource&>;
+//         { t.DefaultIfEmpty(e) } -> SameAs<TSource&>;
+//         { t.AllMatch(predicate) } -> ConvertibleTo<bool>;
+//         { t.AnyMatch(predicate) } -> ConvertibleTo<bool>;
+//         { t.NoneMatch(predicate) } -> ConvertibleTo<bool>;
+//         { t.ForEach(action) } -> SameAs<void>;
+//         { t.ForEachOrdered(actionIndexed) } -> SameAs<void>;
+//     };
 
 template <typename TSource>
 class IIterator
@@ -119,44 +148,101 @@ public:
 };
 
 template <typename TSource>
-class ICollection
+class IEnumerable
 {
 public:
-    virtual TSource& add(TSource const& e)      = 0;
-    virtual bool     remove(TSource const& e)   = 0;
-    virtual bool     contains(TSource const& e) = 0;
-    virtual usize    count() const              = 0;
-    virtual bool     isEmpty() const            = 0;
-    virtual void     clear()                    = 0;
+    virtual Optional<TSource&>    FindFirst()                 = 0;
+    virtual Optional<TSource&>    FindLast()                  = 0;
+    virtual Optional<TSource&>    FindAny()                   = 0;
+    virtual IEnumerable<TSource>& Take(usize n)               = 0;
+    virtual IEnumerable<TSource>& Take(Tuple<usize, usize> r) = 0;
+    virtual IEnumerable<TSource>& TakeLast(usize n)           = 0;
+    virtual IEnumerable<TSource>& TakeWhile(
+        Func<bool(TSource const&)> predicate)       = 0;
+    virtual IEnumerable<TSource>& Skip(usize n)     = 0;
+    virtual IEnumerable<TSource>& SkipLast(usize n) = 0;
+    virtual IEnumerable<TSource>& SkipWhile(
+        Func<bool(TSource const&)> predicate)                              = 0;
+    virtual TSource& Single()                                              = 0;
+    virtual TSource& SingleOrDefault(TSource const& defaultValue)          = 0;
+    virtual TSource& DefaultIfEmpty(TSource const& defaultValue)           = 0;
+    virtual bool     AllMatch(Func<bool(TSource const&)> predicate) const  = 0;
+    virtual bool     AnyMatch(Func<bool(TSource const&)> predicate) const  = 0;
+    virtual bool     NoneMatch(Func<bool(TSource const&)> predicate) const = 0;
+    virtual void     ForEach(Func<void(TSource const&)> action) const      = 0;
+    virtual void     ForEachOrdered(
+            Func<void(TSource const&, usize)> action) const = 0;
+};
 
-    virtual void forEach(Func<void(TSource const&)> action) const = 0;
+template <typename TSource>
+    requires(Computable<TSource> && Comparable<TSource>)
+class IEnumerable<TSource>
+{
+public:
+    virtual TSource               Sum()                        = 0;
+    virtual TSource               Average()                    = 0;
+    virtual TSource               Max()                        = 0;
+    virtual TSource               Min()                        = 0;
+    virtual IEnumerable<TSource>& Order(bool ascending = true) = 0;
 
-    virtual IIterator<TSource>& iter() const = 0;
+    virtual Optional<TSource&>    FindFirst()                 = 0;
+    virtual Optional<TSource&>    FindLast()                  = 0;
+    virtual Optional<TSource&>    FindAny()                   = 0;
+    virtual IEnumerable<TSource>& Take(usize n)               = 0;
+    virtual IEnumerable<TSource>& Take(Tuple<usize, usize> r) = 0;
+    virtual IEnumerable<TSource>& TakeLast(usize n)           = 0;
+    virtual IEnumerable<TSource>& TakeWhile(
+        Func<bool(TSource const&)> predicate)       = 0;
+    virtual IEnumerable<TSource>& Skip(usize n)     = 0;
+    virtual IEnumerable<TSource>& SkipLast(usize n) = 0;
+    virtual IEnumerable<TSource>& SkipWhile(
+        Func<bool(TSource const&)> predicate)                              = 0;
+    virtual TSource& Single()                                              = 0;
+    virtual TSource& SingleOrDefault(TSource const& defaultValue)          = 0;
+    virtual TSource& DefaultIfEmpty(TSource const& defaultValue)           = 0;
+    virtual bool     AllMatch(Func<bool(TSource const&)> predicate) const  = 0;
+    virtual bool     AnyMatch(Func<bool(TSource const&)> predicate) const  = 0;
+    virtual bool     NoneMatch(Func<bool(TSource const&)> predicate) const = 0;
+    virtual void     ForEach(Func<void(TSource const&)> action) const      = 0;
+    virtual void     ForEachOrdered(
+            Func<void(TSource const&, usize)> action) const = 0;
+};
+
+template <typename TSource>
+class IReadOnlyCollection : public IEnumerable<TSource>
+{
+public:
+    virtual bool  Contains(TSource const& e) const = 0;
+    virtual usize Count() const                    = 0;
+    virtual bool  IsEmpty() const                  = 0;
+
+    virtual IIterator<TSource>* iter() const = 0;
+};
+
+template <typename TSource>
+class ICollection : public IEnumerable<TSource>
+{
+public:
+    virtual TSource& Add(TSource const& e)            = 0;
+    virtual bool     Remove(TSource const& e)         = 0;
+    virtual bool     Contains(TSource const& e) const = 0;
+    virtual usize    Count() const                    = 0;
+    virtual bool     IsEmpty() const                  = 0;
+    virtual void     Clear()                          = 0;
+
+    virtual IIterator<TSource>* iter() const = 0;
 
     virtual ICollection<TSource>& operator+=(TSource const& e)
     {
-        add(e);
+        Add(e);
         return *this;
     }
 
     virtual ICollection<TSource>& operator-=(TSource const& e)
     {
-        remove(e);
+        Remove(e);
         return *this;
     }
-};
-
-template <typename TSource>
-class IReadOnlyCollection
-{
-public:
-    virtual bool  contains(TSource const& e) const = 0;
-    virtual usize count() const                    = 0;
-    virtual bool  isEmpty() const                  = 0;
-
-    virtual void forEach(Func<void(TSource const&)> action) const = 0;
-
-    virtual IIterator<TSource>& iter() const = 0;
 };
 
 template <typename TKey, typename TValue>
@@ -168,58 +254,50 @@ public:
 };
 
 template <typename TSource>
-class IList
-    : public ICollection<TSource>
-    , public IKeyedAccess<usize, TSource>
-{
-public:
-    // virtual TSource& pushBack(TSource const& e)          = 0;
-    // virtual TSource& pushFront(TSource const& e)         = 0;
-    // virtual TSource  popBack()                           = 0;
-    // virtual TSource  popFront()                          = 0;
-    virtual bool     remove(TSource const& e)            = 0;
-    virtual bool     removeAt(usize i)                   = 0;
-    virtual TSource& insert(TSource const& e, usize i)   = 0;
-    virtual int      indexOf(TSource const& e) const     = 0;
-    virtual int      lastIndexOf(TSource const& e) const = 0;
-
-    virtual void forEachOrdered(
-        Func<void(TSource const&, usize)> action) const = 0;
-};
-
-template <typename TSource>
 class IReadOnlyList
     : public IReadOnlyCollection<TSource>
     , public IKeyedAccess<usize, TSource>
 {
 public:
-    virtual int indexOf(TSource const& e) const     = 0;
-    virtual int lastIndexOf(TSource const& e) const = 0;
+    virtual bool  Contains(TSource const& e) const override;
+    virtual usize Count() const override;
+    virtual bool  IsEmpty() const override;
+    virtual int   IndexOf(TSource const& e) const     = 0;
+    virtual int   LastIndexOf(TSource const& e) const = 0;
+};
 
-    virtual void forEachOrdered(
-        Func<void(TSource const&, usize)> action) const = 0;
+template <typename TSource>
+class IList
+    : public ICollection<TSource>
+    , public IKeyedAccess<usize, TSource>
+{
+public:
+    virtual bool     RemoveAt(usize i)                   = 0;
+    virtual TSource& Insert(TSource const& e, usize i)   = 0;
+    virtual int      IndexOf(TSource const& e) const     = 0;
+    virtual int      LastIndexOf(TSource const& e) const = 0;
 };
 
 template <typename TSource>
 class ISet : public ICollection<TSource>
 {
 public:
-    virtual bool           isSubsetOf(ISet<TSource> const& other) const   = 0;
-    virtual bool           isSupersetOf(ISet<TSource> const& other) const = 0;
-    virtual ISet<TSource>& isOverlapWith(ISet<TSource> const& other)      = 0;
+    virtual bool           IsSubsetOf(ISet<TSource> const& other) const   = 0;
+    virtual bool           IsSupersetOf(ISet<TSource> const& other) const = 0;
+    virtual ISet<TSource>& IsOverlapWith(ISet<TSource> const& other)      = 0;
 
-    virtual ISet<TSource>& exceptWith(ISet<TSource> const& other)          = 0;
-    virtual ISet<TSource>& unionWith(ISet<TSource> const& other)           = 0;
-    virtual ISet<TSource>& intersectWith(ISet<TSource> const& other)       = 0;
-    virtual ISet<TSource>& symmetricExceptWith(ISet<TSource> const& other) = 0;
+    virtual ISet<TSource>& ExceptWith(ISet<TSource> const& other)          = 0;
+    virtual ISet<TSource>& UnionWith(ISet<TSource> const& other)           = 0;
+    virtual ISet<TSource>& IntersectWith(ISet<TSource> const& other)       = 0;
+    virtual ISet<TSource>& SymmetricExceptWith(ISet<TSource> const& other) = 0;
 };
 
 template <typename TSource>
 class IQueue : public ICollection<TSource>
 {
-    virtual TSource& enqueue(TSource const& e) = 0;
-    virtual TSource  dequeue()                 = 0;
-    virtual TSource  peek()                    = 0;
+    virtual TSource& Enqueue(TSource const& e) = 0;
+    virtual TSource  Dequeue()                 = 0;
+    virtual TSource  Peek()                    = 0;
 };
 
 // template <typename TSource, typename E>

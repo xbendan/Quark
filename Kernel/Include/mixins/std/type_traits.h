@@ -263,6 +263,15 @@ namespace Std {
     using AddCV = typename _addCV<T>::Type;
 
     template <typename T>
+    struct _addPointer
+    {
+        using Type = T*;
+    };
+
+    template <typename T>
+    using AddPointer = typename _addPointer<T>::Type;
+
+    template <typename T>
     struct _addLValueReference
     {
         using Type = T&;
@@ -640,8 +649,8 @@ namespace Std {
 
     namespace _ {
         template <class T>
-        auto tReturnable(int)
-            -> decltype(void(static_cast<T (*)()>(nullptr)), TrueType{});
+        auto tReturnable(int) -> decltype(void(static_cast<T (*)()>(nullptr)),
+                                          TrueType{});
         template <class>
         auto tReturnable(...) -> FalseType;
 
@@ -654,24 +663,23 @@ namespace Std {
         auto tImplicitlyConvertible(...) -> FalseType;
     }
 
-    // template <typename From, typename To>
-    // struct _isConvertible
-    //     : Constant<bool,
-    //                (decltype(_::tReturnable<To>(0))::value &&
-    //                 decltype(_::tImplicitlyConvertible<From, To>(0))::value)
-    //                 ||
-    //                    (isVoid<From> && isVoid<To>)>
-    // {};
-
-    // template <typename From, typename To>
-    // inline constexpr bool isConvertible = _isConvertible<From, To>::value;
-
     template <typename From, typename To>
-    struct _isConvertible : public Constant<bool, __is_convertible(From, To)>
+    struct _isConvertible
+        : Constant<bool,
+                   (decltype(_::tReturnable<To>(0))::value &&
+                    decltype(_::tImplicitlyConvertible<From, To>(0))::value) ||
+                       (isVoid<From> && isVoid<To>)>
     {};
 
     template <typename From, typename To>
     inline constexpr bool isConvertible = _isConvertible<From, To>::value;
+
+    // template <typename From, typename To>
+    // struct _isConvertible : public Constant<bool, __is_convertible(From, To)>
+    // {};
+
+    // template <typename From, typename To>
+    // inline constexpr bool isConvertible = _isConvertible<From, To>::value;
 
     template <typename From, typename To>
     struct _isDerived : Constant<bool, __is_base_of(From, To)>
