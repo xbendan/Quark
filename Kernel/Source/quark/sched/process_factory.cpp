@@ -1,61 +1,55 @@
 #include <mixins/std/assert.h>
-#include <quark/api/memory.h>
 #include <quark/api/task.h>
 #include <quark/sched/process.h>
 #include <quark/sched/sched.h>
 
-namespace Quark::System::API {
-    using namespace Quark::System::Task;
-
-    Res<RefPtr<Process>> createProcess(string name)
+namespace Quark::System::Task {
+    Res<RefPtr<Process>> Process::CreateProcess(string name)
     {
-        Process* p = new Process(
-            Scheduler::nextPID(), name, createAddressSpace().unwrap());
-        Process::addProcess(p);
+        auto* p = new Process(
+            Scheduler::GetNextPID(), name, AddressSpace::Create().Unwrap());
 
         return Ok(RefPtr<Process>(p));
     }
 
-    Res<RefPtr<Process>> createIdleProcess()
+    Res<RefPtr<Process>> Process::CreateIdleProcess()
     {
-        Process* p = new Process(Scheduler::nextPID(),
-                                 "Idle",
-                                 Process::getKernelProcess()->_addressSpace);
-        Process::addProcess(p);
+        auto* p = new Process(Scheduler::GetNextPID(),
+                              "Idle",
+                              Process::GetKernelProcess()->_addressSpace);
 
         return Ok(RefPtr<Process>(p));
     }
 
-    template <typename... Args>
-    Res<RefPtr<Process>> createProcessEx( //
+    Res<Process*> Process::CreateKernelProcess(AddressSpace* addressSpace)
+    {
+        if (m_kernelProcess) {
+            return Error::InvalidState("Kernel process already exists.");
+        }
+
+        m_kernelProcess = new Process(0, "Kernel", addressSpace, 0, 0, 0);
+        m_processes[0]  = m_kernelProcess;
+
+        return Ok(m_kernelProcess);
+    }
+
+    Res<RefPtr<Process>> Process::CreateProcessEx( //
         string  name,
         File*   file,
         Folder* workingDirectory,
-        Args&&... launchArgs)
+        string  launchArgs)
     {
         if (!file) {
             return Error::InvalidArgument();
         }
 
-        Process* p = new Process(
-            Scheduler::nextPID(), name, createAddressSpace().unwrap(), 0, 0, 0);
-        Process::addProcess(p);
+        auto* p = new Process(Scheduler::GetNextPID(),
+                              name,
+                              AddressSpace::Create().Unwrap(),
+                              0,
+                              0,
+                              0);
 
-        return Error::NotImplemented();
-    }
-
-    Res<Thread*> createThread(Process* process)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<Thread*> createThreadEx(Process*      process,
-                                u8            priority,
-                                const string& name,
-                                const string& description,
-                                const string& command,
-                                const string& arguments)
-    {
-        return Error::NotImplemented();
+        return Ok(RefPtr<Process>(p));
     }
 }

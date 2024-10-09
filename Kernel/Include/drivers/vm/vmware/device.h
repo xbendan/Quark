@@ -6,7 +6,7 @@ namespace VmWare {
     class ControllerDevice : public Io::Device
     {
     public:
-        Res<> onLoad() override;
-        Res<> onStartup() override;
+        Res<> OnInitialize() override;
+        Res<> OnStartup() override;
     };
 }

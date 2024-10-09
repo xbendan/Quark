@@ -18,15 +18,15 @@ namespace APIC {
     {
     }
 
-    Res<> GenericControllerDevice::onLoad()
+    Res<> GenericControllerDevice::OnInitialize()
     {
         ACPI::MADT* madt;
 
         ::getRegisteredDevice<ACPI::ControllerDevice>("ACPI Management Device")
             .IfPresent([&madt](ACPI::ControllerDevice* acpi) {
                 Res<ACPI::MADT*> opt = acpi->findTable<ACPI::MADT>("APIC");
-                if (opt.isOkay())
-                    madt = opt.unwrap("MADT table not found.");
+                if (opt.IsOkay())
+                    madt = opt.Unwrap("MADT table not found.");
             });
         if (madt == nullptr)
             return Error::DeviceFault("MADT table not found.");

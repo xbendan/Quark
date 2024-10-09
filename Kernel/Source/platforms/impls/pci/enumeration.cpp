@@ -10,7 +10,7 @@ namespace PCI {
     {
     }
 
-    Res<> PCIEnumerationDevice::onLoad()
+    Res<> PCIEnumerationDevice::OnInitialize()
     {
         auto acpi = ::getRegisteredDevice<ACPI::ControllerDevice>(
             "ACPI Management Device");
@@ -20,8 +20,8 @@ namespace PCI {
 
         auto table = acpi.Take()->findTable<ACPI::PCIExpressSpecTable>("MCFG");
 
-        if (table.isOkay()) {
-            m_pciExpressTable = table.unwrap();
+        if (table.IsOkay()) {
+            m_pciExpressTable = table.Unwrap();
             m_accessMode      = ConfigAccessMode::Enhanced;
         } else
             m_accessMode = ConfigAccessMode::Legacy;

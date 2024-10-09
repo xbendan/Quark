@@ -1,4 +1,4 @@
-#include <quark/api/memory.h>
+#include <quark/memory/address_space.h>
 #include <quark/memory/memory_info.h>
 #include <quark/memory/page_alloc.h>
 
@@ -10,26 +10,22 @@ namespace Quark::System::Memory {
     Array<PhysMemQueue[BUDDY_LEVEL_UPPER_LIMIT + 1]> g_pageQueues;
     PhysMemFrame**                                   g_pageFrames;
     // PhysMemFrame**               g_pageFrames;
-}
-
-namespace Quark::System::API {
-    using namespace Quark::System::Memory;
 
     // General Memory Allocation and Free
 
-    Res<u64> allocMemory4K(usize                amount,
-                           AddressSpace*        addressSpace,
-                           Flags<Hal::VmmFlags> flags)
+    Res<u64> AllocateMemory4K(usize                amount,
+                              AddressSpace*        addressSpace,
+                              Flags<Hal::VmmFlags> flags)
     {
-        Res<u64> phys = ::allocPhysMemory4K(amount);
+        Res<u64> phys = AllocatePhysMemory4K(amount);
 
-        if (phys.isOkay()) {
+        if (phys.IsOkay()) {
             u64 address = 0;
 
             addressSpace->Map4KPages(
-                phys.unwrap(),
+                phys.Unwrap(),
                 address =
-                    ::allocVirtMemory4K(amount, addressSpace, flags).unwrap(),
+                    AllocateVirtMemory4K(amount, addressSpace, flags).Unwrap(),
                 amount,
                 flags);
             return Ok(address);
@@ -40,7 +36,7 @@ namespace Quark::System::API {
         return Error::OutOfMemory();
     }
 
-    Res<> freeMemory4K(usize address, usize amount, AddressSpace* addressSpace)
+    Res<> FreeMemory4K(usize address, usize amount, AddressSpace* addressSpace)
     {
         if (!address || !amount || !addressSpace) {
             return Error::InvalidArgument();
@@ -48,15 +44,15 @@ namespace Quark::System::API {
 
         Res<u64> phys = addressSpace->GetPhysAddress(address);
 
-        if (phys.isOkay()) {
-            freePhysMemory4K(phys.unwrap(), amount);
+        if (phys.IsOkay()) {
+            FreePhysMemory4K(phys.Unwrap(), amount);
         }
 
-        freeVirtMemory4K(address, amount, addressSpace);
+        FreeVirtMemory4K(address, amount, addressSpace);
         return Ok();
     }
 
-    Res<> mapAddress(u64                  phys,
+    Res<> MapAddress(u64                  phys,
                      u64                  virt,
                      usize                amount,
                      AddressSpace*        addressSpace,
@@ -73,7 +69,7 @@ namespace Quark::System::API {
 
     // Physical Memory Management
 
-    Res<PhysMemFrame*> allocPhysFrame4K(usize amount)
+    Res<PhysMemFrame*> AllocatePhysFrame4K(usize amount)
     {
         if (amount == 0 || (amount % PAGE_SIZE_4K) != 0) {
             return Error::AllocateFailed("Invalid allocation size");
@@ -105,13 +101,13 @@ namespace Quark::System::API {
         return Ok(p);
     }
 
-    Res<u64> allocPhysMemory4K(usize amount)
+    Res<u64> AllocatePhysMemory4K(usize amount)
     {
-        return allocPhysFrame4K(amount).map<u64>(
+        return AllocatePhysFrame4K(amount).Select<u64>(
             [](PhysMemFrame* frame) { return frame->_address; });
     }
 
-    Res<> freePhysMemory4K(usize address, usize amount)
+    Res<> FreePhysMemory4K(usize address, usize amount)
     {
         PhysMemFrame* page = PhysMemFrame::at(address);
 
@@ -155,9 +151,9 @@ namespace Quark::System::API {
     }
     // Virtual Memory Management
 
-    Res<u64> allocVirtMemory4K(usize                amount,
-                               AddressSpace*        addressSpace,
-                               Flags<Hal::VmmFlags> flags)
+    Res<u64> AllocateVirtMemory4K(usize                amount,
+                                  AddressSpace*        addressSpace,
+                                  Flags<Hal::VmmFlags> flags)
     {
         if (!amount || !addressSpace) {
             return Error::InvalidArgument();
@@ -166,7 +162,7 @@ namespace Quark::System::API {
         return addressSpace->Alloc4KPages(amount, flags);
     }
 
-    Res<> freeVirtMemory4K(usize         address,
+    Res<> FreeVirtMemory4K(usize         address,
                            usize         amount,
                            AddressSpace* addressSpace)
     {

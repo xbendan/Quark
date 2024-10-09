@@ -20,7 +20,7 @@ namespace Quark::System::Task {
         static void schedule(ProcessContext* context, Thread* thread);
         static void schedule(ProcessContext* context);
         static void scheduleAll();
-        static u32  nextPID();
+        static u32  GetNextPID();
 
     private:
         Scheduler() = delete;

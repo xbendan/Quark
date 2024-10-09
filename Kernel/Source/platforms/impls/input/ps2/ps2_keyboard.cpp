@@ -6,7 +6,7 @@ namespace PS2 {
     {
     }
 
-    Res<> LegacyKeyboardDevice::onStartup()
+    Res<> LegacyKeyboardDevice::OnStartup()
     {
         // Register IRQ handler for PS/2 Keyboard.
         return Ok();

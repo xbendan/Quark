@@ -13,7 +13,7 @@ CXXFLAGS = \
 	-Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-write-strings \
 	-Waddress-of-packed-member \
 	-DGLOBAL_API_NAMESPACE \
-	-ffreestanding -fno-exceptions -fno-rtti -fno-stack-protector -fno-pic \
+	-ffreestanding -fno-exceptions -fno-stack-protector -fno-pic \
 	-mno-sse -mno-sse2 -mno-sse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2 \
 	-mno-avx -mno-avx2 -mno-mmx \
 	-std=c++23 \

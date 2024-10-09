@@ -1,5 +1,4 @@
 #include <quark/api/logging.h>
-#include <quark/api/memory.h>
 #include <quark/init/boot_info.h>
 #include <quark/memory/page.h>
 #include <quark/memory/page_alloc.h>
@@ -45,7 +44,7 @@ namespace Quark::System {
         // Load slub allocator
         for (int i = 0; i < SLAB_CACHE_BLOCK_AMOUNT; i++) {
             g_slabCaches[i] = new (
-                (void*)::allocPhysMemory4K(sizeof(Memory::SlabCache)).unwrap())
+                (void*)AllocatePhysMemory4K(sizeof(Memory::SlabCache)).Unwrap())
                 Memory::SlabCache(g_slabAmounts[i], 0);
         }
 

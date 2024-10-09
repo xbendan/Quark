@@ -1,5 +1,5 @@
-#include <quark/api/memory.h>
 #include <quark/api/task.h>
+#include <quark/memory/address_space.h>
 #include <quark/memory/slab.h>
 #include <quark/os/main.h>
 
@@ -32,7 +32,7 @@ namespace Quark::System::API {
     Res<u64> alloc(usize amount)
     {
         if (amount > PAGE_SIZE_4K) {
-            return ::allocPhysMemory4K(divCeil(amount, PAGE_SIZE_4K));
+            return ::AllocatePhysMemory4K(divCeil(amount, PAGE_SIZE_4K));
         }
         SlabCache* cache = nullptr;
         for (usize i = 0; i < SLAB_CACHE_BLOCK_AMOUNT; i++)
@@ -49,14 +49,14 @@ namespace Quark::System::API {
         PhysMemFrame* page = cpu->_page;
         u64           address;
         if (!page || page->_inuse == page->_objects) {
-            page = cpu->_page = ::allocPhysFrame4K(1).unwrap();
+            page = cpu->_page = ::AllocatePhysFrame4K(1).Unwrap();
 
             cache->pageInitAsCached(
                 page,
-                address = ::allocVirtMemory4K(
-                              1, Process::getKernelProcess()->_addressSpace)
-                              .unwrap());
-            ::mapAddress(page->_address, address, 1, nullptr, 0);
+                address = ::AllocateVirtMemory4K(
+                              1, Process::GetKernelProcess()->_addressSpace)
+                              .Unwrap());
+            ::MapAddress(page->_address, address, 1, nullptr, 0);
         } else
             address = (u64)page->_freelist;
 

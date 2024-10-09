@@ -26,7 +26,7 @@ namespace Quark::System::Hal {
         {
         }
 
-        virtual void sendSignal(Signal signal, u32 data = 0);
+        virtual void SendSignal(Signal signal, u32 data = 0);
     };
 
     Res<IReadOnlyCollection<ICPULocalDevice*>*> setupMultiprocessing();

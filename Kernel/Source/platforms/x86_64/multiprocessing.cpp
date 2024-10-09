@@ -8,9 +8,9 @@
 #include <platforms/x86_64/tables.h>
 #include <quark/api/device.h>
 #include <quark/api/general.h>
-#include <quark/api/memory.h>
 #include <quark/api/task.h>
 #include <quark/hal/multiprocessing.h>
+#include <quark/memory/page_alloc.h>
 
 namespace Quark::System {
     extern Inert<Platform::X64::CPULocalDevice> kCPULocal;
@@ -100,11 +100,11 @@ namespace Quark::System::Hal {
                 *TrampolineCpuID  = apicLocal->_apicId;
                 *TrampolineEntry2 = (u64)TrampolineEntry;
                 *TrampolineStack =
-                    allocMemory4K(4,
-                                  Process::getKernelProcess()->_addressSpace,
-                                  Hal::VmmFlags::PRESENT |
-                                      Hal::VmmFlags::WRITABLE)
-                        .unwrap() +
+                    AllocateMemory4K(4,
+                                     Process::GetKernelProcess()->_addressSpace,
+                                     Hal::VmmFlags::PRESENT |
+                                         Hal::VmmFlags::WRITABLE)
+                        .Unwrap() +
                     4 * PAGE_SIZE_4K;
                 *TrampolineGdtPack = CPU0->_gdtPtr;
 

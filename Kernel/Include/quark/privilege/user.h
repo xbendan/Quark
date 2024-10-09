@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/std/string.h>
 #include <mixins/utils/array_list.h>
 #include <mixins/utils/date.h>

@@ -1,14 +1,15 @@
 #include <drivers/storage/ahci/device.h>
-#include <quark/api/memory.h>
 #include <quark/memory/address_space.h>
-#include <quark/os/panic.h>
+#include <quark/memory/page_alloc.h>
 
 namespace Quark::System::Hal {
+    using namespace Quark::System::Memory;
+
     AHCIControllerDevice::AHCIControllerDevice(PCIInfo& info)
         : PCIDevice(info, "AHCI Controller Device", Type::DiskController)
-        , m_clbPhys(allocPhysMemory4K(8).unwrap())
-        , m_fbPhys(allocPhysMemory4K(2).unwrap())
-        , m_ctbaPhys(allocPhysMemory4K(64).unwrap())
+        , m_clbPhys(AllocatePhysMemory4K(8).Unwrap())
+        , m_fbPhys(AllocatePhysMemory4K(2).Unwrap())
+        , m_ctbaPhys(AllocatePhysMemory4K(64).Unwrap())
         , m_addrBase(getBaseAddrRegs(5))
     {
         enableBusMastering();

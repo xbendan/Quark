@@ -27,19 +27,20 @@ namespace Quark::System {
         if (platform._features.hasNot(Hal::Platform::AddressSpaceIsolation)) {
             log(u8"VMM is not supported on this platform.\n");
         } else
-            kernelAddressSpace = InitVirtMemory().unwrap();
+            kernelAddressSpace = InitVirtMemory().Unwrap();
 
         log(u8"Initializing memory management...\n");
-        InitPhysMemory().unwrap();
+        InitPhysMemory().Unwrap();
 
         log(u8"Creating kernel process...\n");
-        CreateKernelProcess(kernelAddressSpace).unwrap();
+        Process::CreateKernelProcess(kernelAddressSpace).Unwrap();
 
         log(u8"Initializing device connectivity...\n");
-        SetupDevices().unwrap();
+        EnumerateInitialDevices().Unwrap()->ForEach(
+            [](Io::Device* device) { device->OnInitialize().Unwrap(); });
 
         log(u8"Initializing task scheduler...\n");
-        InitTasks().unwrap();
+        InitTasks().Unwrap();
 
         log(u8"Done!");
 

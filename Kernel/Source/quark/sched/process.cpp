@@ -5,8 +5,6 @@
 namespace Quark::System::Task {
     using namespace Quark::System::Memory;
 
-    Process* _kernelProcess;
-
     Process::Process(u32           processId,
                      string        name,
                      AddressSpace* addressSpace,
@@ -16,31 +14,22 @@ namespace Quark::System::Task {
         : _processId(processId)
         , _name(name)
         , _addressSpace(addressSpace)
-        , _mainThread(API::createThread(this).unwrap())
+        , _mainThread(new Thread(this, 0))
         , m_childrenThreadList()
     {
+        m_childrenThreadList.Add(_mainThread);
     }
 
     Process::~Process() {}
 
-    Process* Process::getKernelProcess()
+    Process* Process::GetKernelProcess()
     {
-        return _kernelProcess;
+        return m_kernelProcess;
     }
-}
 
-namespace Quark::System {
-    using Quark::System::Memory::AddressSpace;
-    using Quark::System::Task::Process;
-
-    Res<Process*> CreateKernelProcess(AddressSpace* addressSpace)
+    RefPtr<Process> Process::GetProcessById(u16 id)
     {
-        if (Task::_kernelProcess)
-            return Error::InvalidState("Kernel process already exists.");
-
-        Task::_kernelProcess = new Process(0, "Kernel", addressSpace, 0, 0, 0);
-        Process::addProcess(Task::_kernelProcess);
-
-        return Ok(Task::_kernelProcess);
+        return RefPtr<Process>(m_processes[id]);
     }
+
 }

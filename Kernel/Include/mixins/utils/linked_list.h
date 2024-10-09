@@ -9,7 +9,9 @@
 #include <mixins/utils/iterator.h>
 
 template <typename TSource>
-class LinkedList : public IList<TSource>
+class LinkedList
+    : public IList<TSource>
+    , public IReadOnlyList<TSource>
 {
     using TSourceReference =
         Std::Conditional<Std::isScalar<TSource>, TSource, TSource const&>;
@@ -499,9 +501,9 @@ public:
     {
     }
 
-    Optional<TSource&> FindFirst() { return _head->_data; }
+    Optional<TSource&> FindFirst() override { return _head->_data; }
 
-    Optional<TSource&> FindFirst(Predicate<TSource const&> predicate)
+    Optional<TSource&> FindFirst(Predicate<TSource const&> predicate) override
     {
         Node* node = _head;
         while (node) {
@@ -513,11 +515,35 @@ public:
         return Empty();
     }
 
-    Optional<TSource&> FindLast() { return _tail->_data; }
+    Optional<TSource&> FindLast() override { return _tail->_data; }
 
-    Optional<TSource&> FindAny() {}
+    Optional<TSource&> FindLast(Predicate<TSource const&> predicate) override
+    {
+        Node* node = _tail;
+        while (node) {
+            if (predicate(node->_data)) {
+                return &node->_data;
+            }
+            node = node->_prev;
+        }
+        return Empty();
+    }
 
-    LinkedList<TSource>& Take(usize n)
+    Optional<TSource&> FindAny() override { return _head->_data; }
+
+    Optional<TSource&> FindAny(Predicate<TSource const&> predicate) override
+    {
+        Node* node = _head;
+        while (node) {
+            if (predicate(node->_data)) {
+                return &node->_data;
+            }
+            node = node->_next;
+        }
+        return Empty();
+    }
+
+    IList<TSource>& Take(usize n) override
     {
         auto newList = new LinkedList<TSource>();
         if (n > 0) {
@@ -530,7 +556,7 @@ public:
         return *newList;
     }
 
-    LinkedList<TSource>& Take(Tuple<usize, usize> range)
+    IList<TSource>& Take(Tuple<usize, usize> range) override
     {
         auto newList = new LinkedList<TSource>();
         if (range.get<0>() > 0) {
@@ -577,7 +603,7 @@ public:
         return Empty();
     }
 
-    LinkedList<TSource>& TakeLast(usize n)
+    IList<TSource>& TakeLast(usize n) override
     {
         auto newList = new LinkedList<TSource>();
         if (n > 0) {
@@ -602,7 +628,7 @@ public:
         return data;
     }
 
-    LinkedList<TSource>& TakeWhile(Func<bool(TSource const&)> predicate)
+    IList<TSource>& TakeWhile(Func<bool(TSource const&)> predicate) override
     {
         auto  newList = new LinkedList<TSource>();
         Node* node    = _head;
@@ -643,7 +669,7 @@ public:
         return _head->data;
     }
 
-    TSource& DefaultIfEmpty(TSource const& defaultValue)
+    TSource& DefaultIfEmpty(TSource const& defaultValue) override
     {
         if (_size == 0) {
             return const_cast<TSource&>(defaultValue);
@@ -651,7 +677,7 @@ public:
         return Count() ? _head->_data : const_cast<TSource&>(defaultValue);
     }
 
-    LinkedList<TSource>& Skip(usize n)
+    IList<TSource>& Skip(usize n) override
     {
         auto newList = new LinkedList<TSource>();
         if (n < _size) {
@@ -667,16 +693,30 @@ public:
         return *newList;
     }
 
-    LinkedList<TSource>& SkipLast(usize n) {}
+    IList<TSource>& SkipLast(usize n) override
+    {
+        auto newList = new LinkedList<TSource>();
+        if (n < _size) {
+            Node* node = _tail;
+            while (n-- && node) {
+                node = node->_prev;
+            }
+            while (node) {
+                newList->pushFront(node->_data);
+                node = node->_prev;
+            }
+        }
+        return *newList;
+    }
 
-    LinkedList<TSource>& SkipWhile(Func<bool(TSource const&)> predicate) {}
+    IList<TSource>& SkipWhile(Func<bool(TSource const&)> predicate) override {}
 
     // template <class TCollection, typename TKey>
     // TCollection<T>& groupBy(Func<TKey(TSource const&)> keySelector)
     // {
     // }
 
-    void ForEach(Func<void(TSource const&)> action) const
+    void ForEach(Func<void(TSource const&)> action) const override
     {
         Node* node = _head;
         while (node) {
@@ -685,7 +725,7 @@ public:
         }
     }
 
-    void ForEachOrdered(Func<void(TSource const&, usize)> action) const
+    void ForEachOrdered(Func<void(TSource const&, usize)> action) const override
     {
         Node* node = _head;
         usize i    = 0;

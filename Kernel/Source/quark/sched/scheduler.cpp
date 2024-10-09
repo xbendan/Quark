@@ -6,19 +6,6 @@
 namespace Quark::System::Task {
     IReadOnlyCollection<Hal::ICPULocalDevice*>* _cpus;
     Array<IQueue<Thread*>*>                     _threadQueues;
-
-    void Process::addProcess(Process* process) {}
-
-    void Process::addProcess(Process* process, u16 id) {}
-
-    void Process::destroyProcess(Process* process) {}
-
-    void Process::destroyProcess(u16 id) {}
-
-    Process* Process::getProcessById(u16 id)
-    {
-        return nullptr;
-    }
 }
 
 namespace Quark::System {
@@ -26,11 +13,11 @@ namespace Quark::System {
 
     Res<> InitTasks()
     {
-        _cpus = Hal::setupMultiprocessing().unwrap();
+        _cpus = Hal::setupMultiprocessing().Unwrap();
         static_cast<IReadOnlyList<Hal::ICPULocalDevice*>*>(_cpus)
             ->ForEachOrdered([](Hal::ICPULocalDevice* const& cpu, usize i) {
                 _threadQueues[i] = new LinkedQueue<Thread*>();
-                cpu->sendSignal(Hal::Signal::SCHED);
+                cpu->SendSignal(Hal::Signal::SCHED);
             });
 
         return Ok();

@@ -1,40 +1,38 @@
 #include <mixins/std/c++types.h>
-#include <quark/api/memory.h>
-
-using namespace Quark::System::API;
+#include <quark/memory/page_alloc.h>
 
 void*
 operator new(usize size)
 {
-    return (void*)alloc(size).unwrap();
+    return (void*)Quark::System::Memory::Allocate(size).Unwrap();
 }
 
 void*
 operator new[](usize size)
 {
-    return (void*)alloc(size).unwrap();
+    return (void*)Quark::System::Memory::Allocate(size).Unwrap();
 }
 
 void
 operator delete(void* p) noexcept
 {
-    free((u64)p);
+    Quark::System::Memory::Free((u64)p);
 }
 
 void
 operator delete(void* p, unsigned long)
 {
-    free((u64)p);
+    Quark::System::Memory::Free((u64)p);
 }
 
 void
 operator delete[](void* p) noexcept
 {
-    free((u64)p);
+    Quark::System::Memory::Free((u64)p);
 }
 
 void
 operator delete[](void* p, unsigned long)
 {
-    free((u64)p);
+    Quark::System::Memory::Free((u64)p);
 }

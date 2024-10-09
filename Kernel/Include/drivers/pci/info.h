@@ -121,8 +121,8 @@ namespace PCI {
                            : (_progIF = read<u8>(PCI::ConfigRegs::ProgIF));
         }
 
-        u16 _vendorID, _deviceID;
+        u16 _vendorID{ 0 }, _deviceID{ 0 };
         u8  _bus, _slot, _func;
-        u8  _class, _subclass, _progIF;
+        u8  _class{ 0 }, _subclass{ 0 }, _progIF{ 0 };
     };
 } // namespace Quark::System::Hal

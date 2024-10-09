@@ -31,7 +31,7 @@ namespace Quark::System {
     Inert<CPULocalDevice>           kCPULocal;
     Buf<char[3 * 8 * PAGE_SIZE_4K]> kTssEntryBuf;
 
-    Res<IReadOnlyList<Io::Device*>*> SetupDevices()
+    Res<IReadOnlyList<Io::Device*>*> EnumerateInitialDevices()
     {
         log(u8"Setting up devices...");
         auto* devices = new ArrayList<Io::Device*>({
@@ -40,7 +40,6 @@ namespace Quark::System {
             new PCI::PCIEnumerationDevice(),
             new PS2::LegacyControllerDevice(),
         });
-        devices->ForEach([](Io::Device* device) { device->onLoad().unwrap(); });
 
         return Ok((IReadOnlyList<Io::Device*>*)devices);
     }

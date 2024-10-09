@@ -72,19 +72,19 @@ struct Res
     /* --- Methods --- */
 
     [[gnu::always_inline]]
-    constexpr bool isErr() const
+    constexpr bool IsError() const
     {
         return _inner.template is<E>();
     }
 
     [[gnu::always_inline]]
-    constexpr bool isOkay() const
+    constexpr bool IsOkay() const
     {
         return _inner.template is<Ok<V>>();
     }
 
     [[gnu::always_inline]]
-    constexpr V& unwrap(
+    constexpr V& Unwrap(
         const char* msg = "called `Result::unwrap()` on an error")
     {
         if (!_inner.template is<Ok<V>>()) {
@@ -94,7 +94,7 @@ struct Res
     }
 
     [[gnu::always_inline]]
-    constexpr const V& unwrap(
+    constexpr const V& Unwrap(
         const char* msg = "called `Result::unwrap()` on an error") const
     {
         if (!_inner.template is<Ok<V>>()) {
@@ -104,7 +104,7 @@ struct Res
     }
 
     [[gnu::always_inline]]
-    constexpr const E& error() const
+    constexpr const E& Err() const
     {
         if (!_inner.template is<E>()) {
             Std::panic("called `Result::error()` on an ok value");
@@ -114,7 +114,7 @@ struct Res
 
     template <typename T>
     [[gnu::always_inline]]
-    constexpr Res<T, E> map(Func<T(V)> mapper)
+    constexpr Res<T, E> Select(Func<T(V)> mapper)
     {
         if (_inner.template is<Ok<V>>()) {
             return Ok(mapper(_inner.template unwrap<Ok<V>>().inner));

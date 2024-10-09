@@ -67,7 +67,7 @@ namespace Quark::System::Io {
          *
          * @return Res<>
          */
-        virtual Res<> onLoad() { return Ok(); }
+        virtual Res<> OnInitialize() { return Ok(); }
 
         /**
          * @brief called when most features of the kernel are available
@@ -79,20 +79,20 @@ namespace Quark::System::Io {
          *
          * @return Res<>
          */
-        virtual Res<> onStartup() { return Ok(); }
+        virtual Res<> OnStartup() { return Ok(); }
 
         /**
          * @brief called when the system is shutting down
          *
          * @return Res<>
          */
-        virtual Res<> onShutdown() { return Ok(); }
+        virtual Res<> OnShutdown() { return Ok(); }
 
-        string getName() const { return m_name; }
+        string GetName() const { return m_name; }
 
-        UUID getUniqueId() const { return m_uniqueId; }
+        UUID GetUniqueId() const { return m_uniqueId; }
 
-        Type getType() const { return m_deviceType; }
+        Type GetType() const { return m_deviceType; }
 
         static Optional<Device*>       FindByName(string name);
         static Optional<Device*>       FindByUniqueId(UUID uuid);

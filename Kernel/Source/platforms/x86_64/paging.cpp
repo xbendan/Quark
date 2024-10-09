@@ -446,17 +446,14 @@ namespace Quark::System {
         }
         return Ok(p);
     }
-
-    namespace API {
-        Res<AddressSpace*> createAddressSpace(Privilege::Level lv)
-        {
-            return Ok(
-                (AddressSpace*)new X64AddressSpace<Privilege::Level::User>());
-        }
-    }
 }
 
 namespace Quark::System::Memory {
+    Res<AddressSpace*> AddressSpace::Create(Privilege::Level lv)
+    {
+        return Ok((AddressSpace*)new X64AddressSpace<Privilege::Level::User>());
+    }
+
     u64 copyAsIOAddress(u64 address)
     {
         return address + IO_VIRTUAL_BASE;

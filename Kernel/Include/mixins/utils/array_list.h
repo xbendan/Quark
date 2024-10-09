@@ -8,7 +8,9 @@
 #include <mixins/utils/iterator.h>
 
 template <typename TSource>
-class ArrayList : public IList<TSource>
+class ArrayList
+    : public IList<TSource>
+    , public IReadOnlyList<TSource>
 {
     static constexpr usize DefaultCapacity = 8;
 
@@ -410,6 +412,16 @@ public:
         return _data[0];
     }
 
+    Optional<TSource&> FindFirst(Predicate<TSource const&> predicate) override
+    {
+        for (usize i = 0; i < _count; i++) {
+            if (predicate(_data[i])) {
+                return _data[i];
+            }
+        }
+        return Empty();
+    }
+
     Optional<TSource&> FindLast() override
     {
         if (_count == 0) {
@@ -417,6 +429,16 @@ public:
         }
 
         return _data[_count - 1];
+    }
+
+    Optional<TSource&> FindLast(Predicate<TSource const&> predicate) override
+    {
+        for (usize i = _count - 1; i >= 0; i--) {
+            if (predicate(_data[i])) {
+                return _data[i];
+            }
+        }
+        return Empty();
     }
 
     Optional<TSource&> FindAny() override
@@ -428,7 +450,17 @@ public:
         return _data[0];
     }
 
-    ArrayList<TSource>& Take(usize n) override
+    Optional<TSource&> FindAny(Predicate<TSource const&> predicate) override
+    {
+        for (usize i = 0; i < _count; i++) {
+            if (predicate(_data[i])) {
+                return _data[i];
+            }
+        }
+        return Empty();
+    }
+
+    IList<TSource>& Take(usize n) override
     {
         ArrayList* newList = new ArrayList<TSource>(n);
         for (usize i = 0; i < n && i < _count; i++) {
@@ -437,7 +469,7 @@ public:
         return *newList;
     }
 
-    ArrayList<TSource>& Take(Tuple<usize, usize> range) override
+    IList<TSource>& Take(Tuple<usize, usize> range) override
     {
         auto newList = new ArrayList<TSource>(range.get<1>() - range.get<0>());
         for (usize i = range.get<0>(); i < range.get<1>() && i < _count; i++) {
@@ -446,7 +478,7 @@ public:
         return *newList;
     }
 
-    ArrayList<TSource>& TakeLast(usize n) override
+    IList<TSource>& TakeLast(usize n) override
     {
         auto newList = new ArrayList<TSource>(n);
         for (usize i = _count - n; i < _count; i++) {
@@ -455,7 +487,7 @@ public:
         return *newList;
     }
 
-    ArrayList<TSource>& TakeWhile(Predicate<TSource const&> predicate) override
+    IList<TSource>& TakeWhile(Predicate<TSource const&> predicate) override
     {
         auto newList = new ArrayList<TSource>();
         for (usize i = 0; i < _count; i++) {
@@ -466,7 +498,7 @@ public:
         return *newList;
     }
 
-    TSource& Single()
+    TSource& Single() override
     {
         assert(
             _count == 1,
@@ -492,7 +524,7 @@ public:
         return _data[index];
     }
 
-    TSource& SingleOrDefault(TSource const& defaultValue)
+    TSource& SingleOrDefault(TSource const& defaultValue) override
     {
         assert(
             _count <= 1,
@@ -506,12 +538,12 @@ public:
         return _count ? _data[0] : TSource();
     }
 
-    TSource& DefaultIfEmpty(TSource const& defaultValue)
+    TSource& DefaultIfEmpty(TSource const& defaultValue) override
     {
         return _count ? _data[0] : const_cast<TSource&>(defaultValue);
     }
 
-    ArrayList<TSource>& Skip(usize n)
+    IList<TSource>& Skip(usize n) override
     {
         auto newList = new ArrayList<TSource>(_count - n);
         for (usize i = n; i < _count; i++) {
@@ -520,7 +552,7 @@ public:
         return *newList;
     }
 
-    ArrayList<TSource>& SkipLast(usize n)
+    IList<TSource>& SkipLast(usize n) override
     {
         auto newList = new ArrayList<TSource>(_count - n);
         for (usize i = 0; i < _count - n; i++) {
@@ -529,7 +561,7 @@ public:
         return *newList;
     }
 
-    ArrayList<TSource>& SkipWhile(Predicate<TSource const&> predicate)
+    IList<TSource>& SkipWhile(Predicate<TSource const&> predicate) override
     {
         auto newList = new ArrayList<TSource>();
         for (usize i = 0; i < _count; i++) {
@@ -556,7 +588,7 @@ public:
         return *newList;
     }
 
-    bool AllMatch(Predicate<TSource const&> predicate) const
+    bool AllMatch(Predicate<TSource const&> predicate) const override
     {
         for (usize i = 0; i < _count; i++) {
             if (!predicate(_data[i])) {
@@ -566,7 +598,7 @@ public:
         return true;
     }
 
-    bool AnyMatch(Predicate<TSource const&> predicate) const
+    bool AnyMatch(Predicate<TSource const&> predicate) const override
     {
         for (usize i = 0; i < _count; i++) {
             if (predicate(_data[i])) {
@@ -576,7 +608,7 @@ public:
         return false;
     }
 
-    bool NoneMatch(Predicate<TSource const&> predicate) const
+    bool NoneMatch(Predicate<TSource const&> predicate) const override
     {
         for (usize i = 0; i < _count; i++) {
             if (predicate(_data[i])) {
@@ -586,14 +618,14 @@ public:
         return true;
     }
 
-    void ForEach(Func<void(TSource const&)> action) const
+    void ForEach(Func<void(TSource const&)> action) const override
     {
         for (usize i = 0; i < _count; i++) {
             action(_data[i]);
         }
     }
 
-    void ForEachOrdered(Func<void(TSource const&, usize)> action) const
+    void ForEachOrdered(Func<void(TSource const&, usize)> action) const override
     {
         for (usize i = 0; i < _count; i++) {
             action(_data[i], i);

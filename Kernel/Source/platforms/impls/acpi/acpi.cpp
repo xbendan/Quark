@@ -14,7 +14,7 @@ namespace ACPI {
     {
     }
 
-    Res<> ControllerDevice::onLoad()
+    Res<> ControllerDevice::OnInitialize()
     {
         u64 address = Memory::copyAsIOAddress( //
             AddressRange(0x0, 0x7bff + 1)
@@ -66,10 +66,10 @@ namespace ACPI {
                 break;
         }
 
-        _madt = findTable<ACPI::MultiApicDescTable>("APIC").unwrap();
-        _fadt = findTable<ACPI::FixedAcpiDescTable>("FACP").unwrap();
-        _hpet = findTable<ACPI::HighPrecisionEventTable>("HPET").unwrap();
-        _mcfg = findTable<ACPI::PCIExpressSpecTable>("MCFG").unwrap();
+        _madt = findTable<ACPI::MultiApicDescTable>("APIC").Unwrap();
+        _fadt = findTable<ACPI::FixedAcpiDescTable>("FACP").Unwrap();
+        _hpet = findTable<ACPI::HighPrecisionEventTable>("HPET").Unwrap();
+        _mcfg = findTable<ACPI::PCIExpressSpecTable>("MCFG").Unwrap();
 
         return Ok();
     }

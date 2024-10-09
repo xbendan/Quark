@@ -12,20 +12,20 @@ namespace Quark::System::Io {
 
     IReadOnlyList<Device*>* Connectivity::listAll(Device::Type type)
     {
-        return static_cast<IReadOnlyList<Device*>*>(&(m_devices.TakeWhile(
-            [&](Device* device) { return device->getType() == type; })));
+        return dynamic_cast<IReadOnlyList<Device*>*>(&(m_devices.TakeWhile(
+            [&](Device* device) { return device->GetType() == type; })));
     }
 
     IReadOnlyList<Device*>* Connectivity::listAll(Predicate<Device*> predicate)
     {
-        return static_cast<IReadOnlyList<Device*>*>(
+        return dynamic_cast<IReadOnlyList<Device*>*>(
             &(m_devices.TakeWhile(Std::move(predicate))));
     }
 
     Res<> Connectivity::addDevice(Device* device)
     {
         if (m_devices.AnyMatch([&](Device* d) {
-                return d->getUniqueId() == device->getUniqueId();
+                return d->GetUniqueId() == device->GetUniqueId();
             })) {
             return Error::DeviceDuplicated();
         }
@@ -47,7 +47,7 @@ namespace Quark::System::Io {
     {
         return m_devices
             .FindFirst([&](Device* const& device) {
-                return device->getName() == name;
+                return device->GetName() == name;
             })
             .Take();
     }
@@ -56,7 +56,7 @@ namespace Quark::System::Io {
     {
         return m_devices
             .FindFirst(
-                [&](Device* device) { return device->getUniqueId() == uuid; })
+                [&](Device* device) { return device->GetUniqueId() == uuid; })
             .Take();
     }
 }

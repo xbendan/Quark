@@ -4,6 +4,7 @@
 #include <mixins/std/c++types.h>
 #include <mixins/utils/array.h>
 #include <quark/hal/vmm.h>
+#include <quark/privilege/user.h>
 // #include <quark/memory/page.h>
 
 #define KERNEL_VIRTUAL_BASE 0xffffffff80000000
@@ -82,14 +83,18 @@ namespace Quark::System::Memory {
         //     Flags<Hal::VmmFlags> flags,
         //     bool                 set = true) = 0;
 
-        virtual Res<bool> isPresent(u64 address)
+        virtual Res<bool> IsPresent(u64 address)
         {
-            return getFlags(address).map<bool>([](Flags<Hal::VmmFlags> flags) {
-                return flags.has(Hal::VmmFlags::PRESENT);
-            });
+            return getFlags(address).Select<bool>(
+                [](Flags<Hal::VmmFlags> flags) {
+                    return flags.has(Hal::VmmFlags::PRESENT);
+                });
         }
 
         virtual Res<u64> GetPhysAddress(u64) = 0;
+
+        static Res<AddressSpace*> Create(
+            Privilege::Level lv = Privilege::Level::User);
 
     protected:
         struct Stats

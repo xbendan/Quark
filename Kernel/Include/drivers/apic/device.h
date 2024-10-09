@@ -59,7 +59,7 @@ namespace APIC {
         LinkedList<Local*>* getApicLocals() const { return m_units; }
         Local*              getApicLocal(u8 id) { return (*m_units)[id]; }
 
-        Res<> onLoad() override;
+        Res<> OnInitialize() override;
 
     private:
         u64           m_ioBasePhys;

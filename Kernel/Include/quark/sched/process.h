@@ -24,8 +24,8 @@ namespace Quark::System::Task {
                 u64           memStack   = 0);
         ~Process();
 
-        bool    addThread(Thread* thread);
-        Thread* getThread(u32 threadId)
+        bool    AddThread(Thread* thread);
+        Thread* GetThread(u32 threadId)
         {
             return m_childrenThreadList[threadId];
         }
@@ -35,14 +35,26 @@ namespace Quark::System::Task {
         AddressSpace* const _addressSpace;
         Thread* const       _mainThread;
 
-        static Process*                 getKernelProcess();
-        static IReadOnlyList<Process*>* all();
+        static Process*                 GetKernelProcess();
+        static IReadOnlyList<Process*>* GetProcessList();
 
-        static void     addProcess(Process* process);
-        static void     addProcess(Process* process, u16 id);
-        static void     destroyProcess(Process* process);
-        static void     destroyProcess(u16 id);
-        static Process* getProcessById(u16 id);
+        static Res<RefPtr<Process>> CreateProcess(string name);
+        static Res<RefPtr<Process>> CreateIdleProcess();
+        static Res<Process*> CreateKernelProcess(AddressSpace* addressSpace);
+        static Res<RefPtr<Process>> CreateProcessEx( //
+            string  name,
+            File*   file,
+            Folder* workingDirectory,
+            string  launchArgs);
+        template <typename... Args>
+        static Res<RefPtr<Process>> CreateProcessEx( //
+            string  name,
+            File*   file,
+            Folder* workingDirectory,
+            Args&&... launchArgs);
+        static void                 DestroyProcess(Process* process);
+        static void                 DestroyProcess(u16 id);
+        static RefPtr<Process>      GetProcessById(u16 id);
 
     private:
         LinkedList<Thread*> m_childrenThreadList;
@@ -51,6 +63,9 @@ namespace Quark::System::Task {
         u64 m_memHeap;
         u64 m_memStack;
         u64 m_nextThreadId;
+
+        static inline RefPtr<Process>* m_processes;
+        static inline Process*         m_kernelProcess;
     };
 
     class ProcessFactory

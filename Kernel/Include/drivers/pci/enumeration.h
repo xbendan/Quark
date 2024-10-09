@@ -12,7 +12,7 @@ namespace PCI {
 
         ~PCIEnumerationDevice() = default;
 
-        Res<> onLoad() override;
+        Res<> OnInitialize() override;
 
         IReadOnlyCollection<Io::Device*>* EnumerateDevices() override;
 

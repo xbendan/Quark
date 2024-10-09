@@ -1,6 +1,6 @@
 #include <platforms/x86_64/tables.h>
-#include <quark/api/memory.h>
 #include <quark/api/task.h>
+#include <quark/memory/page_alloc.h>
 #include <quark/os/main.h>
 
 namespace Quark::System::Platform::X64 {
@@ -10,8 +10,8 @@ namespace Quark::System::Platform::X64 {
 
         for (int i = 0; i < 3; i++) {
             _ist[i] =
-                allocMemory4K(8, Process::getKernelProcess()->_addressSpace)
-                    .unwrap();
+                AllocateMemory4K(8, Process::GetKernelProcess()->_addressSpace)
+                    .Unwrap();
             _ist[i] += PAGE_SIZE_4K * 8;
         }
         asm volatile("mov %%rsp, %0" : "=r"(_rsp[0]));

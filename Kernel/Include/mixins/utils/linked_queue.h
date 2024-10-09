@@ -17,14 +17,14 @@ public:
 
     bool Remove(TSource const& e) override
     {
-        if (LinkedList<TSource>::findFirst() != e)
+        if (LinkedList<TSource>::FindFirst().Take() != e)
             return false;
 
         LinkedList<TSource>::RemoveAt(0);
         return true;
     }
 
-    bool Contains(TSource const& e) override
+    bool Contains(TSource const& e) const override
     {
         return LinkedList<TSource>::Contains(e);
     }
@@ -41,14 +41,15 @@ public:
             Std::forward<Func<void(TSource const&)>>(action));
     }
 
-    IIterator<TSource>* iter() const override
-    {
-        return LinkedList<TSource>::iter();
-    }
-
     TSource& Enqueue(TSource const& e) override { return Add(e); }
 
-    TSource Dequeue() override { return LinkedList<TSource>::takeFirst(); }
+    Optional<TSource> Dequeue() override
+    {
+        return LinkedList<TSource>::TakeFirst();
+    }
 
-    TSource peek() override { return LinkedList<TSource>::findFirst(); }
+    Optional<TSource&> Peek() override
+    {
+        return LinkedList<TSource>::FindFirst();
+    }
 };

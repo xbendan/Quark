@@ -15,7 +15,7 @@ namespace ACPI {
             requires(Std::isDerived<ACPI::TableHeader, _Tp>)
         Res<_Tp*> findTable(string name, unsigned index = 0);
 
-        Res<> onLoad() override;
+        Res<> OnInitialize() override;
 
     private:
         // HashTable<string, ACPI::TableHeader*> _tables;

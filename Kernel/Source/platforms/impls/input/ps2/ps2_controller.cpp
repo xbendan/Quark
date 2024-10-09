@@ -13,7 +13,7 @@ namespace PS2 {
     {
     }
 
-    Res<> LegacyControllerDevice::onLoad()
+    Res<> LegacyControllerDevice::OnInitialize()
     {
         // Determine if PS2 Controller actually exists.
         /* PS2 Controller is not supported while the bit 1 of
@@ -23,7 +23,7 @@ namespace PS2 {
             "Advanced Configuration & Power Interface Controller")
             .IfPresent([&](ACPI::ControllerDevice* device) {
                 fadt = device->findTable<ACPI::FixedAcpiDescTable>("FACP")
-                           .unwrap();
+                           .Unwrap();
             });
         if (fadt == nullptr) {
             return Error::DeviceFault("FADT table not found.");
