@@ -1,5 +1,4 @@
 #include <platforms/x86_64/tables.h>
-#include <quark/api/task.h>
 #include <quark/memory/page_alloc.h>
 #include <quark/os/main.h>
 

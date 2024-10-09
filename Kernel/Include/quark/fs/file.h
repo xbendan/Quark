@@ -97,6 +97,10 @@ namespace Quark::System::Io::FileSystem {
         virtual Res<i64> write(u64 offset, u64 size, u8* buffer) = 0;
         virtual void     close()                                 = 0;
 
+        static Res<File*> Open(string fullpath, FileMode mode);
+        static Res<File*> Create(string fullpath, FileMode mode);
+        static Res<>      Delete(string fullpath);
+
     protected:
         UUID m_uniqueId;
         u64  m_size;

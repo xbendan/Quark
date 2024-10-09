@@ -13,7 +13,7 @@ namespace ACPI {
 
         template <typename _Tp>
             requires(Std::isDerived<ACPI::TableHeader, _Tp>)
-        Res<_Tp*> findTable(string name, unsigned index = 0);
+        Res<_Tp*> FindTable(string name, unsigned index = 0);
 
         Res<> OnInitialize() override;
 

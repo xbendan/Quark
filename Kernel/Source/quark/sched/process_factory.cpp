@@ -1,5 +1,4 @@
 #include <mixins/std/assert.h>
-#include <quark/api/task.h>
 #include <quark/sched/process.h>
 #include <quark/sched/sched.h>
 

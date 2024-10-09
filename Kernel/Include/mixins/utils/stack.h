@@ -2,9 +2,7 @@
 #include <mixins/utils/collections.h>
 
 template <typename TSource>
-class Stack
-    : public ICollection<TSource>
-    , public ICollection<TSource>
+class Stack : public ICollection<TSource>
 {
 public:
     TSource const& peek() {}

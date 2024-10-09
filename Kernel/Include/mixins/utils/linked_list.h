@@ -625,7 +625,7 @@ public:
         return *newList;
     }
 
-    TSource& Single()
+    TSource& Single() override
     {
         if (_size != 1) {
             Std::panic("Sequence contains more than one element");

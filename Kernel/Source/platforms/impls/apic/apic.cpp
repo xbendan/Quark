@@ -3,7 +3,6 @@
 #include <drivers/apic/spec.h>
 #include <platforms/x86_64/cpu.h>
 #include <platforms/x86_64/sched.h>
-#include <quark/api/device.h>
 #include <quark/api/logging.h>
 
 namespace APIC {
@@ -22,9 +21,9 @@ namespace APIC {
     {
         ACPI::MADT* madt;
 
-        ::getRegisteredDevice<ACPI::ControllerDevice>("ACPI Management Device")
+        Device::FindByName<ACPI::ControllerDevice>("ACPI Management Device")
             .IfPresent([&madt](ACPI::ControllerDevice* acpi) {
-                Res<ACPI::MADT*> opt = acpi->findTable<ACPI::MADT>("APIC");
+                Res<ACPI::MADT*> opt = acpi->FindTable<ACPI::MADT>("APIC");
                 if (opt.IsOkay())
                     madt = opt.Unwrap("MADT table not found.");
             });
@@ -45,7 +44,7 @@ namespace APIC {
                     if (apicLocal->_flags & 0x3) {
                         CPULocalDevice* device = new CPULocalDevice(
                             apicLocal->_processorId, nullptr);
-                        ::registerDevice(device);
+                        Device::Load(device);
 
                         m_units->pushBack(
                             new Local(apicLocal->_apicId, this, device));

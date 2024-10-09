@@ -13,7 +13,7 @@ namespace Quark::System {
 
     Res<> InitTasks()
     {
-        _cpus = Hal::setupMultiprocessing().Unwrap();
+        _cpus = Hal::SetupMultiprocessing().Unwrap();
         static_cast<IList<Hal::ICPULocalDevice*>*>(_cpus)->ForEachOrdered(
             [](Hal::ICPULocalDevice* const& cpu, usize i) {
                 _threadQueues[i] = new LinkedQueue<Thread*>();

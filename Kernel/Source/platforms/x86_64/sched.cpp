@@ -1,7 +1,6 @@
 #include <platforms/x86_64/cpu.h>
 #include <platforms/x86_64/paging.h>
 #include <platforms/x86_64/sched.h>
-#include <quark/api/task.h>
 #include <quark/sched/process.h>
 
 namespace Quark::System::Task {

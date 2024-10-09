@@ -10,7 +10,6 @@
 #include <drivers/pci/enumeration.h>
 #include <drivers/ps2/device.h>
 
-#include <quark/api/device.h>
 #include <quark/api/logging.h>
 #include <quark/memory/address_range.h>
 #include <quark/os/main.h>

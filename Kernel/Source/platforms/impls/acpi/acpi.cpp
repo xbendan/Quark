@@ -66,17 +66,17 @@ namespace ACPI {
                 break;
         }
 
-        _madt = findTable<ACPI::MultiApicDescTable>("APIC").Unwrap();
-        _fadt = findTable<ACPI::FixedAcpiDescTable>("FACP").Unwrap();
-        _hpet = findTable<ACPI::HighPrecisionEventTable>("HPET").Unwrap();
-        _mcfg = findTable<ACPI::PCIExpressSpecTable>("MCFG").Unwrap();
+        _madt = FindTable<ACPI::MultiApicDescTable>("APIC").Unwrap();
+        _fadt = FindTable<ACPI::FixedAcpiDescTable>("FACP").Unwrap();
+        _hpet = FindTable<ACPI::HighPrecisionEventTable>("HPET").Unwrap();
+        _mcfg = FindTable<ACPI::PCIExpressSpecTable>("MCFG").Unwrap();
 
         return Ok();
     }
 
     template <class _Tp>
         requires(Std::isDerived<ACPI::TableHeader, _Tp>)
-    Res<_Tp*> ControllerDevice::findTable(string   name, //
+    Res<_Tp*> ControllerDevice::FindTable(string   name, //
                                           unsigned index)
     {
         if (!_rsdp) {

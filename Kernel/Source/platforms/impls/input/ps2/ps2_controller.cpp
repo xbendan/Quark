@@ -1,6 +1,5 @@
 #include <drivers/acpi/device.h>
 #include <drivers/ps2/device.h>
-#include <quark/api/device.h>
 #include <quark/api/general.h>
 #include <quark/hal/ports.h>
 
@@ -19,10 +18,10 @@ namespace PS2 {
         /* PS2 Controller is not supported while the bit 1 of
            'IA PC Boot Architecture Flags' is clear (0). */
         ACPI::FixedAcpiDescTable* fadt;
-        getRegisteredDevice<ACPI::ControllerDevice>(
+        Device::FindByName<ACPI::ControllerDevice>(
             "Advanced Configuration & Power Interface Controller")
             .IfPresent([&](ACPI::ControllerDevice* device) {
-                fadt = device->findTable<ACPI::FixedAcpiDescTable>("FACP")
+                fadt = device->FindTable<ACPI::FixedAcpiDescTable>("FACP")
                            .Unwrap();
             });
         if (fadt == nullptr) {
@@ -61,7 +60,7 @@ namespace PS2 {
             // pOut<>(PS2_DATA_PORT, 0xF0);
             // pOut<>(PS2_DATA_PORT, 0x02);
 
-            ::registerDevice(m_keyboard = new LegacyKeyboardDevice());
+            Device::Load(m_keyboard = new LegacyKeyboardDevice());
         }
 
         return Ok();

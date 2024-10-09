@@ -1,7 +1,6 @@
 #include <drivers/acpi/device.h>
 #include <drivers/pci/enumeration.h>
 #include <mixins/utils/array_list.h>
-#include <quark/api/device.h>
 
 namespace PCI {
     PCIEnumerationDevice::PCIEnumerationDevice()
@@ -12,13 +11,13 @@ namespace PCI {
 
     Res<> PCIEnumerationDevice::OnInitialize()
     {
-        auto acpi = ::getRegisteredDevice<ACPI::ControllerDevice>(
+        auto acpi = Device::FindByName<ACPI::ControllerDevice>(
             "ACPI Management Device");
         if (!acpi.IsPresent()) {
             return Error::DeviceNotFound();
         }
 
-        auto table = acpi.Take()->findTable<ACPI::PCIExpressSpecTable>("MCFG");
+        auto table = acpi.Take()->FindTable<ACPI::PCIExpressSpecTable>("MCFG");
 
         if (table.IsOkay()) {
             m_pciExpressTable = table.Unwrap();

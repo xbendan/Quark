@@ -6,9 +6,8 @@
 #include <platforms/x86_64/sched.h>
 #include <platforms/x86_64/smp_define.inc>
 #include <platforms/x86_64/tables.h>
-#include <quark/api/device.h>
 #include <quark/api/general.h>
-#include <quark/api/task.h>
+#include <quark/dev/device.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/memory/page_alloc.h>
 
@@ -18,6 +17,10 @@ namespace Quark::System {
 }
 
 namespace Quark::System::Platform::X64 {
+    using namespace Quark::System::Io;
+    using namespace Quark::System::Memory;
+    using namespace Quark::System::Task;
+
     volatile u16* MagicValue       = (u16*)SMP_TRAMPOLINE_DATA_START_FLAG;
     volatile u16* TrampolineCpuID  = (u16*)SMP_TRAMPOLINE_CPU_ID;
     volatile u64* TrampolineCR3    = (u64*)SMP_TRAMPOLINE_CR3;
@@ -75,9 +78,9 @@ namespace Quark::System::Hal {
 
     IList<ICPULocalDevice*>* _cpuLocals = nullptr;
 
-    Res<ICollection<ICPULocalDevice*>*> setupMultiprocessing()
+    Res<ICollection<ICPULocalDevice*>*> SetupMultiprocessing()
     {
-        auto* apic = getRegisteredDevice<APIC::GenericControllerDevice>(
+        auto* apic = Device::FindByName<APIC::GenericControllerDevice>(
                          "Advanced Programmable Interrupt Controller")
                          .Take();
         assert(apic != nullptr,
