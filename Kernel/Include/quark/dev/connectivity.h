@@ -11,19 +11,19 @@ namespace Quark::System::Io {
         /**
          * @brief
          *
-         * @return IReadOnlyList<Device*>*s
+         * @return IList<Device*>*s
          */
-        static IReadOnlyList<Device*>* listAll();
+        static IList<Device*>* listAll();
 
         /**
          * @brief
          *
          * @param type
-         * @return IReadOnlyList<Device*>*
+         * @return IList<Device*>*
          */
-        static IReadOnlyList<Device*>* listAll(Device::Type type);
+        static IList<Device*>* listAll(Device::Type type);
 
-        static IReadOnlyList<Device*>* listAll(Predicate<Device*> predicate);
+        static IList<Device*>* listAll(Predicate<Device*> predicate);
 
         /**
          * @brief

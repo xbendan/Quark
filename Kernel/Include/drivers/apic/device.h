@@ -27,12 +27,12 @@ namespace APIC {
 
             ~Local() = default;
 
-            void regWrite(u32 reg, u32 data);
-            u32  regRead(u32 reg);
+            void RegWrite(u32 reg, u32 data);
+            u32  RegRead(u32 reg);
 
-            void setEnabled();
-            void callIPI(u32 vec);
-            void callIPI(u32 dsh, u32 type, u8 vector);
+            void Enable();
+            void CallIPI(u32 vec);
+            void CallIPI(u32 dsh, u32 type, u8 vector);
 
             u8               _apicId;
             u64              _basePhys;
@@ -56,8 +56,8 @@ namespace APIC {
         void localRegWrite(u32 reg, u32 data);
         u32  localRegRead(u32 reg);
 
-        LinkedList<Local*>* getApicLocals() const { return m_units; }
-        Local*              getApicLocal(u8 id) { return (*m_units)[id]; }
+        LinkedList<Local*>* GetAPICLocals() const { return m_units; }
+        Local*              GetAPICLocal(u8 id) { return (*m_units)[id]; }
 
         Res<> OnInitialize() override;
 

@@ -35,8 +35,8 @@ namespace Quark::System::Task {
         AddressSpace* const _addressSpace;
         Thread* const       _mainThread;
 
-        static Process*                 GetKernelProcess();
-        static IReadOnlyList<Process*>* GetProcessList();
+        static Process*         GetKernelProcess();
+        static IList<Process*>* GetProcessList();
 
         static Res<RefPtr<Process>> CreateProcess(string name);
         static Res<RefPtr<Process>> CreateIdleProcess();

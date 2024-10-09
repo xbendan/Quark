@@ -31,7 +31,7 @@ namespace Quark::System {
     Inert<CPULocalDevice>           kCPULocal;
     Buf<char[3 * 8 * PAGE_SIZE_4K]> kTssEntryBuf;
 
-    Res<IReadOnlyList<Io::Device*>*> EnumerateInitialDevices()
+    Res<IList<Io::Device*>*> EnumerateInitialDevices()
     {
         log(u8"Setting up devices...");
         auto* devices = new ArrayList<Io::Device*>({
@@ -41,7 +41,7 @@ namespace Quark::System {
             new PS2::LegacyControllerDevice(),
         });
 
-        return Ok((IReadOnlyList<Io::Device*>*)devices);
+        return Ok((IList<Io::Device*>*)devices);
     }
 
     Res<> SetupArch(LaunchConfiguration* launchConfig)

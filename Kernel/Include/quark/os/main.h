@@ -22,11 +22,11 @@ namespace Quark::System {
     void  SetupKernel(LaunchConfiguration* bootInfo);
     Res<> SetupArch(LaunchConfiguration* bootInfo);
 
-    Res<>                            InitPhysMemory();
-    Res<AddressSpace*>               InitVirtMemory();
-    Res<IReadOnlyList<Io::Device*>*> EnumerateInitialDevices();
-    Res<IReadOnlyList<Io::Device*>*> SetupDevices();
-    Res<>                            InitTasks();
-    Res<>                            InitFileSystems();
+    Res<>                    InitPhysMemory();
+    Res<AddressSpace*>       InitVirtMemory();
+    Res<IList<Io::Device*>*> EnumerateInitialDevices();
+    Res<IList<Io::Device*>*> SetupDevices();
+    Res<>                    InitTasks();
+    Res<>                    InitFileSystems();
 
 } // namespace Quark::System

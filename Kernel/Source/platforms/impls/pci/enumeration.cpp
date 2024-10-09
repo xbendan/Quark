@@ -30,7 +30,7 @@ namespace PCI {
         return Ok();
     }
 
-    IReadOnlyCollection<Io::Device*>* PCIEnumerationDevice::EnumerateDevices()
+    ICollection<Io::Device*>* PCIEnumerationDevice::EnumerateDevices()
     {
         ArrayList<Io::Device*>* devices = new ArrayList<Io::Device*>();
         for (u16 i = 0; i < 256; i++) {
@@ -49,6 +49,6 @@ namespace PCI {
                 }
             }
         }
-        return static_cast<IReadOnlyList<Io::Device*>*>(devices);
+        return static_cast<IList<Io::Device*>*>(devices);
     }
 }

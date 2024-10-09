@@ -13,7 +13,7 @@ CXXFLAGS = \
 	-Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-write-strings \
 	-Waddress-of-packed-member \
 	-DGLOBAL_API_NAMESPACE \
-	-ffreestanding -fno-exceptions -fno-stack-protector -fno-pic \
+	-ffreestanding -fno-rtti -fno-exceptions -fno-stack-protector -fno-pic \
 	-mno-sse -mno-sse2 -mno-sse3 -mno-sse4 -mno-sse4.1 -mno-sse4.2 \
 	-mno-avx -mno-avx2 -mno-mmx \
 	-std=c++23 \
@@ -22,7 +22,7 @@ CXXFLAGS = \
 	-O0 \
 	-g  
 LDFLAGS = \
-	-nostdlib -z max-page-size=0x1000  
+ 	-nostdlib -z max-page-size=0x1000  
 
 # Source files
 DIRS := $(shell find ./Source/$(FILENAME)/ -maxdepth 1 -type d)  

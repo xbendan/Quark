@@ -94,15 +94,26 @@ namespace Quark::System::Io {
 
         Type GetType() const { return m_deviceType; }
 
-        static Optional<Device*>       FindByName(string name);
-        static Optional<Device*>       FindByUniqueId(UUID uuid);
-        static IReadOnlyList<Device*>* EnumerateDevices();
-        static IReadOnlyList<Device*>* EnumerateDevices(Type type);
-        static IReadOnlyList<Device*>* EnumerateDevices(
-            Predicate<Device*> predicate);
-        static Res<> Load(Device* device);
-        static Res<> Unload(Device* device);
-        static Res<> Rescan();
+        static Optional<Device*> FindByName(string name);
+
+        template <typename T>
+            requires Std::isDerived<Device, T>
+        static Optional<T*> FindByName(string name)
+        {
+            auto device = FindByName(name);
+            if (device.IsPresent()) {
+                return static_cast<T*>(device.Take());
+            }
+            return Empty();
+        }
+
+        static Optional<Device*> FindByUniqueId(UUID uuid);
+        static IList<Device*>*   EnumerateDevices();
+        static IList<Device*>*   EnumerateDevices(Type type);
+        static IList<Device*>*   EnumerateDevices(Predicate<Device*> predicate);
+        static Res<>             Load(Device* device);
+        static Res<>             Unload(Device* device);
+        static Res<>             Rescan();
 
     protected:
         string m_name;
@@ -120,7 +131,7 @@ namespace Quark::System::Io {
         }
         ~EnumerationDevice() = default;
 
-        virtual IReadOnlyCollection<Device*>* EnumerateDevices() = 0;
+        virtual ICollection<Device*>* EnumerateDevices() = 0;
     };
 }
 

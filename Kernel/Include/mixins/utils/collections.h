@@ -219,17 +219,6 @@ public:
 };
 
 template <typename TSource>
-class IReadOnlyCollection : public IEnumerable<TSource>
-{
-public:
-    virtual bool  Contains(TSource const& e) const = 0;
-    virtual usize Count() const                    = 0;
-    virtual bool  IsEmpty() const                  = 0;
-
-    virtual IIterator<TSource>* iter() const = 0;
-};
-
-template <typename TSource>
 class ICollection : public IEnumerable<TSource>
 {
 public:
@@ -264,24 +253,14 @@ public:
 };
 
 template <typename TSource>
-class IReadOnlyList
-    : public IReadOnlyCollection<TSource>
-    , public IKeyedAccess<usize, TSource>
-{
-public:
-    virtual bool  Contains(TSource const& e) const override;
-    virtual usize Count() const override;
-    virtual bool  IsEmpty() const override;
-    virtual int   IndexOf(TSource const& e) const     = 0;
-    virtual int   LastIndexOf(TSource const& e) const = 0;
-};
-
-template <typename TSource>
 class IList
     : public ICollection<TSource>
     , public IKeyedAccess<usize, TSource>
 {
 public:
+    virtual bool     Contains(TSource const& e) const    = 0;
+    virtual usize    Count() const                       = 0;
+    virtual bool     IsEmpty() const                     = 0;
     virtual bool     RemoveAt(usize i)                   = 0;
     virtual TSource& Insert(TSource const& e, usize i)   = 0;
     virtual int      IndexOf(TSource const& e) const     = 0;

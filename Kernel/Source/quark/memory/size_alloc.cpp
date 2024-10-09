@@ -24,15 +24,11 @@ namespace Quark::System::Memory {
         for (int i = 0; i < page->_objects - 1; i++)
             *((u64*)(address + i * _size)) = (u64)(address + (i + 1) * _size);
     }
-}
 
-namespace Quark::System::API {
-    using namespace Quark::System::Memory;
-
-    Res<u64> alloc(usize amount)
+    Res<u64> Allocate(usize amount)
     {
         if (amount > PAGE_SIZE_4K) {
-            return ::AllocatePhysMemory4K(divCeil(amount, PAGE_SIZE_4K));
+            return AllocatePhysMemory4K(divCeil(amount, PAGE_SIZE_4K));
         }
         SlabCache* cache = nullptr;
         for (usize i = 0; i < SLAB_CACHE_BLOCK_AMOUNT; i++)
@@ -49,14 +45,14 @@ namespace Quark::System::API {
         PhysMemFrame* page = cpu->_page;
         u64           address;
         if (!page || page->_inuse == page->_objects) {
-            page = cpu->_page = ::AllocatePhysFrame4K(1).Unwrap();
+            page = cpu->_page = AllocatePhysFrame4K(1).Unwrap();
 
             cache->pageInitAsCached(
                 page,
-                address = ::AllocateVirtMemory4K(
+                address = AllocateVirtMemory4K(
                               1, Process::GetKernelProcess()->_addressSpace)
                               .Unwrap());
-            ::MapAddress(page->_address, address, 1, nullptr, 0);
+            MapAddress(page->_address, address, 1, nullptr, 0);
         } else
             address = (u64)page->_freelist;
 
@@ -70,7 +66,7 @@ namespace Quark::System::API {
         return Ok(address);
     }
 
-    Res<> free(u64 address)
+    Res<> Free(u64 address)
     {
         return Ok();
     }

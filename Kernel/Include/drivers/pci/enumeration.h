@@ -14,7 +14,7 @@ namespace PCI {
 
         Res<> OnInitialize() override;
 
-        IReadOnlyCollection<Io::Device*>* EnumerateDevices() override;
+        ICollection<Io::Device*>* EnumerateDevices() override;
 
         bool     CheckDevice(u8 bus, u8 slot, u8 func);
         bool     CheckDevice(PCIInfo& info);
@@ -24,7 +24,7 @@ namespace PCI {
         PCIInfo* GetDevice(u8 classCode, u8 subclassCode);
 
     private:
-        IReadOnlyCollection<Io::Device*>* m_devices;
+        ICollection<Io::Device*>* m_devices;
         LinkedList<ACPI::PCIExpressSpecTable::AddressPacket*>
                                    m_enhancedBaseAddressList;
         ConfigAccessMode           m_accessMode;

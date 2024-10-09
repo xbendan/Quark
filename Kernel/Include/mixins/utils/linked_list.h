@@ -9,9 +9,7 @@
 #include <mixins/utils/iterator.h>
 
 template <typename TSource>
-class LinkedList
-    : public IList<TSource>
-    , public IReadOnlyList<TSource>
+class LinkedList : public IList<TSource>
 {
     using TSourceReference =
         Std::Conditional<Std::isScalar<TSource>, TSource, TSource const&>;
@@ -87,13 +85,6 @@ public:
     {
         collection.ForEach([&](TSource const& data) { Add(data); });
     }
-    LinkedList(IReadOnlyCollection<TSource> const& collection)
-        : _head(nullptr)
-        , _tail(nullptr)
-        , _size(0)
-    {
-        collection.ForEach([&](TSource const& data) { Add(data); });
-    }
     LinkedList(std::initializer_list<TSource> const& list)
         : _head(nullptr)
         , _tail(nullptr)
@@ -142,13 +133,6 @@ public:
     }
 
     LinkedList& operator=(ICollection<TSource> const& collection)
-    {
-        Clear();
-        collection.ForEach([&](TSource const& data) { Add(data); });
-        return *this;
-    }
-
-    LinkedList& operator=(IReadOnlyCollection<TSource> const& collection)
     {
         Clear();
         collection.ForEach([&](TSource const& data) { Add(data); });
@@ -632,8 +616,10 @@ public:
     {
         auto  newList = new LinkedList<TSource>();
         Node* node    = _head;
-        while (node && predicate(node->_data)) {
-            newList->Add(node->_data);
+        while (node) {
+            if (predicate(node->_data)) {
+                newList->Add(node->_data);
+            }
             node = node->_next;
         }
         return *newList;
@@ -709,7 +695,18 @@ public:
         return *newList;
     }
 
-    IList<TSource>& SkipWhile(Func<bool(TSource const&)> predicate) override {}
+    IList<TSource>& SkipWhile(Func<bool(TSource const&)> predicate) override
+    {
+        auto* newList = new LinkedList<TSource>();
+        Node* node    = _head;
+        while (node) {
+            if (!predicate(node->_data)) {
+                newList->Add(node->_data);
+            }
+            node = node->_next;
+        }
+        return *newList;
+    }
 
     // template <class TCollection, typename TKey>
     // TCollection<T>& groupBy(Func<TKey(TSource const&)> keySelector)

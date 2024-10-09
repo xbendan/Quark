@@ -19,8 +19,8 @@ namespace Quark::System::API {
             [](Device* device) { return static_cast<T*>(device); });
     }
 
-    IReadOnlyCollection<Device*>* listDevices();
-    IReadOnlyCollection<Device*>* listDevices(Device::Type type);
+    ICollection<Device*>* listDevices();
+    ICollection<Device*>* listDevices(Device::Type type);
 
     Res<> registerDevice(Device* device);
     Res<> unregisterDevice(Device* device);

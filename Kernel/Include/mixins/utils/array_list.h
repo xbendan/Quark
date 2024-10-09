@@ -8,65 +8,63 @@
 #include <mixins/utils/iterator.h>
 
 template <typename TSource>
-class ArrayList
-    : public IList<TSource>
-    , public IReadOnlyList<TSource>
+class ArrayList : public IList<TSource>
 {
     static constexpr usize DefaultCapacity = 8;
 
 public:
     // MARK: Constructors and Destructor
     ArrayList()
-        : _data(new TSource[DefaultCapacity])
-        , _count(0)
-        , _capacity(DefaultCapacity)
+        : m_data(new TSource[DefaultCapacity])
+        , m_count(0)
+        , m_capacity(DefaultCapacity)
     {
     }
     ArrayList(usize capacity)
-        : _data(new TSource[capacity])
-        , _count(0)
-        , _capacity(capacity)
+        : m_data(new TSource[capacity])
+        , m_count(0)
+        , m_capacity(capacity)
     {
     }
     ArrayList(ArrayList<TSource> const& other)
-        : _data(new TSource[other._capacity])
-        , _count(other._count)
-        , _capacity(other._capacity)
+        : m_data(new TSource[other.m_capacity])
+        , m_count(other.m_count)
+        , m_capacity(other.m_capacity)
     {
-        for (usize i = 0; i < _count; i++) {
-            _data[i] = Std::move(other._data[i]);
+        for (usize i = 0; i < m_count; i++) {
+            m_data[i] = Std::move(other.m_data[i]);
         }
     }
     ArrayList(ArrayList<TSource>&& other)
-        : _data(other._data)
-        , _count(other._count)
-        , _capacity(other._capacity)
+        : m_data(other.m_data)
+        , m_count(other.m_count)
+        , m_capacity(other.m_capacity)
     {
-        other._data     = nullptr;
-        other._count    = 0;
-        other._capacity = 0;
+        other.m_data     = nullptr;
+        other.m_count    = 0;
+        other.m_capacity = 0;
     }
     template <typename... TTypes>
     ArrayList(std::initializer_list<TSource> args)
-        : _data(new TSource[args.size()])
-        , _count(args.size())
-        , _capacity(args.size())
+        : m_data(new TSource[args.size()])
+        , m_count(args.size())
+        , m_capacity(args.size())
     {
         usize i = 0;
         for (auto const& arg : args) {
-            _data[i++] = arg;
+            m_data[i++] = arg;
         }
     }
-    ArrayList(IReadOnlyCollection<TSource> const& collection)
-        : _data(new TSource[collection.Count()])
-        , _count(collection.Count())
-        , _capacity(collection.Count())
+    ArrayList(ICollection<TSource> const& collection)
+        : m_data(new TSource[collection.Count()])
+        , m_count(collection.Count())
+        , m_capacity(collection.Count())
     {
         usize    i    = 0;
         auto*    iter = collection.iter();
         TSource& data = iter->current();
         while (true) {
-            _data[i++] = data;
+            m_data[i++] = data;
             if (!iter->hasNext()) {
                 break;
             }
@@ -76,19 +74,19 @@ public:
         delete iter;
     }
 
-    ~ArrayList() { delete[] _data; }
+    ~ArrayList() { delete[] m_data; }
 
     ArrayList& operator=(ArrayList const& other)
     {
         if (this == &other) {
             return *this;
         }
-        delete[] _data;
-        _data     = new TSource[other._capacity];
-        _count    = other._count;
-        _capacity = other._capacity;
-        for (usize i = 0; i < _count; i++) {
-            _data[i] = other._data[i];
+        delete[] m_data;
+        m_data     = new TSource[other.m_capacity];
+        m_count    = other.m_count;
+        m_capacity = other.m_capacity;
+        for (usize i = 0; i < m_count; i++) {
+            m_data[i] = other.m_data[i];
         }
         return *this;
     }
@@ -98,13 +96,13 @@ public:
         if (this == &other) {
             return *this;
         }
-        delete[] _data;
-        _data           = other._data;
-        _count          = other._count;
-        _capacity       = other._capacity;
-        other._data     = nullptr;
-        other._count    = 0;
-        other._capacity = 0;
+        delete[] m_data;
+        m_data           = other.m_data;
+        m_count          = other.m_count;
+        m_capacity       = other.m_capacity;
+        other.m_data     = nullptr;
+        other.m_count    = 0;
+        other.m_capacity = 0;
         return *this;
     }
 
@@ -112,27 +110,27 @@ public:
 
     TSource& Add(TSource const& value) override
     {
-        if (_count == _capacity) {
-            _capacity     = _capacity * 2 + 1;
-            TSource* data = new TSource[_capacity];
-            for (usize i = 0; i < _count; i++) {
-                data[i] = _data[i];
+        if (m_count == m_capacity) {
+            m_capacity    = m_capacity * 2 + 1;
+            TSource* data = new TSource[m_capacity];
+            for (usize i = 0; i < m_count; i++) {
+                data[i] = m_data[i];
             }
-            delete[] _data;
-            _data = data;
+            delete[] m_data;
+            m_data = data;
         }
-        _data[_count++] = Std::move(value);
-        return _data[_count - 1];
+        m_data[m_count++] = Std::move(value);
+        return m_data[m_count - 1];
     }
 
     bool Remove(TSource const& value) override
     {
-        for (usize i = 0; i < _count; i++) {
-            if (_data[i] == const_cast<TSource&>(value)) {
-                for (usize j = i; j < _count - 1; j++) {
-                    _data[j] = _data[j + 1];
+        for (usize i = 0; i < m_count; i++) {
+            if (m_data[i] == const_cast<TSource&>(value)) {
+                for (usize j = i; j < m_count - 1; j++) {
+                    m_data[j] = m_data[j + 1];
                 }
-                _count--;
+                m_count--;
                 return true;
             }
         }
@@ -141,24 +139,24 @@ public:
 
     bool Contains(TSource const& value) const override
     {
-        for (usize i = 0; i < _count; i++) {
-            if (_data[i] == value) {
+        for (usize i = 0; i < m_count; i++) {
+            if (m_data[i] == value) {
                 return true;
             }
         }
         return false;
     }
 
-    usize Count() const override { return _count; }
+    usize Count() const override { return m_count; }
 
-    bool IsEmpty() const override { return _count == 0; }
+    bool IsEmpty() const override { return m_count == 0; }
 
     void Clear() override
     {
-        delete[] _data;
-        _data     = nullptr;
-        _count    = 0;
-        _capacity = 0;
+        delete[] m_data;
+        m_data     = nullptr;
+        m_count    = 0;
+        m_capacity = 0;
     }
 
     ArrayList<TSource>& operator+=(TSource const& value) override
@@ -177,48 +175,48 @@ public:
 
     bool RemoveAt(usize index) override
     {
-        if (index >= _count) {
+        if (index >= m_count) {
             return false;
         }
-        for (usize i = index; i < _count - 1; i++) {
-            _data[i] = _data[i + 1];
+        for (usize i = index; i < m_count - 1; i++) {
+            m_data[i] = m_data[i + 1];
         }
-        _count--;
+        m_count--;
         return true;
     }
 
     TSource& Insert(TSource const& value, usize index) override
     {
-        if (index >= _count) {
+        if (index >= m_count) {
             return Add(value);
         }
-        if (_count == _capacity) {
-            _capacity     = _capacity * 2 + 1;
-            TSource* data = new TSource[_capacity];
+        if (m_count == m_capacity) {
+            m_capacity    = m_capacity * 2 + 1;
+            TSource* data = new TSource[m_capacity];
             for (usize i = 0; i < index; i++) {
-                data[i] = _data[i];
+                data[i] = m_data[i];
             }
             data[index] = value;
-            for (usize i = index; i < _count; i++) {
-                data[i + 1] = _data[i];
+            for (usize i = index; i < m_count; i++) {
+                data[i + 1] = m_data[i];
             }
-            delete[] _data;
-            _data = data;
-            _count++;
-            return _data[index];
+            delete[] m_data;
+            m_data = data;
+            m_count++;
+            return m_data[index];
         }
-        for (usize i = _count; i > index; i--) {
-            _data[i] = _data[i - 1];
+        for (usize i = m_count; i > index; i--) {
+            m_data[i] = m_data[i - 1];
         }
-        _data[index] = value;
-        _count++;
-        return _data[index];
+        m_data[index] = value;
+        m_count++;
+        return m_data[index];
     }
 
     int IndexOf(TSource const& value) const override
     {
-        for (usize i = 0; i < _count; i++) {
-            if (_data[i] == value) {
+        for (usize i = 0; i < m_count; i++) {
+            if (m_data[i] == value) {
                 return i;
             }
         }
@@ -227,8 +225,8 @@ public:
 
     int LastIndexOf(TSource const& value) const override
     {
-        for (int i = _count - 1; i >= 0; i--) {
-            if (_data[i] == value) {
+        for (int i = m_count - 1; i >= 0; i--) {
+            if (m_data[i] == value) {
                 return i;
             }
         }
@@ -239,19 +237,19 @@ public:
 
     TSource& operator[](usize const& index) override
     {
-        assert(index < _count, Error::IndexOutOfBounds("Index out of bounds"));
-        return _data[index];
+        assert(index < m_count, Error::IndexOutOfBounds("Index out of bounds"));
+        return m_data[index];
     }
 
     TSource const& operator[](usize const& index) const override
     {
-        assert(index < _count, Error::IndexOutOfBounds("Index out of bounds"));
-        return _data[index];
+        assert(index < m_count, Error::IndexOutOfBounds("Index out of bounds"));
+        return m_data[index];
     }
 
     IIterator<TSource>* iter() const override
     {
-        return new ArrayIterator<TSource>(_data, _count);
+        return new ArrayIterator<TSource>(m_data, m_count);
     }
 
     // MARK: IEnumerable<TSource> Implementation
@@ -260,8 +258,8 @@ public:
         requires(Computable<TSource>)
     {
         TSource result = 0;
-        for (usize i = 0; i < _count; i++) {
-            result += _data[i];
+        for (usize i = 0; i < m_count; i++) {
+            result += m_data[i];
         }
         return result;
     }
@@ -269,20 +267,20 @@ public:
     TSource Average()
         requires(Computable<TSource>)
     {
-        return _count ? (Sum() / _count) : 0;
+        return m_count ? (Sum() / m_count) : 0;
     }
 
     TSource Max()
         requires(Comparable<TSource>)
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return TSource();
         }
 
-        TSource result = _data[0];
-        for (usize i = 1; i < _count; i++) {
-            if (_data[i] > result) {
-                result = _data[i];
+        TSource result = m_data[0];
+        for (usize i = 1; i < m_count; i++) {
+            if (m_data[i] > result) {
+                result = m_data[i];
             }
         }
         return result;
@@ -291,14 +289,14 @@ public:
     TSource Min()
         requires(Comparable<TSource>)
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return TSource();
         }
 
-        TSource result = _data[0];
-        for (usize i = 1; i < _count; i++) {
-            if (_data[i] < result) {
-                result = _data[i];
+        TSource result = m_data[0];
+        for (usize i = 1; i < m_count; i++) {
+            if (m_data[i] < result) {
+                result = m_data[i];
             }
         }
         return result;
@@ -308,8 +306,8 @@ public:
     TResult Sum(Func<TResult(TSource const&)> mapper)
     {
         TResult result = 0;
-        for (usize i = 0; i < _count; i++) {
-            result += mapper(_data[i]);
+        for (usize i = 0; i < m_count; i++) {
+            result += mapper(m_data[i]);
         }
         return result;
     }
@@ -317,19 +315,19 @@ public:
     template <Computable TResult>
     TResult Average(Func<TResult(TSource const&)> mapper)
     {
-        return _count ? (Sum(mapper) / _count) : 0;
+        return m_count ? (Sum(mapper) / m_count) : 0;
     }
 
     template <Comparable TResult>
     TResult Max(Func<TResult(TSource const&)> mapper)
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return TResult();
         }
 
-        TResult result = mapper(_data[0]);
-        for (usize i = 1; i < _count; i++) {
-            TResult current = mapper(_data[i]);
+        TResult result = mapper(m_data[0]);
+        for (usize i = 1; i < m_count; i++) {
+            TResult current = mapper(m_data[i]);
             if (current > result) {
                 result = current;
             }
@@ -340,13 +338,13 @@ public:
     template <Comparable TResult>
     TResult Min(Func<TResult(TSource const&)> mapper)
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return TResult();
         }
 
-        TResult result = mapper(_data[0]);
-        for (usize i = 1; i < _count; i++) {
-            TResult current = mapper(_data[i]);
+        TResult result = mapper(m_data[0]);
+        for (usize i = 1; i < m_count; i++) {
+            TResult current = mapper(m_data[i]);
             if (current < result) {
                 result = current;
             }
@@ -357,17 +355,17 @@ public:
     template <Comparable TKey>
     TSource MaxBy(Func<TKey(TSource const&)> selector)
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return TSource();
         }
 
-        TSource result = _data[0];
-        TKey    maxKey = selector(_data[0]);
-        for (usize i = 1; i < _count; i++) {
-            TKey currentKey = selector(_data[i]);
+        TSource result = m_data[0];
+        TKey    maxKey = selector(m_data[0]);
+        for (usize i = 1; i < m_count; i++) {
+            TKey currentKey = selector(m_data[i]);
             if (currentKey > maxKey) {
                 maxKey = currentKey;
-                result = _data[i];
+                result = m_data[i];
             }
         }
         return result;
@@ -376,17 +374,17 @@ public:
     template <Comparable TKey>
     TSource MinBy(Func<TKey(TSource const&)> selector)
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return TSource();
         }
 
-        TSource result = _data[0];
-        TKey    minKey = selector(_data[0]);
-        for (usize i = 1; i < _count; i++) {
-            TKey currentKey = selector(_data[i]);
+        TSource result = m_data[0];
+        TKey    minKey = selector(m_data[0]);
+        for (usize i = 1; i < m_count; i++) {
+            TKey currentKey = selector(m_data[i]);
             if (currentKey < minKey) {
                 minKey = currentKey;
-                result = _data[i];
+                result = m_data[i];
             }
         }
         return result;
@@ -405,18 +403,18 @@ public:
 
     Optional<TSource&> FindFirst() override
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return Empty();
         }
 
-        return _data[0];
+        return m_data[0];
     }
 
     Optional<TSource&> FindFirst(Predicate<TSource const&> predicate) override
     {
-        for (usize i = 0; i < _count; i++) {
-            if (predicate(_data[i])) {
-                return _data[i];
+        for (usize i = 0; i < m_count; i++) {
+            if (predicate(m_data[i])) {
+                return m_data[i];
             }
         }
         return Empty();
@@ -424,18 +422,18 @@ public:
 
     Optional<TSource&> FindLast() override
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return Empty();
         }
 
-        return _data[_count - 1];
+        return m_data[m_count - 1];
     }
 
     Optional<TSource&> FindLast(Predicate<TSource const&> predicate) override
     {
-        for (usize i = _count - 1; i >= 0; i--) {
-            if (predicate(_data[i])) {
-                return _data[i];
+        for (int i = m_count - 1; i >= 0; i--) {
+            if (predicate(m_data[i])) {
+                return m_data[i];
             }
         }
         return Empty();
@@ -443,18 +441,18 @@ public:
 
     Optional<TSource&> FindAny() override
     {
-        if (_count == 0) {
+        if (m_count == 0) {
             return Empty();
         }
 
-        return _data[0];
+        return m_data[0];
     }
 
     Optional<TSource&> FindAny(Predicate<TSource const&> predicate) override
     {
-        for (usize i = 0; i < _count; i++) {
-            if (predicate(_data[i])) {
-                return _data[i];
+        for (usize i = 0; i < m_count; i++) {
+            if (predicate(m_data[i])) {
+                return m_data[i];
             }
         }
         return Empty();
@@ -463,8 +461,8 @@ public:
     IList<TSource>& Take(usize n) override
     {
         ArrayList* newList = new ArrayList<TSource>(n);
-        for (usize i = 0; i < n && i < _count; i++) {
-            newList->Add(_data[i]);
+        for (usize i = 0; i < n && i < m_count; i++) {
+            newList->Add(m_data[i]);
         }
         return *newList;
     }
@@ -472,8 +470,8 @@ public:
     IList<TSource>& Take(Tuple<usize, usize> range) override
     {
         auto newList = new ArrayList<TSource>(range.get<1>() - range.get<0>());
-        for (usize i = range.get<0>(); i < range.get<1>() && i < _count; i++) {
-            newList->Add(_data[i]);
+        for (usize i = range.get<0>(); i < range.get<1>() && i < m_count; i++) {
+            newList->Add(m_data[i]);
         }
         return *newList;
     }
@@ -481,8 +479,8 @@ public:
     IList<TSource>& TakeLast(usize n) override
     {
         auto newList = new ArrayList<TSource>(n);
-        for (usize i = _count - n; i < _count; i++) {
-            newList->Add(_data[i]);
+        for (usize i = m_count - n; i < m_count; i++) {
+            newList->Add(m_data[i]);
         }
         return *newList;
     }
@@ -490,9 +488,9 @@ public:
     IList<TSource>& TakeWhile(Predicate<TSource const&> predicate) override
     {
         auto newList = new ArrayList<TSource>();
-        for (usize i = 0; i < _count; i++) {
-            if (predicate(_data[i])) {
-                newList->Add(_data[i]);
+        for (usize i = 0; i < m_count; i++) {
+            if (predicate(m_data[i])) {
+                newList->Add(m_data[i]);
             }
         }
         return *newList;
@@ -501,16 +499,16 @@ public:
     TSource& Single() override
     {
         assert(
-            _count == 1,
+            m_count == 1,
             Error::InvalidOperation("Sequence contains more than one element"));
-        return _data[0];
+        return m_data[0];
     }
 
     TSource& Single(Predicate<TSource const&> predicate)
     {
         usize index = -1;
-        for (usize i = 0; i < _count; i++) {
-            if (predicate(_data[i])) {
+        for (usize i = 0; i < m_count; i++) {
+            if (predicate(m_data[i])) {
                 if (index != -1) {
                     assert(false,
                            Error::InvalidOperation(
@@ -521,42 +519,42 @@ public:
         }
         assert(index != -1,
                Error::InvalidOperation("Sequence contains no element"));
-        return _data[index];
+        return m_data[index];
     }
 
     TSource& SingleOrDefault(TSource const& defaultValue) override
     {
         assert(
-            _count <= 1,
+            m_count <= 1,
             Error::InvalidOperation("Sequence contains more than one element"));
-        return _count ? _data[0] : const_cast<TSource&>(defaultValue);
+        return m_count ? m_data[0] : const_cast<TSource&>(defaultValue);
     }
 
     TSource& DefaultIfEmpty()
         requires(Constructible<TSource>)
     {
-        return _count ? _data[0] : TSource();
+        return m_count ? m_data[0] : TSource();
     }
 
     TSource& DefaultIfEmpty(TSource const& defaultValue) override
     {
-        return _count ? _data[0] : const_cast<TSource&>(defaultValue);
+        return m_count ? m_data[0] : const_cast<TSource&>(defaultValue);
     }
 
     IList<TSource>& Skip(usize n) override
     {
-        auto newList = new ArrayList<TSource>(_count - n);
-        for (usize i = n; i < _count; i++) {
-            newList->Add(_data[i]);
+        auto newList = new ArrayList<TSource>(m_count - n);
+        for (usize i = n; i < m_count; i++) {
+            newList->Add(m_data[i]);
         }
         return *newList;
     }
 
     IList<TSource>& SkipLast(usize n) override
     {
-        auto newList = new ArrayList<TSource>(_count - n);
-        for (usize i = 0; i < _count - n; i++) {
-            newList->Add(_data[i]);
+        auto newList = new ArrayList<TSource>(m_count - n);
+        for (usize i = 0; i < m_count - n; i++) {
+            newList->Add(m_data[i]);
         }
         return *newList;
     }
@@ -564,11 +562,11 @@ public:
     IList<TSource>& SkipWhile(Predicate<TSource const&> predicate) override
     {
         auto newList = new ArrayList<TSource>();
-        for (usize i = 0; i < _count; i++) {
-            if (!predicate(_data[i])) {
+        for (usize i = 0; i < m_count; i++) {
+            if (!predicate(m_data[i])) {
                 continue;
             }
-            newList->Add(_data[i]);
+            newList->Add(m_data[i]);
         }
         return *newList;
     }
@@ -581,17 +579,17 @@ public:
     template <typename TResult>
     ArrayList<TResult>& Select(Func<TResult(TSource const&)> selector)
     {
-        auto newList = new ArrayList<TResult>(_count);
-        for (usize i = 0; i < _count; i++) {
-            newList->Add(selector(_data[i]));
+        auto newList = new ArrayList<TResult>(m_count);
+        for (usize i = 0; i < m_count; i++) {
+            newList->Add(selector(m_data[i]));
         }
         return *newList;
     }
 
     bool AllMatch(Predicate<TSource const&> predicate) const override
     {
-        for (usize i = 0; i < _count; i++) {
-            if (!predicate(_data[i])) {
+        for (usize i = 0; i < m_count; i++) {
+            if (!predicate(m_data[i])) {
                 return false;
             }
         }
@@ -600,8 +598,8 @@ public:
 
     bool AnyMatch(Predicate<TSource const&> predicate) const override
     {
-        for (usize i = 0; i < _count; i++) {
-            if (predicate(_data[i])) {
+        for (usize i = 0; i < m_count; i++) {
+            if (predicate(m_data[i])) {
                 return true;
             }
         }
@@ -610,8 +608,8 @@ public:
 
     bool NoneMatch(Predicate<TSource const&> predicate) const override
     {
-        for (usize i = 0; i < _count; i++) {
-            if (predicate(_data[i])) {
+        for (usize i = 0; i < m_count; i++) {
+            if (predicate(m_data[i])) {
                 return false;
             }
         }
@@ -620,20 +618,20 @@ public:
 
     void ForEach(Func<void(TSource const&)> action) const override
     {
-        for (usize i = 0; i < _count; i++) {
-            action(_data[i]);
+        for (usize i = 0; i < m_count; i++) {
+            action(m_data[i]);
         }
     }
 
     void ForEachOrdered(Func<void(TSource const&, usize)> action) const override
     {
-        for (usize i = 0; i < _count; i++) {
-            action(_data[i], i);
+        for (usize i = 0; i < m_count; i++) {
+            action(m_data[i], i);
         }
     }
 
 private:
-    TSource* _data;
-    usize    _count;
-    usize    _capacity;
+    TSource* m_data;
+    usize    m_count;
+    usize    m_capacity;
 };

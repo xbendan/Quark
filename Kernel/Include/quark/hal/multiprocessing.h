@@ -29,7 +29,7 @@ namespace Quark::System::Hal {
         virtual void SendSignal(Signal signal, u32 data = 0);
     };
 
-    Res<IReadOnlyCollection<ICPULocalDevice*>*> setupMultiprocessing();
+    Res<ICollection<ICPULocalDevice*>*> setupMultiprocessing();
 
     ICPULocalDevice* GetCPULocal(u32 id);
     ICPULocalDevice* getCPULocal();

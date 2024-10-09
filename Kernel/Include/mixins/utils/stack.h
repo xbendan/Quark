@@ -4,7 +4,7 @@
 template <typename TSource>
 class Stack
     : public ICollection<TSource>
-    , public IReadOnlyCollection<TSource>
+    , public ICollection<TSource>
 {
 public:
     TSource const& peek() {}
