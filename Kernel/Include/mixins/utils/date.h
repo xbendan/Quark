@@ -36,12 +36,12 @@ public:
     u64 getSecond() const { return m_second; }
     u64 getMillisecond() const { return m_millisecond; }
 
-    static constexpr bool isLeapYear(u64 year)
+    static constexpr bool IsLeapYear(u64 year)
     {
         return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
     }
 
-    static Date now();
+    static Date Now();
 
 private:
     u64 m_year;

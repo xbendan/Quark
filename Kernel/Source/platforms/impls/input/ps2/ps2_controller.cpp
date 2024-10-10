@@ -1,11 +1,10 @@
 #include <drivers/acpi/device.h>
 #include <drivers/ps2/device.h>
-#include <quark/api/general.h>
 #include <quark/hal/ports.h>
+#include <quark/sched/completable.h>
 
 namespace PS2 {
     using namespace Quark::System::Hal;
-    using namespace Quark::System::API;
 
     LegacyControllerDevice::LegacyControllerDevice()
         : Io::Device("PS/2 Legacy Controller")
@@ -84,6 +83,6 @@ namespace PS2 {
         int timeout = 100;
         while (timeout-- &&
                !(pIn<>(PS2_COMMAND_PORT) & (u8)StateReg::OutputBuffer))
-            sleep(1);
+            Task::Delay(1);
     }
 }

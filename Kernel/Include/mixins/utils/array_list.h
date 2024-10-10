@@ -60,18 +60,8 @@ public:
         , m_count(collection.Count())
         , m_capacity(collection.Count())
     {
-        usize    i    = 0;
-        auto*    iter = collection.iter();
-        TSource& data = iter->current();
-        while (true) {
-            m_data[i++] = data;
-            if (!iter->hasNext()) {
-                break;
-            }
-            data = iter->next();
-        }
-
-        delete iter;
+        collection.ForEachOrdered(
+            [&](TSource const& data, usize index) { m_data[index] = data; });
     }
 
     ~ArrayList() { delete[] m_data; }
@@ -245,11 +235,6 @@ public:
     {
         assert(index < m_count, Error::IndexOutOfBounds("Index out of bounds"));
         return m_data[index];
-    }
-
-    IIterator<TSource>* iter() const override
-    {
-        return new ArrayIterator<TSource>(m_data, m_count);
     }
 
     // MARK: IEnumerable<TSource> Implementation

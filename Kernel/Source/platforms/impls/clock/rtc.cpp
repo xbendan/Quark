@@ -4,65 +4,60 @@
 namespace RTC {
     using namespace Quark::System::Hal;
 
-    u8 RealTimeClockDevice::get(TimestampKey k)
+    u8 RealTimeClockDevice::Get(TimestampKey k)
     {
         pOut<u8>(0x70, k);
         return pIn<u8>(0x71);
     }
 
-    u8 RealTimeClockDevice::getSeconds()
+    u8 RealTimeClockDevice::GetSeconds()
     {
-        u8 val = get(Seconds);
+        u8 val = Get(Seconds);
         return (val & 0x0F) + ((val / 16) * 10);
     }
 
-    u8 RealTimeClockDevice::getMinutes()
+    u8 RealTimeClockDevice::GetMinutes()
     {
-        u8 val = get(Minutes);
+        u8 val = Get(Minutes);
         return (val & 0x0F) + ((val / 16) * 10);
     }
 
-    u8 RealTimeClockDevice::getHours()
+    u8 RealTimeClockDevice::GetHours()
     {
-        u8 val = get(Hours);
+        u8 val = Get(Hours);
         return ((val & 0x0F) + ((val / 16) * 10)) | (val & 0x80);
     }
 
-    u8 RealTimeClockDevice::getDay()
+    u8 RealTimeClockDevice::GetDay()
     {
-        u8 val = get(Day);
+        u8 val = Get(Day);
         return (val & 0x0F) + ((val / 16) * 10);
     }
 
-    u8 RealTimeClockDevice::getMonth()
+    u8 RealTimeClockDevice::GetMonth()
     {
-        u8 val = get(Month);
+        u8 val = Get(Month);
         return (val & 0x0F) + ((val / 16) * 10);
     }
 
-    u16 RealTimeClockDevice::getYear()
+    u16 RealTimeClockDevice::GetYear()
     {
-        u8 val = get(Year);
+        u8 val = Get(Year);
         return (val & 0x0F) + ((val / 16) * 10);
     }
 
-    u64 RealTimeClockDevice::getTicks()
+    Date RealTimeClockDevice::Current()
     {
-        return 0;
-    }
-
-    Date RealTimeClockDevice::now()
-    {
-        return Date(getYear(),
-                    getMonth(),
-                    getDay(),
-                    getHours(),
-                    getMinutes(),
-                    getSeconds(),
+        return Date(GetYear(),
+                    GetMonth(),
+                    GetDay(),
+                    GetHours(),
+                    GetMinutes(),
+                    GetSeconds(),
                     0);
     }
 
-    void RealTimeClockDevice::sleep(u64 ms) {}
+    void RealTimeClockDevice::Sleep(u64 ms) {}
 
-    void RealTimeClockDevice::sleepUntil(Date date) {}
+    void RealTimeClockDevice::SleepUntil(Date date) {}
 }

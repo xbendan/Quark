@@ -229,8 +229,6 @@ public:
     virtual bool     IsEmpty() const                  = 0;
     virtual void     Clear()                          = 0;
 
-    virtual IIterator<TSource>* iter() const = 0;
-
     virtual ICollection<TSource>& operator+=(TSource const& e)
     {
         Add(e);

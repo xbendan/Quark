@@ -48,6 +48,6 @@ namespace PCI {
                 }
             }
         }
-        return static_cast<IList<Io::Device*>*>(devices);
+        return devices;
     }
 }

@@ -343,8 +343,6 @@ public:
         _size = 0;
     }
 
-    IIterator<TSource>* iter() const override { return new _Iter(_head); }
-
     // Linq Functions
 
     TSource Sum()
@@ -635,7 +633,7 @@ public:
 
     TSource& Single(Predicate<TSource const&> predicate) {}
 
-    TSource& SingleOrDefault(TSource const& defaultValue)
+    TSource& SingleOrDefault(TSource const& defaultValue) override
     {
         if (_size > 1) {
             Std::panic("Sequence contains more than one element");
@@ -744,7 +742,7 @@ public:
         return newList;
     }
 
-    bool AllMatch(Func<bool(TSource const&)> predicate) const
+    bool AllMatch(Func<bool(TSource const&)> predicate) const override
     {
         Node* node = _head;
         while (node) {
@@ -756,7 +754,7 @@ public:
         return true;
     }
 
-    bool AnyMatch(Func<bool(TSource const&)> predicate) const
+    bool AnyMatch(Func<bool(TSource const&)> predicate) const override
     {
         Node* node = _head;
         while (node) {
@@ -768,7 +766,7 @@ public:
         return false;
     }
 
-    bool NoneMatch(Func<bool(TSource const&)> predicate) const
+    bool NoneMatch(Func<bool(TSource const&)> predicate) const override
     {
         Node* node = _head;
         while (node) {

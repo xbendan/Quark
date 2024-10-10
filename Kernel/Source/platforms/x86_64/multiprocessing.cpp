@@ -6,10 +6,10 @@
 #include <platforms/x86_64/sched.h>
 #include <platforms/x86_64/smp_define.inc>
 #include <platforms/x86_64/tables.h>
-#include <quark/api/general.h>
 #include <quark/dev/device.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/memory/page_alloc.h>
+#include <quark/sched/completable.h>
 
 namespace Quark::System {
     extern Inert<Platform::X64::CPULocalDevice> kCPULocal;
@@ -118,13 +118,13 @@ namespace Quark::System::Hal {
                              : "rax");
 
                 apicLocal->CallIPI(ICR_DSH_DEST, ICR_MESSAGE_TYPE_INIT, 0);
-                sleep(50);
+                Task::Delay(50);
 
                 while (*MagicValue != 0xB33F) {
                     apicLocal->CallIPI(ICR_DSH_DEST,
                                        ICR_MESSAGE_TYPE_STARTUP,
                                        (SMP_TRAMPOLINE_ENTRY >> 12));
-                    sleep(200);
+                    Task::Delay(200);
                 }
 
                 while (!DoneInit)

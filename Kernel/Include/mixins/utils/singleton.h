@@ -1,0 +1,36 @@
+#include <mixins/std/c++types.h>
+#include <mixins/std/concepts.h>
+#include <mixins/utils/collections.h>
+#include <mixins/utils/linked_list.h>
+
+template <typename TSource, template <typename> typename TImpl = LinkedList>
+    requires Std::isDerived<ICollection<TSource>, TImpl<TSource>>
+class Singleton : public TImpl<TSource>
+{
+public:
+    Singleton()  = default;
+    ~Singleton() = default;
+
+    Optional<TSource> Select(TSource* selected)
+    {
+        if (TImpl<TSource>::Contains(selected)) {
+            return m_selected = selected;
+        } else {
+            return Empty();
+        }
+    }
+
+    Optional<TSource> GetOrFirst()
+    {
+        if (!m_selected) {
+            m_selected = TImpl<TSource>::FindFirst();
+        }
+
+        return m_selected;
+    }
+
+    TSource* operator()() const { return GetOrFirst(); }
+
+private:
+    Optional<TSource> m_selected;
+};

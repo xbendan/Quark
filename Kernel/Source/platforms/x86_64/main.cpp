@@ -24,7 +24,6 @@ extern u64 interruptVectors[];
 namespace Quark::System {
     using namespace Quark::System::Memory;
     using namespace Quark::System::Platform::X64;
-    using namespace Quark::System::API;
 
     InterruptDescTbl                kIdt = {};
     Inert<CPULocalDevice>           kCPULocal;

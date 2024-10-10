@@ -1,12 +1,12 @@
 #include <drivers/clock/rtc/spec.h>
+#include <quark/clocksource/timer.h>
 #include <quark/dev/device.h>
-#include <quark/time/clocksource.h>
 
 namespace RTC {
     using namespace Quark::System;
 
     class RealTimeClockDevice
-        : public System::IClockSource
+        : public Timer
         , public Io::Device
     {
     public:
@@ -15,17 +15,17 @@ namespace RTC {
         {
         }
 
-        u8  get(TimestampKey k);
-        u8  getSeconds();
-        u8  getMinutes();
-        u8  getHours();
-        u8  getDay();
-        u8  getMonth();
-        u16 getYear();
+        u8  Get(TimestampKey k);
+        u8  GetSeconds();
+        u8  GetMinutes();
+        u8  GetHours();
+        u8  GetDay();
+        u8  GetMonth();
+        u16 GetYear();
 
-        u64  getTicks() override;
-        Date now() override;
-        void sleep(u64 ms) override;
-        void sleepUntil(Date date) override;
+        virtual void Sleep(u64) override final;
+        virtual void SleepNanos(u64) override final;
+        virtual void SleepUntil(Date) override final;
+        virtual Date Current() override final;
     };
 }
