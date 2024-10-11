@@ -21,6 +21,6 @@ namespace Quark::System {
         virtual Date Current()        = 0;
 
     private:
-        Singleton<Timer*> m_timers;
+        static inline Singleton<Timer*>* m_timers;
     };
 }

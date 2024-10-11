@@ -99,10 +99,10 @@ namespace Quark::System::Memory {
             return Empty();
         }
 
-        template <typename _T>
-        Optional<u64> find(_T* val, u64 size, u64 offset = 0x1)
+        template <typename TNumType>
+        Optional<u64> find(TNumType* val, u64 size, u64 offset = 0x1)
         {
-            return find((u8*)val, size * sizeof(_T), offset);
+            return find((u8*)val, size * sizeof(TNumType), offset);
         }
 
         Optional<u64> takeFront(u64 size)

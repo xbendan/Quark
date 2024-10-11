@@ -13,20 +13,20 @@ public:
     [[gnu::always_inline]]
     Union() = delete;
 
-    template <Any<Ts...> _T>
+    template <Any<Ts...> TAnyType>
     [[gnu::always_inline]]
-    Union(const _T& value)
-        : _index(indexOf<_T, Ts...>())
+    Union(const TAnyType& value)
+        : _index(indexOf<TAnyType, Ts...>())
     {
-        new (_data) _T(value);
+        new (_data) TAnyType(value);
     }
 
-    template <Any<Ts...> _T>
+    template <Any<Ts...> TAnyType>
     [[gnu::always_inline]]
-    Union(_T&& value)
-        : _index(indexOf<_T, Ts...>())
+    Union(TAnyType&& value)
+        : _index(indexOf<TAnyType, Ts...>())
     {
-        new (_data) _T(Std::move(value));
+        new (_data) TAnyType(Std::move(value));
     }
 
     [[gnu::always_inline]]
@@ -55,65 +55,67 @@ public:
             _index, _data, []<typename T>(T& value) { value.~T(); });
     }
 
-    template <Any<Ts...> _T>
+    template <Any<Ts...> TAnyType>
     [[gnu::always_inline]]
-    Union& operator=(const _T& value)
+    Union& operator=(const TAnyType& value)
     {
         indexCast<Ts...>(_index, _data, [this]<typename U>(U& value) {
             value.T();
-            new (_data) _T{ value };
+            new (_data) TAnyType{ value };
         });
         return *this;
     }
 
-    template <Any<Ts...> _T>
+    template <Any<Ts...> TAnyType>
     [[gnu::always_inline]]
-    Union& operator=(_T&& value)
+    Union& operator=(TAnyType&& value)
     {
         indexCast<Ts...>(_index, _data, [this]<typename U>(U& value) {
             value.T();
-            new (_data) _T{ value };
+            new (_data) TAnyType{ value };
         });
-        _index = indexOf<_T, Ts...>();
-        new (_data) _T{ Std::move(value) };
+        _index = indexOf<TAnyType, Ts...>();
+        new (_data) TAnyType{ Std::move(value) };
 
         return *this;
     }
 
-    template <Any<Ts...> _T>
+    template <Any<Ts...> TAnyType>
     [[gnu::always_inline]]
-    _T& unwrap()
+    TAnyType& unwrap()
     {
-        if (_index != indexOf<_T, Ts...>()) [[unlikely]] {
+        if (_index != indexOf<TAnyType, Ts...>()) [[unlikely]] {
             // panic
         }
 
-        return *reinterpret_cast<_T*>(_data);
+        return *reinterpret_cast<TAnyType*>(_data);
     }
 
-    template <Any<Ts...> _T>
+    template <Any<Ts...> TAnyType>
     [[gnu::always_inline]]
-    const _T& unwrap() const
+    const TAnyType& unwrap() const
     {
-        if (_index != indexOf<_T, Ts...>()) [[unlikely]] {
+        if (_index != indexOf<TAnyType, Ts...>()) [[unlikely]] {
             // panic
         }
 
-        return *reinterpret_cast<const _T*>(_data);
+        return *reinterpret_cast<const TAnyType*>(_data);
     }
 
-    template <Any<Ts...> _T>
+    template <Any<Ts...> TAnyType>
     [[gnu::always_inline]]
-    const _T* is() const
+    const TAnyType* is() const
     {
-        return _index == indexOf<_T, Ts...>() ? (_T*)_data : nullptr;
+        return _index == indexOf<TAnyType, Ts...>() ? (TAnyType*)_data
+                                                    : nullptr;
     }
 
-    template <Any<Ts...> _T>
+    template <Any<Ts...> TAnyType>
     [[gnu::always_inline]]
-    _T* is()
+    TAnyType* is()
     {
-        return _index == indexOf<_T, Ts...>() ? (_T*)_data : nullptr;
+        return _index == indexOf<TAnyType, Ts...>() ? (TAnyType*)_data
+                                                    : nullptr;
     }
 
     [[gnu::always_inline]]

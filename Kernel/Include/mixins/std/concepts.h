@@ -179,19 +179,19 @@ concept Fundamental = Std::isFundamental<T> || requires { T::_Fundamental; };
 template <typename...>
 inline constexpr usize _indexOf = 0;
 
-template <typename _T, typename First>
-inline constexpr usize _indexOf<_T, First> = 0;
+template <typename TType, typename TFirst>
+inline constexpr usize _indexOf<TType, TFirst> = 0;
 
-template <typename _T, typename First, typename... Rest>
-inline constexpr usize _indexOf<_T, First, Rest...> =
-    Std::isSame<_T, First> ? 0 : _indexOf<_T, Rest...> + 1;
+template <typename TType, typename TFirst, typename... Rest>
+inline constexpr usize _indexOf<TType, TFirst, Rest...> =
+    Std::isSame<TType, TFirst> ? 0 : _indexOf<TType, Rest...> + 1;
 
-template <typename _T, typename... Ts>
-    requires Any<_T, Ts...>
+template <typename TType, typename... Ts>
+    requires Any<TType, Ts...>
 static consteval usize
 indexOf()
 {
-    return _indexOf<_T, Ts...>;
+    return _indexOf<TType, Ts...>;
 }
 
 template <typename...>

@@ -24,7 +24,7 @@ namespace Serial {
         Scratch         = 7
     };
 
-    u16 operator+(Port port, PortOffset offset)
+    constexpr u16 operator+(Port port, PortOffset offset)
     {
         return static_cast<u16>(port) + static_cast<u16>(offset);
     }

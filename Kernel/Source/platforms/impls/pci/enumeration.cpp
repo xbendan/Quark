@@ -38,7 +38,7 @@ namespace PCI {
                     PCIInfo info(i, j, 0);
                     devices->Add(new PCI::PCIDevice(info));
 
-                    if (info.read<>(PCI::ConfigRegs::HeaderType) & 0x80) {
+                    if (info.Read<>(PCI::ConfigRegs::HeaderType) & 0x80) {
                         for (int k = 1; k < 8; k++) { // Func
                             if (CheckDevice(i, j, k)) {
                                 devices->Add(new PCI::PCIDevice(i, j, k));

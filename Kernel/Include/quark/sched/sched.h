@@ -17,14 +17,18 @@ namespace Quark::System::Task {
     class Scheduler
     {
     public:
-        static void schedule(ProcessContext* context, Thread* thread);
-        static void schedule(ProcessContext* context);
-        static void scheduleAll();
+        static void InitTasks(); // Initialize the scheduler
+
+        static ProcessContext* CurrentContext();
+        static void ScheduleToThread(ProcessContext* context, Thread* thread);
+        static void ScheduleToNext(ProcessContext* context);
+        static void ScheduleAllContexts();
         static u32  GetNextPID();
 
     private:
         Scheduler() = delete;
 
-        static inline u32 m_nextPID{ 0 };
+        static inline ArrayList<Process*> m_processes{};
+        static inline u32                 m_nextPID{ 0 };
     };
 } // namespace Quark::System::Task

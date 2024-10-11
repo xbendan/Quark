@@ -18,15 +18,17 @@ namespace PCI {
         {
         }
 
-        template <typename _T = u8>
-            requires(Std::isSame<_T, u8> || Std::isSame<_T, u16> ||
-                     Std::isSame<_T, u32>)
-        _T read(u8 offset)
+        template <typename TNumType = u8>
+            requires(Std::isSame<TNumType, u8> || Std::isSame<TNumType, u16> ||
+                     Std::isSame<TNumType, u32>)
+        TNumType Read(u8 offset)
         {
-            pOut<u32>(PCI_CONFIG_ADDRESS, getAddressPackage(offset));
+            TNumType data;
 
-            _T data = pIn<u32>(PCI_CONFIG_DATA);
-            switch (sizeof(_T)) {
+            PortAccess<PCI_CONFIG_ADDRESS>() << getAddressPackage(offset);
+            PortAccess<PCI_CONFIG_DATA>() >> data;
+
+            switch (sizeof(TNumType)) {
                 case 1:
                     return data >> ((offset & 3) * 8) & 0xff;
                 case 2:
@@ -37,23 +39,20 @@ namespace PCI {
             // TODO: throw exception
         }
 
-        template <typename _T = u8>
-            requires(Std::isSame<_T, u8> || Std::isSame<_T, u16> ||
-                     Std::isSame<_T, u32>)
-        _T read(PCI::ConfigRegs reg)
+        template <Integral TNumType = u8>
+        TNumType Read(PCI::ConfigRegs reg)
         {
-            return read<_T>(static_cast<u8>(reg));
+            return Read<TNumType>(static_cast<u8>(reg));
         }
 
-        template <typename _T>
-            requires(Std::isSame<_T, u8> || Std::isSame<_T, u16> ||
-                     Std::isSame<_T, u32>)
-        void write(u8 offset, _T value)
+        template <Integral TNumType>
+        void Write(u8 offset, TNumType value)
         {
-            pOut<u32>(PCI_CONFIG_ADDRESS, getAddressPackage(offset));
+            PortAccess<PCI_CONFIG_ADDRESS>() << getAddressPackage(offset);
 
-            _T data = pIn<u32>(PCI_CONFIG_DATA);
-            switch (sizeof(_T)) {
+            TNumType data;
+            PortAccess<PCI_CONFIG_DATA>() >> data;
+            switch (sizeof(TNumType)) {
                 case 1:
                     data &= ~(0xff << ((offset & 3) * 8));
                     data |= (value & 0xff) << ((offset & 3) * 8);
@@ -66,13 +65,13 @@ namespace PCI {
                     data = value;
                     break;
             }
-            pOut<u32>(PCI_CONFIG_DATA, data);
+            PortAccess<PCI_CONFIG_DATA>() << data;
         }
 
-        template <typename _T>
-        void write(PCI::ConfigRegs reg, _T value)
+        template <typename TNumType>
+        void Write(PCI::ConfigRegs reg, TNumType value)
         {
-            write<_T>(static_cast<u8>(reg), value);
+            Write<TNumType>(static_cast<u8>(reg), value);
         }
 
         inline u64 getAddressPackage(u8 offset)
@@ -92,33 +91,33 @@ namespace PCI {
         {
             return _vendorID
                        ? _vendorID
-                       : (_vendorID = read<u16>(PCI::ConfigRegs::VendorID));
+                       : (_vendorID = Read<u16>(PCI::ConfigRegs::VendorID));
         }
 
         u16 getDeviceID()
         {
             return _deviceID
                        ? _deviceID
-                       : (_deviceID = read<u16>(PCI::ConfigRegs::DeviceID));
+                       : (_deviceID = Read<u16>(PCI::ConfigRegs::DeviceID));
         }
 
         u8 getClass()
         {
             return _class ? _class
-                          : (_class = read<u8>(PCI::ConfigRegs::Class));
+                          : (_class = Read<u8>(PCI::ConfigRegs::Class));
         }
 
         u8 getSubclass()
         {
             return _subclass
                        ? _subclass
-                       : (_subclass = read<u8>(PCI::ConfigRegs::Subclass));
+                       : (_subclass = Read<u8>(PCI::ConfigRegs::Subclass));
         }
 
         u8 getProgIF()
         {
             return _progIF ? _progIF
-                           : (_progIF = read<u8>(PCI::ConfigRegs::ProgIF));
+                           : (_progIF = Read<u8>(PCI::ConfigRegs::ProgIF));
         }
 
         u16 _vendorID{ 0 }, _deviceID{ 0 };

@@ -27,34 +27,34 @@ namespace PS2 {
             return Error::DeviceFault("FADT table not found.");
         }
 
-        send(Command::DisableFirstPort);
-        send(Command::DisableSecondPort);
+        Send(Command::DisableFirstPort);
+        Send(Command::DisableSecondPort);
 
         /* Flush The Output Buffer */
-        flush();
+        Flush();
 
         /* Set the Controller Configuration Byte */
-        send(Command::ReadByteZero);
+        Send(Command::ReadByteZero);
         u8 status =
-            pIn<>((u8)Command::ReadByteZero) &
+            PortAccess<(usize)Command::ReadByteZero>().In<u8>() &
             (u8)(~(ConfigByte::FirstPortClock | ConfigByte::SecondPortClock |
                    ConfigByte::FirstPortTranslation) |
                  ConfigByte::FirstPortInterrupt);
-        send(Command::WriteByteZero);
-        pOut<>(PS2_DATA_PORT, status);
+        Send(Command::WriteByteZero);
+        m_dataAccess << status;
 
         /* Perform Controller Self-Test */
-        send(Command::TestPs2Controller);
-        wait();
-        if (pIn<>(PS2_DATA_PORT) != 0x55) {
+        Send(Command::TestPs2Controller);
+        Wait();
+        if (m_dataAccess.In<u8>() != 0x55) {
             return Error::DeviceFault("PS/2 Controller self-test failed.");
         }
 
         /* Perform First Port Test */
-        send(Command::TestFirstPort);
-        wait();
-        if (pIn<>(PS2_DATA_PORT) == 0x00) {
-            send(Command::EnableFirstPort);
+        Send(Command::TestFirstPort);
+        Wait();
+        if (m_dataAccess.In<u8>() == 0x00) {
+            Send(Command::EnableFirstPort);
 
             // pOut<>(PS2_DATA_PORT, 0xF0);
             // pOut<>(PS2_DATA_PORT, 0x02);
@@ -65,24 +65,24 @@ namespace PS2 {
         return Ok();
     }
 
-    void LegacyControllerDevice::send(PS2::Command command)
+    void LegacyControllerDevice::Send(PS2::Command command)
     {
-        while (pIn<>(PS2_COMMAND_PORT) & (u8)PS2::StateReg::InputBuffer)
+        while (m_commandAccess.In<u8>() & (u8)PS2::StateReg::InputBuffer)
             ;
-        pOut<>(PS2_COMMAND_PORT, (u8)command);
+        m_commandAccess << (u8)command;
     }
 
-    void LegacyControllerDevice::flush()
+    void LegacyControllerDevice::Flush()
     {
-        while (pIn<>(PS2_COMMAND_PORT) & (u8)StateReg::OutputBuffer)
-            pIn<>(PS2_DATA_PORT);
+        while (m_commandAccess.In<u8>() & (u8)StateReg::OutputBuffer)
+            m_dataAccess.In<u8>();
     }
 
-    void LegacyControllerDevice::wait()
+    void LegacyControllerDevice::Wait()
     {
         int timeout = 100;
         while (timeout-- &&
-               !(pIn<>(PS2_COMMAND_PORT) & (u8)StateReg::OutputBuffer))
+               !(m_commandAccess.In<u8>() & (u8)StateReg::OutputBuffer))
             Task::Delay(1);
     }
 }

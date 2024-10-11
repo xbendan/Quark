@@ -1,5 +1,6 @@
 #include <drivers/ps2/spec.h>
 #include <quark/dev/device.h>
+#include <quark/hal/ports.h>
 
 namespace PS2 {
     using namespace Quark::System;
@@ -25,12 +26,14 @@ namespace PS2 {
 
         Res<> OnInitialize() override;
 
-        void send(PS2::Command);
-        void flush();
-        void wait();
+        void Send(PS2::Command);
+        void Flush();
+        void Wait();
 
     private:
-        LegacyKeyboardDevice* m_keyboard;
-        LegacyMouseDevice*    m_mouse;
+        LegacyKeyboardDevice*             m_keyboard;
+        LegacyMouseDevice*                m_mouse;
+        Hal::PortAccess<PS2_DATA_PORT>    m_dataAccess;
+        Hal::PortAccess<PS2_COMMAND_PORT> m_commandAccess;
     };
 } // namespace Quark::System::Hal

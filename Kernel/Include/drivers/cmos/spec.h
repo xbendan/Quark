@@ -1,0 +1,2 @@
+#define CMOS_PORT_REG_INDEX 0x70
+#define CMOS_PORT_REG_DATA 0x71

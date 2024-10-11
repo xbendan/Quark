@@ -25,9 +25,9 @@ namespace PCI {
             return 0;
         }
 
-        u64 bar = read<u32>((u8)PCI::ConfigRegs::BAR0 + i * 4);
+        u64 bar = Read<u32>((u8)PCI::ConfigRegs::BAR0 + i * 4);
         if (!(bar & 0x1) && (bar & 0x4) && (i < 5)) {
-            bar |= ((u64)read<u32>((u8)PCI::ConfigRegs::BAR0 + (i + 1) * 4))
+            bar |= ((u64)Read<u32>((u8)PCI::ConfigRegs::BAR0 + (i + 1) * 4))
                    << 32;
         }
 

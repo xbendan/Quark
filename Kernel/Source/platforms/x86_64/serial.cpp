@@ -2,36 +2,36 @@
 #include <platforms/x86_64/cpu.h>
 #include <quark/hal/ports.h>
 
-namespace Quark::System::Hal {
-    using namespace Serial;
+namespace Serial {
+    using namespace Quark::System::Hal;
 
     SerialPortDevice::SerialPortDevice()
         : Device("Serial Port Device", Type::Firmware)
     {
-        pOut<u8>(Port::COM1 + PortOffset::InterruptEnable, 0x00);
-        pOut<u8>(Port::COM1 + PortOffset::LineControl, 0x80);
-        pOut<u8>(Port::COM1, 0x03);
-        pOut<u8>(Port::COM1, 0x00);
-        pOut<u8>(Port::COM1 + PortOffset::LineControl, 0x03);
-        pOut<u8>(Port::COM1 + PortOffset::FIFO, 0xC7);
-        pOut<u8>(Port::COM1 + PortOffset::ModemControl, 0x0B);
+        PortAccess<>::Out<u8>(Port::COM1 + PortOffset::InterruptEnable, 0x00);
+        PortAccess<>::Out<u8>(Port::COM1 + PortOffset::LineControl, 0x80);
+        m_portAccess << 0x03;
+        m_portAccess << 0x00;
+        PortAccess<>::Out<u8>(Port::COM1 + PortOffset::LineControl, 0x03);
+        PortAccess<>::Out<u8>(Port::COM1 + PortOffset::FIFO, 0xC7);
+        PortAccess<>::Out<u8>(Port::COM1 + PortOffset::ModemControl, 0x0B);
     }
 
-    void SerialPortDevice::writeStr(string str)
+    void SerialPortDevice::Write(string str)
     {
         static_assert(Std::isSame<string::Unit, u8>);
     }
 
-    void SerialPortDevice::writeNewline()
+    void SerialPortDevice::WriteNewline()
     {
         out('\n');
     }
 
     void SerialPortDevice::out(u8 data)
     {
-        while (!(pIn<u8>(Port::COM1 + PortOffset::LineStatus) & 0x20))
+        while (!(m_lineStatus.In<u8>() & 0x20))
             ;
-        pOut<u8>(Port::COM1, data);
+        m_portAccess << data;
     }
 
     bool SerialPortDevice::out(u8* data, usize len)
@@ -39,17 +39,17 @@ namespace Quark::System::Hal {
         if (Platform::X64::CheckInterrupts()) {
             m_lock.acquireIntDisable();
             while (len--) {
-                while (!(pIn<u8>(Port::COM1 + PortOffset::LineStatus) & 0x20))
+                while (!(m_lineStatus.In<u8>() & 0x20))
                     ;
-                pOut<u8>(Port::COM1, *data++);
+                m_portAccess << *data++;
             }
 
             m_lock.release();
         } else
             while (len--) {
-                while (!(pIn<u8>(Port::COM1 + PortOffset::LineStatus) & 0x20))
+                while (!(m_lineStatus.In<u8>() & 0x20))
                     ;
-                pOut<u8>(Port::COM1, *data++);
+                m_portAccess << *data++;
             }
         return true;
     }

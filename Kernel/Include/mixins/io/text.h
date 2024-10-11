@@ -8,7 +8,7 @@ namespace Io {
     class TextWriter : public IOutputStream<string::Unit>
     {
     public:
-        virtual void writeStr(string str) = 0;
-        virtual void writeNewline()       = 0;
+        virtual void Write(string str) = 0;
+        virtual void WriteNewline()    = 0;
     };
 }

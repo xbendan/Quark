@@ -13,9 +13,9 @@ namespace VESA {
         VGATextOutputDevice();
         ~VGATextOutputDevice();
 
-        void writeStr(string str) override;
+        void Write(string str) override;
         void writeStr(String<Ascii> str);
-        void writeNewline() override;
+        void WriteNewline() override;
 
     private:
         Size  m_resolution{ 80, 25 };
