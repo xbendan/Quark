@@ -3,11 +3,13 @@
 
 #include <mixins/utils/array.h>
 #include <quark/api/logging.h>
+#include <quark/hal/interrupts.h>
 
 namespace Quark::System::Platform::X64 {
-    using namespace Quark::System::API;
+    using namespace Quark::System::Hal;
 
-    InterruptDescTbl tbl = {};
+    InterruptDescTbl           tbl = {};
+    InterruptsControllerDevice controller;
 
     // clang-format off
     InterruptVector vectors[256] = {
@@ -261,9 +263,7 @@ namespace Quark::System::Platform::X64 {
 extern "C" void
 dispatchInterrupts(Quark::System::Platform::X64::InterruptStackFrame* frame)
 {
-    // if (frame->intno < 32) {
-    //     log(u8"Exception %d\n", frame->intno);
-    // } else {
-    //     log(u8"Interrupt %d\n", frame->intno);
-    // }
+    using namespace Quark::System::Platform::X64;
+
+    controller.CallEvent(frame->intno, frame);
 }

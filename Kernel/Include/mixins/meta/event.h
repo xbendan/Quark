@@ -1,50 +1,49 @@
 #include <mixins/concurrent/spinlock.h>
 #include <mixins/meta/func.h>
+#include <mixins/meta/inert.h>
 #include <mixins/std/c++types.h>
 #include <mixins/utils/array_list.h>
-
-template <typename... Args>
-class EventArgs
-{};
 
 template <typename... Args>
 class Event
 {
 public:
-    Event()  = default;
+    Event()
+        : m_handlers(1)
+    {
+    }
     ~Event() = default;
 
-    void operator+=(void (*handler)(EventArgs<Args...>* args))
+    bool operator+=(void (*handler)(Args... args))
     {
+        if (handler == nullptr || m_handlers.Contains(handler)) {
+            return false;
+        }
+
         m_handlers.Add(handler);
+        return true;
     }
 
-    void operator+=(Func<void(EventArgs<Args...>* args)> handler)
-    {
-        m_handlers.Add(handler);
-    }
-
-    void operator-=(Func<void(EventArgs<Args...>* args)> handler)
+    void operator-=(void (*handler)(Args... args))
     {
         m_handlers.Remove(handler);
     }
 
     void operator()(Args... args)
     {
-        for (usize i = 0; i < m_handlers.Count(); i++) {
-            m_handlers[i](args...);
-        }
+        m_handlers.ForEach([&](void (*handler)(Args...)) { handler(args...); });
     }
 
-    bool operator==(nullptr_t) { return m_handlers.IsEmpty(); }
+    // bool operator==(nullptr_t) { return m_handlers.IsEmpty(); }
 
-    bool operator!=(nullptr_t) { return !m_handlers.IsEmpty(); }
+    // bool operator!=(nullptr_t) { return !m_handlers.IsEmpty(); }
+
+    bool operator==(Event const& other) const
+    {
+        return m_handlers == other.m_handlers;
+    }
 
 private:
-    Spinlock                                        m_lock;
-    ArrayList<Func<void(EventArgs<Args...>* args)>> m_handlers;
+    Spinlock                     m_lock;
+    ArrayList<void (*)(Args...)> m_handlers{ 1 };
 };
-
-template <typename TSelectionType>
-class SelectionChangedEventArgs : public EventArgs<TSelectionType>
-{};
