@@ -13,9 +13,11 @@ namespace RTC {
     {
     public:
         RealTimeClockDevice()
-            : Device(u8"RTC", Device::Type::TimerOrClock)
+            : Device(u8"Real Time Clock", Device::Type::TimerOrClock)
         {
         }
+
+        Res<> OnInitialize() override final;
 
         bool IsUpdateInProgress();
         void ReadTime();

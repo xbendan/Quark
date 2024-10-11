@@ -1,8 +1,29 @@
+#include <drivers/acpi/device.h>
 #include <drivers/clocksource/rtc/device.h>
 #include <quark/hal/ports.h>
 
 namespace RTC {
     using namespace Quark::System::Hal;
+
+    Res<> RealTimeClockDevice::OnInitialize()
+    {
+        auto* fadt =
+            Device::FindByName<ACPI::ControllerDevice>("ACPI Management Device")
+                .Select<ACPI::FixedAcpiDescTable*>(
+                    [](ACPI::ControllerDevice* acpi) {
+                        return acpi ? acpi->FindTable<ACPI::FixedAcpiDescTable>(
+                                              "FADT")
+                                          .Unwrap()
+                                    : nullptr;
+                    })
+                .Take();
+        assert(fadt);
+
+        m_centuryRegsiter = fadt->_century;
+        // TODO: Log
+
+        return Ok();
+    }
 
     bool RealTimeClockDevice::IsUpdateInProgress()
     {

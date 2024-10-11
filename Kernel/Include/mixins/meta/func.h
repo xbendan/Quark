@@ -81,7 +81,7 @@ public:
             return false;
         }
         if (_isWrapped) {
-            return *_wrap == *other._wrap;
+            return _wrap == other._wrap;
         }
         return _func == other._func;
     }
@@ -139,6 +139,7 @@ public:
         if (_isWrapped) {
             delete _wrap;
         }
+
         _isWrapped = other._isWrapped;
         if (_isWrapped) {
             _wrap = other._wrap;

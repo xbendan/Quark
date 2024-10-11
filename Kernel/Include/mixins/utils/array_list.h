@@ -96,6 +96,37 @@ public:
         return *this;
     }
 
+    bool operator==(ArrayList const& other) const
+    {
+        if (m_data == other.m_data) {
+            return true;
+        }
+
+        if (m_count != other.m_count) {
+            return false;
+        }
+        for (usize i = 0; i < m_count; i++) {
+            if (m_data[i] != other.m_data[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void Ensure(usize capacity)
+    {
+        if (m_capacity >= capacity) {
+            return;
+        }
+        m_capacity    = capacity;
+        TSource* data = new TSource[m_capacity];
+        for (usize i = 0; i < m_count; i++) {
+            data[i] = m_data[i];
+        }
+        delete[] m_data;
+        m_data = data;
+    }
+
     // MARK: ICollection<TSource> Implementation
 
     TSource& Add(TSource const& value) override
@@ -109,7 +140,8 @@ public:
             delete[] m_data;
             m_data = data;
         }
-        m_data[m_count++] = Std::move(value);
+
+        new (&m_data[m_count]) TSource(Std::move(value));
         return m_data[m_count - 1];
     }
 
