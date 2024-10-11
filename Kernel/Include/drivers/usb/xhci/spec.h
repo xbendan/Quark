@@ -29,8 +29,8 @@
 #define USB_CCR_CA (1 << 2)  // Command Abort
 #define USB_CCR_CRR (1 << 3) // Command Ring Running
 
-#define USB_CCR_PTR_LO 0xFFFFFFC0‬
-#define USB_CCR_PTR 0xFFFFFFFFFFFFFFC0‬ // Command Ring Pointer
+#define USB_CCR_PTR_LO 0xFFFFFFC0
+#define USB_CCR_PTR 0xFFFFFFFFFFFFFFC0 // Command Ring Pointer
 
 #define XHCI_PORTSC_CCS (1 << 0) // Current Connect Status
 #define XHCI_PORTSC_PED (1 << 1) // Port Enabled/Disabled
