@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/math/compute.h>
 #include <mixins/std/c++types.h>
 

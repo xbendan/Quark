@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/std/type_traits.h>
 
 template <typename T, typename U = T>
