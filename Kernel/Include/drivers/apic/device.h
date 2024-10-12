@@ -20,7 +20,7 @@ namespace APIC {
                   ICPULocalDevice*         device)
                 : _apicId(apicId)
                 , _basePhys(apic->localBaseRead() & LOCAL_APIC_BASE)
-                , _baseVirt(Memory::copyAsIOAddress(_basePhys))
+                , _baseVirt(Memory::CopyAsIOAddress(_basePhys))
                 , _device(device)
             {
             }

@@ -16,7 +16,7 @@ namespace ACPI {
 
     Res<> ControllerDevice::OnInitialize()
     {
-        u64 address = Memory::copyAsIOAddress( //
+        u64 address = Memory::CopyAsIOAddress( //
             AddressRange(0x0, 0x7bff + 1)
                 .find((u8*)_signature, 8, 0x10)
                 .OrElse(0) |
@@ -49,7 +49,7 @@ namespace ACPI {
         switch (_rsdp->_revision) {
             case 0:
                 _rsdt = reinterpret_cast<ACPI::RootSystemDescTable*>(
-                    Memory::copyAsIOAddress(_rsdp->_rsdtAddress));
+                    Memory::CopyAsIOAddress(_rsdp->_rsdtAddress));
                 log(u8"[ACPI] ACPI Version 1.0\n");
                 break;
             case 2:
@@ -57,9 +57,9 @@ namespace ACPI {
                     reinterpret_cast<ACPI::ExtendedSystemDescPointer*>(_rsdp);
 
                 _rsdt = reinterpret_cast<ACPI::RootSystemDescTable*>(
-                    Memory::copyAsIOAddress(_rsdp->_rsdtAddress));
+                    Memory::CopyAsIOAddress(_rsdp->_rsdtAddress));
                 _xsdt = reinterpret_cast<ACPI::ExtendedSystemDescTable*>(
-                    Memory::copyAsIOAddress(_xsdp->_xsdtAddress));
+                    Memory::CopyAsIOAddress(_xsdp->_xsdtAddress));
                 log(u8"[ACPI] ACPI Version 2.0 ~ 6.3\n");
                 break;
             default:
@@ -84,7 +84,7 @@ namespace ACPI {
         }
 
         if (name == "DSDT") {
-            return Ok((_Tp*)Memory::copyAsIOAddress(_fadt->_dsdt));
+            return Ok((_Tp*)Memory::CopyAsIOAddress(_fadt->_dsdt));
         }
 
         u64 entries =
@@ -96,7 +96,7 @@ namespace ACPI {
             u64 ent =
                 _rsdp->_revision ? _xsdt->_pointers[i] : _rsdt->_pointers[i];
             ACPI::TableHeader* table =
-                (ACPI::TableHeader*)Memory::copyAsIOAddress(ent);
+                (ACPI::TableHeader*)Memory::CopyAsIOAddress(ent);
 
             if (name.equals(table->_signature) && (_index++ == index)) {
                 // Perhaps check the checksum here

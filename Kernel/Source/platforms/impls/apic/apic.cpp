@@ -146,7 +146,7 @@ namespace APIC {
             return Error::DeviceFault("No I/O APIC found");
         }
 
-        m_ioBaseVirt = Memory::copyAsIOAddress(m_ioBasePhys);
+        m_ioBaseVirt = Memory::CopyAsIOAddress(m_ioBasePhys);
         m_ioRegSel   = (u32*)(m_ioBaseVirt + IO_APIC_REGSEL);
         m_ioWindow   = (u32*)(m_ioBaseVirt + IO_APIC_WIN);
         m_interrupts = ioRegRead32(IO_APIC_REGISTER_VER) >> 16;

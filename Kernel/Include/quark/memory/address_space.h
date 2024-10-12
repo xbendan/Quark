@@ -11,7 +11,7 @@
 #define IO_VIRTUAL_BASE (KERNEL_VIRTUAL_BASE - 0x100000000)
 
 namespace Quark::System::Memory {
-    u64 copyAsIOAddress(u64 address);
+    u64 CopyAsIOAddress(u64 address);
 
     class AddressSpace
     {

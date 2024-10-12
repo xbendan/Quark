@@ -454,7 +454,7 @@ namespace Quark::System::Memory {
         return Ok((AddressSpace*)new X64AddressSpace<Privilege::Level::User>());
     }
 
-    u64 copyAsIOAddress(u64 address)
+    u64 CopyAsIOAddress(u64 address)
     {
         return address + IO_VIRTUAL_BASE;
     }

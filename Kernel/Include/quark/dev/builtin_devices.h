@@ -9,8 +9,8 @@ namespace Quark::System::Io {
         DiskDevice(string name);
         virtual ~DiskDevice();
 
-        virtual i64 read(u64 offset, u64 size, void* buffer)  = 0;
-        virtual i64 write(u64 offset, u64 size, void* buffer) = 0;
+        virtual i64 Read(u64 offset, u64 size, void* buffer)  = 0;
+        virtual i64 Write(u64 offset, u64 size, void* buffer) = 0;
 
     private:
         LinkedList<FileSystem::Partition> m_partitions;

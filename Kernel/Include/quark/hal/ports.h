@@ -9,7 +9,7 @@ namespace Quark::System::Hal {
     class PortAccess
     {
     public:
-        template <Integral TNumType>
+        template <Integral TNumType = u8>
         TNumType In()
         {
             TNumType data;
@@ -17,26 +17,26 @@ namespace Quark::System::Hal {
             return data;
         }
 
-        template <Integral TNumType>
+        template <Integral TNumType = u8>
         TNumType Out(TNumType data)
         {
             asm volatile("out %0, %1" : : "a"(data), "d"(TNum));
             return data;
         }
 
-        template <Integral TNumType>
+        template <Integral TNumType = u8>
         void operator<<(TNumType data)
         {
             Out(data);
         }
 
-        template <Integral TNumType>
+        template <Integral TNumType = u8>
         void operator>>(TNumType& data)
         {
             data = In<TNumType>();
         }
 
-        template <Integral TNumType>
+        template <Integral TNumType = u8>
         TNumType operator()()
         {
             return In<TNumType>();

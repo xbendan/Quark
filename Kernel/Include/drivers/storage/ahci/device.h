@@ -14,8 +14,8 @@ namespace Quark::System::Hal {
                        AHCIControllerDevice* controller);
         ~SATADiskDevice() override = default;
 
-        i64 read(u64 offset, u64 size, void* buffer) override;
-        i64 write(u64 offset, u64 size, void* buffer) override;
+        i64 Read(u64 offset, u64 size, void* buffer) override;
+        i64 Write(u64 offset, u64 size, void* buffer) override;
 
         void startCommand();
         void stopCommand();

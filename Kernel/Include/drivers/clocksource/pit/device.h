@@ -1,12 +1,12 @@
 #include <drivers/clocksource/pit/spec.h>
-#include <platforms/x86_64/hwinterrupts.h>
 #include <quark/clocksource/timer.h>
 #include <quark/dev/device.h>
+#include <quark/hal/definition.h>
 #include <quark/hal/ports.h>
 
 namespace PIT {
     using namespace Quark::System;
-    using namespace Quark::System::Platform::X64;
+    using namespace Quark::System::Hal;
 
     class PITimerDevice
         : public Timer
