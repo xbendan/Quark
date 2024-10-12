@@ -74,6 +74,40 @@ namespace Quark::System {
         asm volatile("mov %%rsp, %0" : "=r"(p->_tss._rsp[0]));
         asm volatile("ltr %%ax" ::"a"(0x28));
 
+        // Check if the system supports the required features
+        CPUID cpuid(0, 0);
+        assert(cpuid._ecx & CPUID_ECX_SSE4_2,
+               "System requires [SSE4.2] to run while it's not supported");
+        assert(cpuid._edx & CPUID_EDX_FPU,
+               "System requires [FPU] to run while it's not supported."
+               "FPUs are coprocessors that are used to perform floating-point "
+               "operations");
+        assert(cpuid._edx & CPUID_EDX_APIC,
+               "System requires [APIC] to run while it's not supported, "
+               "The Advanced Programmable Interrupt Controller (APIC) is a "
+               "family of interrupt controllers");
+        assert(cpuid._edx & CPUID_EDX_ACPI,
+               "System requires [ACPI] to run while it's not supported, "
+               "The Advanced Configuration and Power Interface (ACPI) is an "
+               "open industry specification that defines power management and "
+               "configuration interfaces between operating systems and "
+               "hardware");
+        assert(cpuid._edx & CPUID_EDX_MSR,
+               "System requires [MSR] to run while it's not supported, "
+               "Model-specific registers (MSRs) are special registers in the "
+               "x86 architecture");
+
+        // Enable FPU here
+        CR<0> cr0;
+        cr0 -= CR0_EMULATE_COPROCESSOR;
+        cr0 += (CR0_EXTENSION_TYPE | //
+                CR0_NUMERIC_ERROR |  //
+                CR0_MONITOR_COPROCESSOR);
+        CR<4> cr4;
+        cr4 += (CR4_OSFXSR |     //
+                CR4_OSXMMEXCPT | //
+                CR4_OSXSAVE);
+
         return Ok();
     }
 } // namespace Quark::System

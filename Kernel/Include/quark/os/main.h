@@ -26,6 +26,7 @@ namespace Quark::System {
     Res<AddressSpace*>       InitVirtMemory();
     Res<IList<Io::Device*>*> EnumerateInitialDevices();
     Res<IList<Io::Device*>*> SetupDevices();
+    Res<>                    SetupInterrupts();
     Res<>                    InitTasks();
     Res<>                    InitFileSystems();
 

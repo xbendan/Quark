@@ -67,6 +67,44 @@
 #define MSR_KERN_GS_BASE 0xC0000102
 #define MSR_TSC_AUX 0xC0000103
 
+#define CR0_PROTECTION_MODE (1 << 0)
+#define CR0_MONITOR_COPROCESSOR (1 << 1)
+#define CR0_EMULATE_COPROCESSOR (1 << 2)
+#define CR0_TASK_SWITCHED (1 << 3)
+#define CR0_EXTENSION_TYPE (1 << 4)
+#define CR0_NUMERIC_ERROR (1 << 5)
+#define CR0_WRITE_PROTECT (1 << 16)
+#define CR0_ALIGNMENT_MASK (1 << 18)
+#define CR0_NOT_WRITE_THROUGH (1 << 29)
+#define CR0_CACHE_DISABLE (1 << 30)
+#define CR0_PAGING (1 << 31)
+
+#define CR4_V8086_MODE (1 << 0)
+#define CR4_PMODE_VIRT_INT (1 << 1)
+#define CR4_TIME_STAMP_DISABLE (1 << 2)
+#define CR4_DEBUG_EXT (1 << 3)
+#define CR4_PAGE_SIZE_EXT (1 << 4)
+#define CR4_PHYS_ADDR_EXT (1 << 5)
+#define CR4_MACHINE_CHECK (1 << 6)
+#define CR4_PAGE_GLOBAL_ENABLE (1 << 7)
+#define CR4_PERFMONITOR (1 << 8)
+#define CR4_OSFXSR (1 << 9)
+#define CR4_OSXMMEXCPT (1 << 10)
+#define CR4_USER_MODE_INSTRUCTION_PREVENTION (1 << 11)
+#define CR4_LINEAR_ADDR_57BIT (1 << 12)
+#define CR4_VIRT_MACHINE_EXT (1 << 13)
+#define CR4_SAFER_MODE_EXT (1 << 14)
+#define CR4_FSGSBASE                                                           \
+    (1 << 16) // Enables the instructions RDFSBASE, RDGSBASE, WRFSBASE, and
+              // WRGSBASE
+#define CR4_PCID (1 << 17)    // Enables the process-context identifiers (PCIDs)
+#define CR4_OSXSAVE (1 << 18) // XSAVE and Processor Extended States Enable Bit
+#define CR4_SUPERVISOR_EXEC_PROTECTION (1 << 20)
+#define CR4_SUPERVISOR_ACCESS_PREVENTION (1 << 21)
+#define CR4_PROTECTION_KEY_ENABLE (1 << 22)
+#define CR4_CONTROL_FLOW_ENFORCEMENT (1 << 23)
+#define CR4_PROTECTION_KEY_SUPERVISOR (1 << 24)
+
 #include <mixins/std/c++types.h>
 #include <mixins/utils/array.h>
 #include <platforms/x86_64/sched.h>
@@ -152,6 +190,106 @@ namespace Quark::System::Platform::X64 {
         u32 high = value >> 32;
         asm volatile("wrmsr" : : "c"(reg), "a"(low), "d"(high));
     }
+
+    static inline u32 rdcr0()
+    {
+        u32 cr0;
+        asm volatile("mov %%cr0, %0" : "=r"(cr0));
+        return cr0;
+    }
+
+    static inline void wrcr0(u32 cr0)
+    {
+        asm volatile("mov %0, %%cr0" : : "r"(cr0));
+    }
+
+    static inline u32 rdcr2()
+    {
+        u32 cr2;
+        asm volatile("mov %%cr2, %0" : "=r"(cr2));
+        return cr2;
+    }
+
+    static inline u32 rdcr3()
+    {
+        u32 cr3;
+        asm volatile("mov %%cr3, %0" : "=r"(cr3));
+        return cr3;
+    }
+
+    static inline void wrcr3(u32 cr3)
+    {
+        asm volatile("mov %0, %%cr3" : : "r"(cr3));
+    }
+
+    static inline u32 rdcr4()
+    {
+        u32 cr4;
+        asm volatile("mov %%cr4, %0" : "=r"(cr4));
+        return cr4;
+    }
+
+    static inline void wrcr4(u32 cr4)
+    {
+        asm volatile("mov %0, %%cr4" : : "r"(cr4));
+    }
+
+    template <u8 N>
+        requires(N >= 0 && N <= 4)
+    struct CR
+    {
+        void operator=(u32 val)
+        {
+            switch (N) {
+                case 0:
+                    wrcr0(val);
+                    break;
+                case 2:
+                    // wrcr2(val);
+                    break;
+                case 3:
+                    wrcr3(val);
+                    break;
+                case 4:
+                    wrcr4(val);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        u32 operator()()
+        {
+            switch (N) {
+                case 0:
+                    return rdcr0();
+                case 2:
+                    return rdcr2();
+                case 3:
+                    return rdcr3();
+                case 4:
+                    return rdcr4();
+                default:
+                    return 0;
+            }
+        }
+
+        void operator|=(u32 val) { *this = *this() | val; }
+        void operator&=(u32 val) { *this = *this() & val; }
+        void operator^=(u32 val) { *this = *this() ^ val; }
+
+        CR& operator+=(u32 val)
+        {
+            *this = *this() | val;
+            return *this;
+        }
+
+        CR& operator-=(u32 val)
+        {
+            *this = *this() & ~val;
+            return *this;
+        }
+    };
 
     static inline void swapgs()
     {

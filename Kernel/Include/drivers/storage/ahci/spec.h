@@ -1,22 +1,24 @@
+#pragma once
+
 #include <mixins/std/c++types.h>
 
-#define AHCI_GHC_HR (1 << 0)  // HBA Reset
-#define AHCI_GHC_IE (1 << 1)  // Interrupt enable
+#define AHCI_GHC_HR (1 << 0) // HBA Reset
+#define AHCI_GHC_IE (1 << 1) // Interrupt enable
 #define AHCI_GHC_ENABLE (1 << 31)
 
-#define AHCI_CAP_S64A (1 << 31)  // 64-bit addressing
-#define AHCI_CAP_NCQ (1 << 30)   // Support for Native Command Queueing?
-#define AHCI_CAP_SSS (1 << 27)   // Supports staggered Spin-up?
-#define AHCI_CAP_FBSS (1 << 16)  // FIS-based switching supported?
-#define AHCI_CAP_SSC (1 << 14)   // Slumber state capable?
-#define AHCI_CAP_PSC (1 << 13)   // Partial state capable
-#define AHCI_CAP_SALP (1 << 26)  // Supports aggressive link power management
+#define AHCI_CAP_S64A (1 << 31) // 64-bit addressing
+#define AHCI_CAP_NCQ (1 << 30)  // Support for Native Command Queueing?
+#define AHCI_CAP_SSS (1 << 27)  // Supports staggered Spin-up?
+#define AHCI_CAP_FBSS (1 << 16) // FIS-based switching supported?
+#define AHCI_CAP_SSC (1 << 14)  // Slumber state capable?
+#define AHCI_CAP_PSC (1 << 13)  // Partial state capable
+#define AHCI_CAP_SALP (1 << 26) // Supports aggressive link power management
 
-#define AHCI_CAP2_NVMHCI (1 << 1)  // NVMHCI Present
-#define AHCI_CAP2_BOHC (1 << 0)    // BIOS/OS Handoff
+#define AHCI_CAP2_NVMHCI (1 << 1) // NVMHCI Present
+#define AHCI_CAP2_BOHC (1 << 0)   // BIOS/OS Handoff
 
-#define AHCI_BOHC_BIOS_BUSY (1 << 4)     // BIOS Busy
-#define AHCI_BOHC_OS_OWNERSHIP (1 << 3)  // OS Ownership Change
+#define AHCI_BOHC_BIOS_BUSY (1 << 4)    // BIOS Busy
+#define AHCI_BOHC_OS_OWNERSHIP (1 << 3) // OS Ownership Change
 
 #define ATA_CMD_READ_DMA_EX 0x25
 #define ATA_CMD_WRITE_DMA_EX 0x35
@@ -24,10 +26,10 @@
 #define ATA_DEV_BUSY 0x80
 #define ATA_DEV_DRQ 0x08
 
-#define SATA_SIG_SATA 0x00000101   // SATA drive
-#define SATA_SIG_ATAPI 0xEB140101  // SATAPI drive
-#define SATA_SIG_SEMB 0xC33C0101   // Enclosure management bridge
-#define SATA_SIG_PM 0x96690101     // Port multiplier
+#define SATA_SIG_SATA 0x00000101  // SATA drive
+#define SATA_SIG_ATAPI 0xEB140101 // SATAPI drive
+#define SATA_SIG_SEMB 0xC33C0101  // Enclosure management bridge
+#define SATA_SIG_PM 0x96690101    // Port multiplier
 
 #define HBA_PxCMD_ST 0x0001
 #define HBA_PxCMD_SUD 0x0002
@@ -35,7 +37,7 @@
 #define HBA_PxCMD_FRE 0x0010
 #define HBA_PxCMD_FR 0x4000
 #define HBA_PxCMD_CR 0x8000
-#define HBA_PxCMD_ASP 0x4000000  // Aggressive Slumber/Partial
+#define HBA_PxCMD_ASP 0x4000000 // Aggressive Slumber/Partial
 #define HBA_PxCMD_ICC (0xf << 28)
 #define HBA_PxCMD_ICC_ACTIVE (1 << 28)
 
@@ -48,7 +50,8 @@
 #define HBA_PxSSTS_DET_PRESENT 3
 
 namespace AHCI {
-    enum FisRegs : u8 {
+    enum FisRegs : u8
+    {
         TYPE_REG_H2D   = 0x27,
         TYPE_REG_D2H   = 0x34,
         TYPE_DMA_ACT   = 0x39,
@@ -59,20 +62,23 @@ namespace AHCI {
         TYPE_DEV_BITS  = 0xA1,
     };
 
-    struct RegHostToDevice {
+    struct RegHostToDevice
+    {
         u8 _fisType;
 
-        u8 _portMultiplier: 4;
-        u8 _reserved0: 3;
-        u8 _mode: 1;
+        u8 _portMultiplier : 4;
+        u8 _reserved0 : 3;
+        u8 _mode : 1;
 
         u8 _command;
         u8 _featLow;
 
-        union {
+        union
+        {
             dword _dw0;
 
-            struct {
+            struct
+            {
                 u8 _lba0;
                 u8 _lba1;
                 u8 _lba2;
@@ -80,10 +86,12 @@ namespace AHCI {
             };
         };
 
-        union {
+        union
+        {
             dword _dw1;
 
-            struct {
+            struct
+            {
                 u8 _lba3;
                 u8 _lba4;
                 u8 _lba5;
@@ -91,10 +99,12 @@ namespace AHCI {
             };
         };
 
-        union {
+        union
+        {
             dword _dw2;
 
-            struct {
+            struct
+            {
                 u8 _countLow;
                 u8 _countHigh;
                 u8 _icc;
@@ -102,30 +112,35 @@ namespace AHCI {
             };
         };
 
-        union {
+        union
+        {
             dword _dw3;
 
-            struct {
+            struct
+            {
                 u8 _reserved1[4];
             };
         };
     } __attribute__((packed));
 
-    struct RegDeviceToHost {
+    struct RegDeviceToHost
+    {
         u8 _fisType;
 
-        u8 _portMultiplier: 4;
-        u8 _reserved0: 2;
-        u8 _interrupt: 1;
-        u8 _reserved1: 1;
+        u8 _portMultiplier : 4;
+        u8 _reserved0 : 2;
+        u8 _interrupt : 1;
+        u8 _reserved1 : 1;
 
         u8 _statusRegister;
         u8 _errorRegister;
 
-        union {
+        union
+        {
             dword _dw0;
 
-            struct {
+            struct
+            {
                 u8 _lba0;
                 u8 _lba1;
                 u8 _lba2;
@@ -133,10 +148,12 @@ namespace AHCI {
             };
         };
 
-        union {
+        union
+        {
             dword _dw1;
 
-            struct {
+            struct
+            {
                 u8 _lba3;
                 u8 _lba4;
                 u8 _lba5;
@@ -144,51 +161,59 @@ namespace AHCI {
             };
         };
 
-        union {
+        union
+        {
             dword _dw2;
 
-            struct {
+            struct
+            {
                 u8 _countLow;
                 u8 _countHigh;
                 u8 _reserved3[2];
             };
         };
 
-        union {
+        union
+        {
             dword _dw3;
 
-            struct {
+            struct
+            {
                 u8 _reserved4[4];
             };
         };
     } __attribute__((packed));
 
-    struct Data {
+    struct Data
+    {
         u8 _fisType;
 
-        u8 _portMultiplier: 4;
-        u8 _reserved0: 4;
+        u8 _portMultiplier : 4;
+        u8 _reserved0 : 4;
 
         u8 _reserved1[2];
 
         u32 _data[1];
     } __attribute__((packed));
 
-    struct PIOSetup {
+    struct PIOSetup
+    {
         u8 _fisType;
 
-        u8 _portMultiplier: 4;
-        u8 _reserved0: 1;
-        u8 _interrupt: 1;
-        u8 _reserved1: 1;
-        u8 _status: 1;
+        u8 _portMultiplier : 4;
+        u8 _reserved0 : 1;
+        u8 _interrupt : 1;
+        u8 _reserved1 : 1;
+        u8 _status : 1;
 
         u8 _error;
 
-        union {
+        union
+        {
             dword _dw0;
 
-            struct {
+            struct
+            {
                 u8 _lba0;
                 u8 _lba1;
                 u8 _lba2;
@@ -196,10 +221,12 @@ namespace AHCI {
             };
         };
 
-        union {
+        union
+        {
             dword _dw1;
 
-            struct {
+            struct
+            {
                 u8 _lba3;
                 u8 _lba4;
                 u8 _lba5;
@@ -207,10 +234,12 @@ namespace AHCI {
             };
         };
 
-        union {
+        union
+        {
             dword _dw2;
 
-            struct {
+            struct
+            {
                 u8 _countLow;
                 u8 _countHigh;
                 u8 _reserved3;
@@ -218,24 +247,27 @@ namespace AHCI {
             };
         };
 
-        union {
+        union
+        {
             dword _dw3;
 
-            struct {
+            struct
+            {
                 u16 _transferCount;
                 u8  _reserved4[2];
             };
         };
     } __attribute__((packed));
 
-    struct DMASetup {
+    struct DMASetup
+    {
         u8 _fisType;
 
-        u8 _portMultiplier: 4;
-        u8 _reserved0: 1;
-        u8 _interrupt: 1;
-        u8 _autoActivate: 1;
-        u8 _reserved1: 1;
+        u8 _portMultiplier : 4;
+        u8 _reserved0 : 1;
+        u8 _interrupt : 1;
+        u8 _autoActivate : 1;
+        u8 _reserved1 : 1;
 
         u8 _reserved2[2];
 
@@ -250,7 +282,8 @@ namespace AHCI {
         u32 _reserved4;
     } __attribute__((packed));
 
-    struct _HBAPortRegs {
+    struct _HBAPortRegs
+    {
         u32 _clb;
         u32 _clbu;
         u32 _fb;
@@ -274,7 +307,8 @@ namespace AHCI {
 
     using HBAPortRegs = volatile _HBAPortRegs;
 
-    struct _HBAMemRegs {
+    struct _HBAMemRegs
+    {
         u32          _hostCapability;
         u32          _ghc;
         u32          _interruptStatus;
@@ -293,7 +327,8 @@ namespace AHCI {
 
     using HBAMemRegs = volatile _HBAMemRegs;
 
-    struct _HBAFrameInfo {
+    struct _HBAFrameInfo
+    {
         DMASetup _dmaSetup;
         u8       _reserved0[4];
 
@@ -312,17 +347,18 @@ namespace AHCI {
 
     using HBAFrameInfo = volatile _HBAFrameInfo;
 
-    struct _HBACommandHeader {
-        u8 _cfl: 5;
-        u8 _a: 1;
-        u8 _w: 1;
-        u8 _p: 1;
+    struct _HBACommandHeader
+    {
+        u8 _cfl : 5;
+        u8 _a : 1;
+        u8 _w : 1;
+        u8 _p : 1;
 
-        u8 _r: 1;
-        u8 _b: 1;
-        u8 _c: 1;
-        u8 _reserved0: 1;
-        u8 _pmp: 4;
+        u8 _r : 1;
+        u8 _b : 1;
+        u8 _c : 1;
+        u8 _reserved0 : 1;
+        u8 _pmp : 4;
 
         u16 _prdtl;
 
@@ -337,19 +373,21 @@ namespace AHCI {
 
     using HBACommandHeader = volatile _HBACommandHeader;
 
-    struct HbaPrdtEntry {
+    struct HbaPrdtEntry
+    {
         u32 _dba;
 
         u32 _dbau;
 
         u32 _reserved0;
 
-        u32 _dbc: 22;
-        u32 _reserved1: 9;
-        u32 _i: 1;
+        u32 _dbc : 22;
+        u32 _reserved1 : 9;
+        u32 _i : 1;
     } __attribute__((packed));
 
-    struct _HBACommandTable {
+    struct _HBACommandTable
+    {
         u8 _cfis[64];
 
         u8 _acmd[16];
@@ -361,4 +399,4 @@ namespace AHCI {
 
     using HBACommandTable = volatile _HBACommandTable;
 
-}  // namespace AHCI
+} // namespace AHCI
