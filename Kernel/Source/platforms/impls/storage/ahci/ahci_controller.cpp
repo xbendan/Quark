@@ -1,8 +1,8 @@
-#include <drivers/storage/ahci/device.h>
+#include <drivers/storage/ahci/controller_device.h>
 #include <quark/memory/address_space.h>
 #include <quark/memory/page_alloc.h>
 
-namespace Quark::System::Hal {
+namespace AHCI {
     using namespace Quark::System::Memory;
 
     AHCIControllerDevice::AHCIControllerDevice(PCIInfo& info)
@@ -16,7 +16,7 @@ namespace Quark::System::Hal {
         EnableInterrupts();
         EnableMemorySpace();
 
-        m_addrVirt = Memory::CopyAsIOAddress(m_addrBase);
+        m_addrVirt = CopyAsIOAddress(m_addrBase);
         m_memRegs  = reinterpret_cast<AHCI::HBAMemRegs*>(m_addrVirt);
 
         m_memRegs->_ghc &= ~AHCI_GHC_IE;
@@ -48,7 +48,7 @@ namespace Quark::System::Hal {
                     SATADiskDevice* disk =
                         new SATADiskDevice(i, portRegs, this);
 
-                    if (disk->status() != 1) {
+                    if (disk->Status() != 1) {
                         // Initializing failed, delete the disk
                         delete disk;
                     } else

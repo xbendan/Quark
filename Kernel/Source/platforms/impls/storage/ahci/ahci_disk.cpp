@@ -1,18 +1,19 @@
-#include <drivers/storage/ahci/device.h>
+#include <drivers/storage/ahci/controller_device.h>
+#include <drivers/storage/ahci/disk_device.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
 
-namespace Quark::System::Hal {
-    using Quark::System::Memory::AddressRange;
+namespace AHCI {
+    using namespace Quark::System::Memory;
 
     SATADiskDevice::SATADiskDevice(int                   port,
                                    AHCI::HBAPortRegs*    portRegs,
                                    AHCIControllerDevice* controller)
-        : Io::DiskDevice("Unidentified SATA Hard Disk Drive")
+        : DiskDevice("Unidentified SATA Hard Disk Drive")
         , m_portRegs(portRegs)
-        , m_memRegs(controller->memRegs())
+        , m_memRegs(controller->GetMemoryRegs())
     {
-        stopCommand();
+        StopCommand();
 
         portRegs->_clb  = (controller->clbPhys() & 0xFFFFFFFF) + (port << 10);
         portRegs->_clbu = (controller->clbPhys() >> 32);
@@ -21,7 +22,7 @@ namespace Quark::System::Hal {
         portRegs->_fbu = (controller->fbPhys() >> 32);
 
         m_commandList = reinterpret_cast<AHCI::_HBACommandHeader*>(
-            Memory::CopyAsIOAddress(portRegs->_clb));
+            CopyAsIOAddress(portRegs->_clb));
 
         for (int i = 0; i < 32; i++) {
             m_commandList[i]._prdtl = 8;
@@ -32,33 +33,33 @@ namespace Quark::System::Hal {
 
             AddressRange((u64)(m_commandList[i]._ctba), 256).clear();
 
-            m_commandTable[i] = reinterpret_cast<AHCI::HBACommandTable*>(
-                Memory::CopyAsIOAddress(phys));
+            m_commandTable[i] =
+                reinterpret_cast<AHCI::HBACommandTable*>(CopyAsIOAddress(phys));
         }
 
-        startCommand();
+        StartCommand();
     }
 
     // SATADiskDevice::~SATADiskDevice() {}
 
     i64 SATADiskDevice::Read(u64 offset, u64 size, void* buffer)
     {
-        return access(offset / 512, size / 512, (u64)buffer, false);
+        return Access(offset / 512, size / 512, (u64)buffer, false);
     }
 
     i64 SATADiskDevice::Write(u64 offset, u64 size, void* buffer)
     {
-        return access(offset / 512, size / 512, (u64)buffer, true);
+        return Access(offset / 512, size / 512, (u64)buffer, true);
     }
 
-    void SATADiskDevice::startCommand()
+    void SATADiskDevice::StartCommand()
     {
         while (m_portRegs->_cmd & HBA_PxCMD_CR)
             ;
         m_portRegs->_cmd |= (HBA_PxCMD_FRE | HBA_PxCMD_ST);
     }
 
-    void SATADiskDevice::stopCommand()
+    void SATADiskDevice::StopCommand()
     {
         m_portRegs->_cmd &= ~(HBA_PxCMD_FRE | HBA_PxCMD_ST);
         while ((m_portRegs->_cmd & HBA_PxCMD_FR) ||
@@ -66,11 +67,11 @@ namespace Quark::System::Hal {
             ;
     }
 
-    int SATADiskDevice::access(u64 lba, u32 count, u64 physBuf, int write)
+    int SATADiskDevice::Access(u64 lba, u32 count, u64 physBuf, int write)
     {
         m_portRegs->_ie = 0xffffffff;
         m_portRegs->_is = 0;
-        int spin = 0, slot = findSlot();
+        int spin = 0, slot = FindSlot();
 
         if (slot == -1)
             return false;
@@ -133,7 +134,12 @@ namespace Quark::System::Hal {
         return !(m_portRegs->_is & HBA_PxIS_TFES);
     }
 
-    int SATADiskDevice::findSlot()
+    SATADiskDevice::~SATADiskDevice()
+    {
+        // StopCommand();
+    }
+
+    int SATADiskDevice::FindSlot()
     {
         u32 slots = (m_portRegs->_sact | m_portRegs->_ci);
         for (int i = 0; i < 32; i++) {
