@@ -98,7 +98,7 @@ namespace ACPI {
             ACPI::TableHeader* table =
                 (ACPI::TableHeader*)Memory::CopyAsIOAddress(ent);
 
-            if (name.equals(table->_signature) && (_index++ == index)) {
+            if (name.Equals(table->_signature) && (_index++ == index)) {
                 // Perhaps check the checksum here
                 return Ok((_Tp*)table);
             }

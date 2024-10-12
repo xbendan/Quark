@@ -12,7 +12,6 @@ namespace PS2 {
         ~LegacyKeyboardDevice() = default;
 
         Res<> OnStartup() override;
-        Res<> OnShutdown() override;
     };
 
     class LegacyMouseDevice : public Io::Device

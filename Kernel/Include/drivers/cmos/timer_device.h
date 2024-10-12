@@ -1,10 +1,11 @@
-#include <drivers/clocksource/rtc/spec.h>
+#pragma once
+
 #include <drivers/cmos/spec.h>
 #include <quark/clocksource/timer.h>
 #include <quark/dev/device.h>
 #include <quark/hal/ports.h>
 
-namespace RTC {
+namespace CMOS {
     using namespace Quark::System;
 
     class RealTimeClockDevice

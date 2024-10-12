@@ -1,8 +1,8 @@
 #include <drivers/acpi/device.h>
-#include <drivers/clocksource/rtc/device.h>
+#include <drivers/cmos/timer_device.h>
 #include <quark/hal/ports.h>
 
-namespace RTC {
+namespace CMOS {
     using namespace Quark::System::Hal;
 
     Res<> RealTimeClockDevice::OnInitialize()
