@@ -34,5 +34,8 @@ namespace Quark::System::Hal {
         int                  intno,
         InterruptStackFrame* frame)
     {
+        if (intno >= m_interruptList.Count()) {
+            return;
+        }
     }
 }

@@ -18,14 +18,12 @@ namespace PCI {
         {
         }
 
-        template <typename TNumType = u8>
-            requires(Std::isSame<TNumType, u8> || Std::isSame<TNumType, u16> ||
-                     Std::isSame<TNumType, u32>)
+        template <Integral TNumType = u8>
         TNumType Read(u8 offset)
         {
             TNumType data;
 
-            PortAccess<PCI_CONFIG_ADDRESS>() << getAddressPackage(offset);
+            PortAccess<PCI_CONFIG_ADDRESS>() << (u32)GetAddressPackage(offset);
             PortAccess<PCI_CONFIG_DATA>() >> data;
 
             switch (sizeof(TNumType)) {
@@ -48,7 +46,7 @@ namespace PCI {
         template <Integral TNumType>
         void Write(u8 offset, TNumType value)
         {
-            PortAccess<PCI_CONFIG_ADDRESS>() << getAddressPackage(offset);
+            PortAccess<PCI_CONFIG_ADDRESS>() << (u32)GetAddressPackage(offset);
 
             TNumType data;
             PortAccess<PCI_CONFIG_DATA>() >> data;
@@ -74,7 +72,7 @@ namespace PCI {
             Write<TNumType>(static_cast<u8>(reg), value);
         }
 
-        inline u64 getAddressPackage(u8 offset)
+        inline u64 GetAddressPackage(u8 offset)
         {
             return ((_bus << 16) | (_slot << 11) | (_func << 8) |
                     (offset & 0xFC)) |
