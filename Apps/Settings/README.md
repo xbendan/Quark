@@ -1,0 +1,2 @@
+# Settings  
+**Settings** is a system-integrated application that allows user to modify settings of machine, system-level feature, user profile, and applications. Notice that this application will usually run in normal level, and modifying the machine properties may need evaluated permissions.

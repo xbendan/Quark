@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Manifest xmlns:mixins="">
+    <Application
+        mixins:name="@string/application_name"
+        mixins:version="1.0">
+    </Application>
+</Manifest>

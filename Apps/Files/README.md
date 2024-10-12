@@ -1,0 +1,2 @@
+# Files  
+Files is a system-integrated application that allows user to access file systems. It can lists files and folders in the visual way, and provide more features such as open, create, or delete files.
