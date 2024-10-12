@@ -10,13 +10,13 @@ namespace Quark::System::Hal {
         , m_clbPhys(AllocatePhysMemory4K(8).Unwrap())
         , m_fbPhys(AllocatePhysMemory4K(2).Unwrap())
         , m_ctbaPhys(AllocatePhysMemory4K(64).Unwrap())
-        , m_addrBase(getBaseAddrRegs(5))
+        , m_addrBase(GetBaseAddrRegs(5))
     {
-        enableBusMastering();
-        enableInterrupts();
-        enableMemorySpace();
+        EnableBusMastering();
+        EnableInterrupts();
+        EnableMemorySpace();
 
-        m_addrVirt = Memory::copyAsIOAddress(m_addrBase);
+        m_addrVirt = Memory::CopyAsIOAddress(m_addrBase);
         m_memRegs  = reinterpret_cast<AHCI::HBAMemRegs*>(m_addrVirt);
 
         m_memRegs->_ghc &= ~AHCI_GHC_IE;

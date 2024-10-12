@@ -10,7 +10,7 @@ namespace Quark::System::Hal {
     SystemManagementBIOSDevice::SystemManagementBIOSDevice()
         : Io::Device("System Management BIOS", Type::Firmware)
     {
-        u64                  address = Memory::copyAsIOAddress(0xF0000);
+        u64                  address = Memory::CopyAsIOAddress(0xF0000);
         Memory::AddressRange range(address, 0x10000);
 
         Optional<u64> result;

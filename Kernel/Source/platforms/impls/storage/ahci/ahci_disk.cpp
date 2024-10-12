@@ -21,7 +21,7 @@ namespace Quark::System::Hal {
         portRegs->_fbu = (controller->fbPhys() >> 32);
 
         m_commandList = reinterpret_cast<AHCI::_HBACommandHeader*>(
-            Memory::copyAsIOAddress(portRegs->_clb));
+            Memory::CopyAsIOAddress(portRegs->_clb));
 
         for (int i = 0; i < 32; i++) {
             m_commandList[i]._prdtl = 8;
@@ -33,7 +33,7 @@ namespace Quark::System::Hal {
             AddressRange((u64)(m_commandList[i]._ctba), 256).clear();
 
             m_commandTable[i] = reinterpret_cast<AHCI::HBACommandTable*>(
-                Memory::copyAsIOAddress(phys));
+                Memory::CopyAsIOAddress(phys));
         }
 
         startCommand();
@@ -41,12 +41,12 @@ namespace Quark::System::Hal {
 
     // SATADiskDevice::~SATADiskDevice() {}
 
-    i64 SATADiskDevice::read(u64 offset, u64 size, void* buffer)
+    i64 SATADiskDevice::Read(u64 offset, u64 size, void* buffer)
     {
         return access(offset / 512, size / 512, (u64)buffer, false);
     }
 
-    i64 SATADiskDevice::write(u64 offset, u64 size, void* buffer)
+    i64 SATADiskDevice::Write(u64 offset, u64 size, void* buffer)
     {
         return access(offset / 512, size / 512, (u64)buffer, true);
     }

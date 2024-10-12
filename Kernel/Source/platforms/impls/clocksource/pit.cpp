@@ -1,5 +1,4 @@
 #include <drivers/clocksource/pit/device.h>
-#include <platforms/x86_64/hwinterrupts.h>
 #include <quark/dev/device.h>
 #include <quark/hal/interrupts.h>
 #include <quark/hal/ports.h>
@@ -35,5 +34,6 @@ namespace PIT {
         }
 
         device.Take()->AddHandler(IRQ_PIT_TIMER_UPDATE, &PITimerDevice::Tick);
+        return Ok();
     }
 }

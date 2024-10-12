@@ -19,7 +19,7 @@ namespace PCI {
     {
     }
 
-    u64 PCIDevice::getBaseAddrRegs(u8 i)
+    u64 PCIDevice::GetBaseAddrRegs(u8 i)
     {
         if (i > 5) {
             return 0;

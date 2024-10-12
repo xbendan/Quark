@@ -9,6 +9,6 @@
 
 #endif
 
-namespace Quark::System::Platform {
-    using InterruptStackFrame = __ARCH_NAMESPACE::InterruptStackFrame;
+namespace Quark::System::Hal {
+    using InterruptStackFrame = Platform::__ARCH_NAMESPACE::InterruptStackFrame;
 }
