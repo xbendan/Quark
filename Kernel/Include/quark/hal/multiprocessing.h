@@ -3,6 +3,7 @@
 #include <mixins/meta/result.h>
 #include <mixins/utils/collections.h>
 #include <quark/dev/device.h>
+#include <quark/sched/thread.h>
 
 namespace Quark::System::Hal {
     enum class Signal
@@ -27,6 +28,8 @@ namespace Quark::System::Hal {
         }
 
         virtual void SendSignal(Signal signal, u32 data = 0);
+
+        IQueue<Task::Thread*>* _threadQueue;
     };
 
     Res<ICollection<ICPULocalDevice*>*> SetupMultiprocessing();

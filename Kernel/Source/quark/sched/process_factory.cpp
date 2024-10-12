@@ -5,15 +5,16 @@
 namespace Quark::System::Task {
     Res<RefPtr<Process>> Process::CreateProcess(string name)
     {
-        auto* p = new Process(
-            Scheduler::GetNextPID(), name, AddressSpace::Create().Unwrap());
+        auto* p = new Process(Scheduler::GetDefaultPidNamespace().NextPid(),
+                              name,
+                              AddressSpace::Create().Unwrap());
 
         return Ok(RefPtr<Process>(p));
     }
 
     Res<RefPtr<Process>> Process::CreateIdleProcess()
     {
-        auto* p = new Process(Scheduler::GetNextPID(),
+        auto* p = new Process(Scheduler::GetDefaultPidNamespace().NextPid(),
                               "Idle",
                               Process::GetKernelProcess()->_addressSpace);
 
@@ -42,7 +43,7 @@ namespace Quark::System::Task {
             return Error::InvalidArgument();
         }
 
-        auto* p = new Process(Scheduler::GetNextPID(),
+        auto* p = new Process(Scheduler::GetDefaultPidNamespace().NextPid(),
                               name,
                               AddressSpace::Create().Unwrap(),
                               0,

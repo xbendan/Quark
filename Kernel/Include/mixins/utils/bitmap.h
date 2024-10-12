@@ -86,6 +86,10 @@ public:
         return 0;
     }
 
+    usize TakenAmount() const { return _taken; }
+
+    usize Size() const { return _size; }
+
 private:
     u64*  _data;
     usize _size;

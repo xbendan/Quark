@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/std/utility.h>
 
 template <typename T>
