@@ -24,6 +24,11 @@ namespace Quark::System::Task {
             });
         return Ok();
     }
+
+    PidNamespace& Scheduler::GetDefaultPidNamespace()
+    {
+        return m_pidNamespace;
+    }
 }
 
 namespace Quark::System {

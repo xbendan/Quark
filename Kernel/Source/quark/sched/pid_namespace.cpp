@@ -1,6 +1,12 @@
 #include <quark/sched/pid_namespace.h>
 
 namespace Quark::System::Task {
+    PidNamespace::PidNamespace()
+        : m_nextId(2048)
+        , m_pidmap(32768)
+    {
+    }
+
     u32 PidNamespace::NextPid()
     {
         u32 pid = m_nextId.fetchInc();

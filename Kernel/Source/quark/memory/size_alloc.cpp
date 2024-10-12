@@ -17,10 +17,10 @@ namespace Quark::System::Memory {
         page->_kmemPool = this;
         page->_freelist = (void**)address;
 
-        page->_objects = (PAGE_SIZE_4K - sizeof(PhysMemFrame)) / _size;
-        page->_inuse   = 0;
+        page->_kmem._objects = (PAGE_SIZE_4K - sizeof(PhysMemFrame)) / _size;
+        page->_kmem._inuse   = 0;
 
-        for (int i = 0; i < page->_objects - 1; i++)
+        for (int i = 0; i < page->_kmem._objects - 1; i++)
             *((u64*)(address + i * _size)) = (u64)(address + (i + 1) * _size);
     }
 
@@ -43,7 +43,7 @@ namespace Quark::System::Memory {
         SlabCpuCache* cpu  = &cache->_unit[0];
         PhysMemFrame* page = cpu->_page;
         u64           address;
-        if (!page || page->_inuse == page->_objects) {
+        if (!page || page->_kmem._inuse == page->_kmem._objects) {
             page = cpu->_page = AllocatePhysFrame4K(1).Unwrap();
 
             cache->pageInitAsCached(
@@ -57,7 +57,7 @@ namespace Quark::System::Memory {
 
         page->_freelist = (void**)*page->_freelist;
         /* Check whether the objects in this page is running out */
-        if (++page->_inuse == page->_objects) {
+        if (++page->_kmem._inuse == page->_kmem._objects) {
             cpu->_page = nullptr;
         }
 

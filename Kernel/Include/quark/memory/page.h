@@ -28,9 +28,9 @@ namespace Quark::System::Memory {
                 u32 _inuse : 16;
                 u32 _objects : 15;
                 u32 _frozen : 1;
-            } __attribute__((packed));
+            } _kmem __attribute__((packed));
 
-            void** _freelist{};
+            void** _freelist{ nullptr };
         } __attribute__((packed));
 
         union

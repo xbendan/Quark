@@ -75,6 +75,11 @@ namespace Quark::System::Memory {
         return new (this + offset) PhysMemFrame{
             ._level   = _level,
             ._flags   = _flags,
+            ._kmem = {
+                ._inuse   = 0,
+                ._objects = 0,
+                ._frozen  = 0,
+            },
             ._priv    = _priv,
             ._address = _address + offset,
         };

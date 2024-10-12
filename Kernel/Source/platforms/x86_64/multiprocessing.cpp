@@ -156,4 +156,15 @@ namespace Quark::System::Hal {
         Platform::X64::SetCPULocal(
             static_cast<Platform::X64::CPULocalDevice*>(local));
     }
+
+    void ICPULocalDevice::SendSignal(Signal signal, u32 data)
+    {
+        // switch (signal) {
+        //     case Signal::SCHED:
+        //         asm volatile("int $0x80");
+        //         break;
+        //     default:
+        //         break;
+        // }
+    }
 }
