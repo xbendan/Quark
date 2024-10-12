@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mixins/std/concepts.h>
 #include <mixins/std/type_traits.h>
 
 template <typename T, typename U = T>
@@ -16,4 +17,18 @@ T
 divFloor(T a, U b)
 {
     return a / b;
+}
+
+template <typename T>
+    requires(Std::isArithmetic<T> && Comparable<T>)
+int
+compare(T a, T b)
+{
+    if (a < b) {
+        return -1;
+    } else if (a > b) {
+        return 1;
+    } else {
+        return 0;
+    }
 }

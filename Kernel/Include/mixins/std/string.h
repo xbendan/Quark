@@ -301,7 +301,7 @@ public:
     template <typename TCode = u8>
     [[gnu::always_inline]]
     constexpr String(TCode const* buf)
-        : Slice<U>((Unit const*)buf, lengthOf(buf))
+        : Slice<U>((Unit const*)buf, LengthOf(buf))
     {
     }
 
@@ -367,13 +367,56 @@ public:
     }
 
     [[gnu::always_inline]]
-    constexpr bool equals(char const* other)
+    constexpr bool Equals(char const* other)
     {
         return *this == String(other);
     }
 
+    constexpr String<E> Substring(usize begin, usize end)
+    {
+        return String<E>(&(this->data()[begin]), end - begin);
+    }
+
+    constexpr String<E> Substring(usize begin)
+    {
+        return Substring(begin, this->size());
+    }
+
+    constexpr int IndexOf(Unit u) const
+    {
+        for (usize i = 0; i < this->size(); i++) {
+            if (this->data()[i] == u) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    constexpr int IndexOf(String<E> const& other) const
+    {
+        if (other.size() > this->size()) {
+            return -1;
+        }
+
+        for (usize i = 0; i < this->size(); i++) {
+            if (this->data()[i] == other[0]) {
+                bool found = true;
+                for (usize j = 1; j < other.size(); j++) {
+                    if (this->data()[i + j] != other[j]) {
+                        found = false;
+                        break;
+                    }
+                }
+                if (found) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
     template <typename T = char>
-    static constexpr usize lengthOf(T const* str)
+    static constexpr usize LengthOf(T const* str)
     {
         usize len = 0;
         while (str[len] != '\0') {
