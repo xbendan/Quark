@@ -31,21 +31,21 @@
 #define INT_VMM_COMMUNICATION_EXCEPTION 29
 #define INT_SECURITY_EXCEPTION 30
 #define IRQ_PIT_TIMER_UPDATE 32
-#define IRQ1 33
-#define IRQ2 34
-#define IRQ3 35
-#define IRQ4 36
-#define IRQ5 37
-#define IRQ6 38
-#define IRQ7 39
-#define IRQ8 40
-#define IRQ9 41
-#define IRQ10 42
-#define IRQ11 43
-#define IRQ12 44
-#define IRQ13 45
-#define IRQ14 46
-#define IRQ15 47
+#define IRQ_PS2_KEYBOARD 33
+#define IRQ_CASCADE 34
+#define IRQ_COM2 35
+#define IRQ_COM1 36
+#define IRQ_LPT2 37
+#define IRQ_FLOPPY_DISK 38
+#define IRQ_LPT1 39
+#define IRQ_CMOS_RTC_UPDATE 40
+#define IRQ_PERIPHERALS_1 41
+#define IRQ_PERIPHERALS_2 42
+#define IRQ_PERIPHERALS_3 43
+#define IRQ_PS2_MOUSE 44
+#define IRQ_FPU_COPROCESSOR 45
+#define IRQ_ATA_HARD_DISK_1 46
+#define IRQ_ATA_HARD_DISK_2 47
 
 namespace Quark::System::Platform::X64 {
     struct InterruptStackFrame : public Registers

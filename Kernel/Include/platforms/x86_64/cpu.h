@@ -191,47 +191,47 @@ namespace Quark::System::Platform::X64 {
         asm volatile("wrmsr" : : "c"(reg), "a"(low), "d"(high));
     }
 
-    static inline u32 rdcr0()
+    static inline u64 rdcr0()
     {
-        u32 cr0;
+        u64 cr0;
         asm volatile("mov %%cr0, %0" : "=r"(cr0));
         return cr0;
     }
 
-    static inline void wrcr0(u32 cr0)
+    static inline void wrcr0(u64 cr0)
     {
         asm volatile("mov %0, %%cr0" : : "r"(cr0));
     }
 
-    static inline u32 rdcr2()
+    static inline u64 rdcr2()
     {
-        u32 cr2;
+        u64 cr2;
         asm volatile("mov %%cr2, %0" : "=r"(cr2));
         return cr2;
     }
 
-    static inline u32 rdcr3()
+    static inline u64 rdcr3()
     {
-        u32 cr3;
+        u64 cr3;
         asm volatile("mov %%cr3, %0" : "=r"(cr3));
         return cr3;
     }
 
-    static inline void wrcr3(u32 cr3)
+    static inline void wrcr3(u64 cr3)
     {
         asm volatile("mov %0, %%cr3" : : "r"(cr3));
     }
 
-    static inline u32 rdcr4()
+    static inline u64 rdcr4()
     {
-        u32 cr4;
+        u64 cr4;
         asm volatile("mov %%cr4, %0" : "=r"(cr4));
         return cr4;
     }
 
-    static inline void wrcr4(u32 cr4)
+    static inline void wrcr4(u64 cr4)
     {
-        asm volatile("mov %0, %%cr4" : : "r"(cr4));
+        asm volatile("mov %0, %%cr4" : : "r"(cr4) : "memory");
     }
 
     template <u8 N>
@@ -240,53 +240,43 @@ namespace Quark::System::Platform::X64 {
     {
         void operator=(u32 val)
         {
-            switch (N) {
-                case 0:
-                    wrcr0(val);
-                    break;
-                case 2:
-                    // wrcr2(val);
-                    break;
-                case 3:
-                    wrcr3(val);
-                    break;
-                case 4:
-                    wrcr4(val);
-                    break;
-                default:
-                    break;
+            if constexpr (N == 0) {
+                wrcr0(val);
+            } else if constexpr (N == 2) {
+                // wrcr2(val);
+            } else if constexpr (N == 3) {
+                wrcr3(val);
+            } else if constexpr (N == 4) {
+                wrcr4(val);
             }
         }
 
         u32 operator()()
         {
-            switch (N) {
-                case 0:
-                    return rdcr0();
-                case 2:
-                    return rdcr2();
-                case 3:
-                    return rdcr3();
-                case 4:
-                    return rdcr4();
-                default:
-                    return 0;
+            if constexpr (N == 0) {
+                return rdcr0();
+            } else if constexpr (N == 2) {
+                return rdcr2();
+            } else if constexpr (N == 3) {
+                return rdcr3();
+            } else if constexpr (N == 4) {
+                return rdcr4();
             }
         }
 
-        void operator|=(u32 val) { *this = *this() | val; }
-        void operator&=(u32 val) { *this = *this() & val; }
-        void operator^=(u32 val) { *this = *this() ^ val; }
+        void operator|=(u32 val) { *this = (*this)() | val; }
+        void operator&=(u32 val) { *this = (*this)() & val; }
+        void operator^=(u32 val) { *this = (*this)() ^ val; }
 
         CR& operator+=(u32 val)
         {
-            *this = *this() | val;
+            *this = (*this)() | val;
             return *this;
         }
 
         CR& operator-=(u32 val)
         {
-            *this = *this() & ~val;
+            *this = (*this)() & ~val;
             return *this;
         }
     };
