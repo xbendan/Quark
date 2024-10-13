@@ -153,8 +153,8 @@ public:
 private:
     struct FuncWrap
     {
-        virtual Ret operator()(Args...) = 0;
-        virtual ~FuncWrap()             = default;
+        virtual Ret operator()(Args...) const = 0;
+        virtual ~FuncWrap()                   = default;
     };
 
     template <Callable<Args...> _Callable>
@@ -164,7 +164,10 @@ private:
             : _call(Std::move(call))
         {
         }
-        Ret operator()(Args... args) override { return _call(args...); }
+        Ret operator()(Args... args) const override
+        {
+            return _call(Std::forward<Args>(args)...);
+        }
 
         _Callable _call;
     };

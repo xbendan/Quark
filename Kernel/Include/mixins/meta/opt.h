@@ -208,6 +208,14 @@ struct [[nodiscard]] Optional<T>
         return Optional<To>();
     }
 
+    [[gnu::always_inline]]
+    constexpr Optional<Std::RemoveRef<T>> Extract() const
+    {
+        if (_present)
+            return *_value;
+        return Empty();
+    }
+
     template <typename... Args>
     [[gnu::always_inline]]
     constexpr auto operator()(Args&&... args) const

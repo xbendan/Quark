@@ -10,7 +10,7 @@ namespace Type {
     template <typename T>
     static constexpr string GetName()
     {
-        return string(__PRETTY_FUNCTION__)
-            .Substring(__PRETTY_FUNCTION__.IndexOf("T = ") + 4);
+        string name = __PRETTY_FUNCTION__;
+        return name.Substring(name.IndexOf("T = ") + 4);
     }
 }

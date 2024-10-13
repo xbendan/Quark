@@ -1,10 +1,11 @@
 #include <mixins/math/compute.h>
+#include <mixins/utils/collections.h>
 #include <mixins/utils/hash.h>
 
 // Reference: https://github.com/torvalds/linux/blob/master/lib/rbtree.c
 
-template <typename K, typename V>
-class RbTree
+template <typename TKey, typename TValue>
+class RbTree : public IKeyedAccess<TKey, TValue>
 {
     enum class NodeType
     {
@@ -19,8 +20,8 @@ class RbTree
 
     struct TreeNode
     {
-        K         _key;
-        V         _value;
+        TKey      _key;
+        TValue    _value;
         NodeType  _type;
         TreeNode* _left;
         TreeNode* _right;
@@ -38,6 +39,38 @@ public:
         // Clear nodes
     }
 
+    bool ContainsKey(TKey const& key) const {}
+
+    bool ContainsValue(TValue const& value) const {}
+
+    TValue& Put(TKey const& key, TValue const& value) {}
+
+    TValue& PutIfAbsent(TKey const& key, TValue const& value) {}
+
+    bool Remove(TKey const& key) {}
+
+    bool Remove(TKey const& key, TValue const& value) {}
+
+    void Clear() {}
+
+    bool IsEmpty() const {}
+
+    bool Replace(TKey const& key, TValue const& value) {}
+
+    bool Replace(TKey const&   key,
+                 TValue const& oldValue,
+                 TValue const& newValue)
+    {
+    }
+
+    usize Count() const {}
+
+    void ForEach(Func<void(TKey const&, TValue const&)> action) const {}
+
+    virtual TValue& operator[](TKey const& key) override {}
+
+    virtual TValue const& operator[](TKey const& key) const override {}
+
 private:
     void SetNodeTypeRecursively(TreeNode* node, NodeType type)
     {
@@ -51,6 +84,6 @@ private:
         }
     }
 
-    Hash<K>   m_hash;
-    TreeNode* m_root;
+    Hash<TKey> m_hash;
+    TreeNode*  m_root;
 };

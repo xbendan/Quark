@@ -20,41 +20,38 @@ class LinkedList : public IList<TSource>
         Node*   _next;
         Node*   _prev;
 
-        constexpr Node(TSource const& data)
-            : _data(Std::move(data))
-        {
-        }
-
-        constexpr Node(TSource const& data, Node* next, Node* prev)
-            : _data(Std::move(data))
+        constexpr Node(TSource const& data,
+                       Node*          next = nullptr,
+                       Node*          prev = nullptr)
+            : _data(Std::move(const_cast<TSource&>(data)))
             , _next(next)
             , _prev(prev)
         {
         }
     };
 
-    struct _Iter : public IIterator<TSource>
-    {
-        _Iter(Node* node)
-            : _node(node)
-        {
-        }
+    // struct _Iter : public IIterator<TSource>
+    // {
+    //     _Iter(Node* node)
+    //         : _node(node)
+    //     {
+    //     }
 
-        TSource& current() const override { return _node->_data; }
+    //     TSource& current() const override { return _node->_data; }
 
-        TSource& next() override
-        {
-            assert(_node->_next, "Iterator out of bounds.");
+    //     TSource& next() override
+    //     {
+    //         assert(_node->_next, "Iterator out of bounds.");
 
-            _node = _node->_next;
-            return _node->_data;
-        }
+    //         _node = _node->_next;
+    //         return _node->_data;
+    //     }
 
-        bool hasNext() const override { return _node != nullptr; }
+    //     bool hasNext() const override { return _node != nullptr; }
 
-    private:
-        Node* _node;
-    };
+    // private:
+    //     Node* _node;
+    // };
 
 public:
     LinkedList() = default;
@@ -111,7 +108,7 @@ public:
         Clear();
         Node* node = other._head;
         while (node) {
-            pushBack(node->_data);
+            Add(node->_data);
             node = node->_next;
         }
         return *this;
@@ -206,7 +203,7 @@ public:
 
     TSource& pushFront(TSource const& data)
     {
-        Node* node = new Node(data, _head, nullptr);
+        Node* node = new Node(Std::move(data), _head, nullptr);
         if (_head) {
             _head->_prev = node;
         } else {
@@ -249,7 +246,7 @@ public:
             _head = nullptr;
             _tail = nullptr;
         }
-        TSource data = Std::move(node->_data);
+        TSource data(Std::move(node->_data));
         delete node;
         _size--;
         return data;
@@ -278,7 +275,7 @@ public:
         while (index--) {
             node = node->_next;
         }
-        Node* newNode = new Node(data, node, node->_prev);
+        Node* newNode = new Node(Std::move(data), node, node->_prev);
         if (node->_prev) {
             node->_prev->_next = newNode;
         } else {
@@ -560,7 +557,7 @@ public:
             return Empty();
         }
 
-        TSource data = Std::move(_head->_data);
+        TSource data(Std::move(_head->_data));
         RemoveAt(0);
 
         return data;
@@ -575,8 +572,11 @@ public:
         Node* node = _head;
         while (node) {
             if (predicate(node->_data)) {
-                TSource data = Std::move(node->_data);
-                Remove(data);
+                TSource data(Std::move(node->_data));
+
+                // FIXME: 在使用移动语义后原始数据会被清空
+                //        在删除节点时可能导致删除错误节点
+                Remove(node->_data);
                 return data;
             }
             node = node->_next;
@@ -604,7 +604,7 @@ public:
             return Empty();
         }
 
-        TSource data = Std::move(_tail->_data);
+        TSource data(Std::move(_tail->_data));
         RemoveAt(_size - 1);
 
         return data;

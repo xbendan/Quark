@@ -28,13 +28,24 @@ public:
     [[gnu::always_inline]]
     constexpr bool operator==(Date const& other) const = default;
 
-    u64 getYear() const { return m_year; }
-    u64 getMonth() const { return m_month; }
-    u64 getDay() const { return m_day; }
-    u64 getHour() const { return m_hour; }
-    u64 getMinute() const { return m_minute; }
-    u64 getSecond() const { return m_second; }
-    u64 getMillisecond() const { return m_millisecond; }
+    u64 GetYear() const { return m_year; }
+    u64 GetMonth() const { return m_month; }
+    u64 GetDay() const { return m_day; }
+    u64 GetHour() const { return m_hour; }
+    u64 GetMinute() const { return m_minute; }
+    u64 GetSecond() const { return m_second; }
+    u64 GetMillisecond() const { return m_millisecond; }
+
+    u64 ToMilliseconds() const;
+    u64 ToSeconds() const;
+
+    Date operator+(Std::TimeSpan const& span) const;
+    Date operator+(Date const& date) const;
+    Date operator-(Std::TimeSpan const& span) const;
+    Date operator-(Date const& date) const;
+
+    constexpr bool operator<(Date const& other) const;
+    constexpr bool operator>(Date const& other) const;
 
     static constexpr bool IsLeapYear(u64 year)
     {
