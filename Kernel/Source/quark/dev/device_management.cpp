@@ -1,9 +1,10 @@
 #include <mixins/std/utility.h>
-#include <mixins/utils/array_list.h>
-#include <mixins/utils/linked_list.h>
-#include <quark/dev/connectivity.h>
+#include <mixins/utils/rbtree.h>
+#include <quark/dev/device.h>
 
 namespace Quark::System::Io {
+    RbTree<string, Device*> devices;
+
     Optional<Device*> Device::FindByName(string name)
     {
         // 实现查找设备的方法
@@ -19,5 +20,12 @@ namespace Quark::System::Io {
         // 和 FindByName 方法类似，将传入的 @uuid 进行
         // 哈希处理
         return Empty();
+    }
+
+    Res<> Device::Load(Device* device)
+    {
+        // 实现加载设备的方法
+        // 将设备添加到设备表中
+        return Ok();
     }
 }

@@ -36,4 +36,46 @@ namespace PIT {
         device.Take()->AddHandler(IRQ_PIT_TIMER_UPDATE, &PITimerDevice::Tick);
         return Ok();
     }
+
+    Res<> PITimerDevice::OnShutdown()
+    {
+        auto device = Device::FindByName<InterruptsControllerDevice>(
+            "Interrupts Controller Device");
+
+        if (!device.IsPresent()) {
+            return Error::DeviceNotFound(
+                "Interrupts Controller Device not found");
+        }
+
+        device.Take()->RemoveHandler(IRQ_PIT_TIMER_UPDATE,
+                                     &PITimerDevice::Tick);
+        return Ok();
+    }
+
+    void PITimerDevice::Sleep(u64 ms)
+    {
+        assert(ms > 0);
+
+        ms = ms * 1000 + m_uptime.load();
+        while (m_uptime.load() < ms)
+            asm volatile("pause");
+    }
+
+    void PITimerDevice::SleepNanos(u64 ms)
+    {
+        Sleep(ms / 1000000);
+    }
+
+    void PITimerDevice::SleepUntil(Date date)
+    {
+        u64 ms = (date - Date::Now()).ToMilliseconds();
+        Sleep(ms);
+    }
+
+    Res<TimerAlarm> PITimerDevice::CreateAlarm(Date, Func<void()>) {}
+
+    Res<TimerAlarm> PITimerDevice::CreateAlarm(TimeSpan, Func<void()>) {}
+
+    Date PITimerDevice::Current() {}
+
 }

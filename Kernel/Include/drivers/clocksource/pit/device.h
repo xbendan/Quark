@@ -1,4 +1,6 @@
 #include <drivers/clocksource/pit/spec.h>
+#include <mixins/concurrent/atomic.h>
+#include <mixins/utils/linked_list.h>
 #include <quark/clocksource/timer.h>
 #include <quark/dev/device.h>
 #include <quark/hal/definition.h>
@@ -18,6 +20,7 @@ namespace PIT {
         static void Tick(InterruptStackFrame* frame);
 
         virtual Res<> OnStartup() override final;
+        virtual Res<> OnShutdown() override final;
 
         virtual void            Sleep(u64) override final;
         virtual void            SleepNanos(u64) override final;
@@ -28,6 +31,8 @@ namespace PIT {
         virtual Date            Current() override final;
 
     private:
+        Atomic<u64>                         m_uptime{ 0 };
+        LinkedList<TimerAlarm>              m_alarms{};
         u64                                 m_ticks;
         u32                                 m_frequency;
         Hal::PortAccess<PIT_DATA_CHANNEL_0> m_dataAccess;

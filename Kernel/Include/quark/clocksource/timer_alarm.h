@@ -18,12 +18,24 @@ namespace Quark::System {
             , m_callback(callback)
         {
         }
+        // TimerAlarm(TimerAlarm const& other) = delete;
+        TimerAlarm(TimerAlarm&& other)
+            : m_when(other.m_when)
+            , m_callback(Std::move(other.m_callback))
+        {
+        }
 
         Date GetDate() const { return m_when; }
+
+        void operator()() { m_callback(); }
+
+        constexpr bool operator==(TimerAlarm const& other) const
+        {
+            return m_when == other.m_when && m_callback == other.m_callback;
+        }
 
     private:
         Date         m_when;
         Func<void()> m_callback;
-        bool         m_isCancelled{ false };
     };
 }

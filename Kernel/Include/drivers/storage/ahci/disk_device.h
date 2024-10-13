@@ -1,7 +1,7 @@
 #pragma once
 
 #include <drivers/storage/ahci/spec.h>
-#include <quark/dev/builtin_devices.h>
+#include <quark/dev/disk_device.h>
 
 namespace AHCI {
     using namespace Quark::System::Io;
