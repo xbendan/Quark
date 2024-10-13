@@ -79,40 +79,34 @@ namespace PCI {
                    0x80000000;
         }
 
-        u8 getBus() { return _bus; }
-
-        u8 getSlot() { return _slot; }
-
-        u8 getFunc() { return _func; }
-
-        u16 getVendorID()
+        inline u16 GetVendorID()
         {
             return _vendorID
                        ? _vendorID
                        : (_vendorID = Read<u16>(PCI::ConfigRegs::VendorID));
         }
 
-        u16 getDeviceID()
+        inline u16 GetDeviceID()
         {
             return _deviceID
                        ? _deviceID
                        : (_deviceID = Read<u16>(PCI::ConfigRegs::DeviceID));
         }
 
-        u8 getClass()
+        inline u8 GetClass()
         {
             return _class ? _class
                           : (_class = Read<u8>(PCI::ConfigRegs::Class));
         }
 
-        u8 getSubclass()
+        inline u8 GetSubclass()
         {
             return _subclass
                        ? _subclass
                        : (_subclass = Read<u8>(PCI::ConfigRegs::Subclass));
         }
 
-        u8 getProgIF()
+        inline u8 GetProgIF()
         {
             return _progIF ? _progIF
                            : (_progIF = Read<u8>(PCI::ConfigRegs::ProgIF));
