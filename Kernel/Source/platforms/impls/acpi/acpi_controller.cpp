@@ -18,13 +18,13 @@ namespace ACPI {
     {
         u64 address = Memory::CopyAsIOAddress( //
             AddressRange(0x0, 0x7bff + 1)
-                .find((u8*)_signature, 8, 0x10)
+                .Find((u8*)_signature, 8, 0x10)
                 .OrElse(0) |
             AddressRange(0x80000, 0x9ffff + 1)
-                .find((u8*)_signature, 8, 0x10)
+                .Find((u8*)_signature, 8, 0x10)
                 .OrElse(0) |
             AddressRange(0xe0000, 0xfffff + 1)
-                .find((u8*)_signature, 8, 0x10)
+                .Find((u8*)_signature, 8, 0x10)
                 .OrElse(0));
         /*
             Detect ACPI Root System Description Pointer (RSDP)
@@ -66,25 +66,23 @@ namespace ACPI {
                 break;
         }
 
-        _madt = FindTable<ACPI::MultiApicDescTable>("APIC").Unwrap();
-        _fadt = FindTable<ACPI::FixedAcpiDescTable>("FACP").Unwrap();
-        _hpet = FindTable<ACPI::HighPrecisionEventTable>("HPET").Unwrap();
-        _mcfg = FindTable<ACPI::PCIExpressSpecTable>("MCFG").Unwrap();
+        _madt = FindTable<ACPI::MultiApicDescTable>("APIC").Take();
+        _fadt = FindTable<ACPI::FixedAcpiDescTable>("FACP").Take();
+        _hpet = FindTable<ACPI::HighPrecisionEventTable>("HPET").Take();
+        _mcfg = FindTable<ACPI::PCIExpressSpecTable>("MCFG").Take();
 
         return Ok();
     }
 
-    template <class _Tp>
-        requires(Std::isDerived<ACPI::TableHeader, _Tp>)
-    Res<_Tp*> ControllerDevice::FindTable(string   name, //
-                                          unsigned index)
+    Optional<ACPI::TableHeader*> ControllerDevice::FindTableBase(string name, //
+                                                                 unsigned index)
     {
         if (!_rsdp) {
-            return Error::DeviceFault("ACPI RSDP not found");
+            return Empty();
         }
 
         if (name == "DSDT") {
-            return Ok((_Tp*)Memory::CopyAsIOAddress(_fadt->_dsdt));
+            return (ACPI::TableHeader*)Memory::CopyAsIOAddress(_fadt->_dsdt);
         }
 
         u64 entries =
@@ -100,9 +98,9 @@ namespace ACPI {
 
             if (name.Equals(table->_signature) && (_index++ == index)) {
                 // Perhaps check the checksum here
-                return Ok((_Tp*)table);
+                return table;
             }
         }
-        return Error::DeviceFault("Table not found");
+        return Empty();
     }
 } // namespace Quark::System::Hal
