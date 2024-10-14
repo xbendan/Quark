@@ -24,14 +24,14 @@ namespace AHCI {
         m_commandList = reinterpret_cast<AHCI::_HBACommandHeader*>(
             CopyAsIOAddress(portRegs->_clb));
 
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < 8 /* 32 */; i++) {
             m_commandList[i]._prdtl = 8;
 
             u64 phys = controller->ctbaPhys() + (port << 13) + (i << 8);
             m_commandList[i]._ctba  = (phys & 0xFFFFFFFF);
             m_commandList[i]._ctbau = (phys >> 32);
 
-            AddressRange((u64)(m_commandList[i]._ctba), 256).clear();
+            AddressRange((u64)(m_commandList[i]._ctba), 256).Clear();
 
             m_commandTable[i] =
                 reinterpret_cast<AHCI::HBACommandTable*>(CopyAsIOAddress(phys));
@@ -90,14 +90,14 @@ namespace AHCI {
         header->_pmp   = 0;
 
         AHCI::HBACommandTable* table = m_commandTable[slot];
-        AddressRange((u64)table, sizeof(AHCI::HBACommandTable)).clear();
+        AddressRange((u64)table, sizeof(AHCI::HBACommandTable)).Clear();
         table->_prdtEntry[0]._dba  = physBuf & 0xFFFFFFFF;
         table->_prdtEntry[0]._dbau = (physBuf >> 32) & 0xFFFFFFFF;
         table->_prdtEntry[0]._dbc  = (count << 9) - 1;
         table->_prdtEntry[0]._i    = 1;
 
         AHCI::RegHostToDevice* h2d = (AHCI::RegHostToDevice*)table->_cfis;
-        AddressRange((u64)h2d, sizeof(AHCI::RegHostToDevice)).clear();
+        AddressRange((u64)h2d, sizeof(AHCI::RegHostToDevice)).Clear();
         h2d->_fisType        = AHCI::FisRegs::TYPE_REG_H2D;
         h2d->_mode           = 1;
         h2d->_portMultiplier = 0;
