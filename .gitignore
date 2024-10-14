@@ -39,3 +39,7 @@ Thirdparty/*
 .VSCodeCounter/**
 .vscode/settings.json
 .vscode/launch.json
+
+Kernel/Build/*
+Kernel/Dist/*
+Kernel/Decompile/*
