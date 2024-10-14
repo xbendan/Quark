@@ -28,12 +28,13 @@ namespace PIT {
         virtual Res<TimerAlarm> CreateAlarm(Date, Func<void()>) override final;
         virtual Res<TimerAlarm> CreateAlarm(TimeSpan,
                                             Func<void()>) override final;
-        virtual Date            Current() override final;
+        virtual Date            GetToday() override final;
+        virtual u64             GetSystemUptime() override final;
+        virtual u64             GetTimestamp() override final;
 
     private:
         Atomic<u64>                         m_uptime{ 0 };
         LinkedList<TimerAlarm>              m_alarms{};
-        u64                                 m_ticks;
         u32                                 m_frequency;
         Hal::PortAccess<PIT_DATA_CHANNEL_0> m_dataAccess;
         Hal::PortAccess<PIT_COMMAND_REG>    m_commandAccess;

@@ -14,7 +14,8 @@ namespace CMOS {
     {
     public:
         RealTimeClockDevice()
-            : Device(u8"Real Time Clock", Device::Type::TimerOrClock)
+            : Timer(TimerType::RTC)
+            , Device(u8"Real Time Clock", Device::Type::TimerOrClock)
         {
         }
 
@@ -33,7 +34,9 @@ namespace CMOS {
         virtual void Sleep(u64) override final;
         virtual void SleepNanos(u64) override final;
         virtual void SleepUntil(Date) override final;
-        virtual Date Current() override final;
+        virtual Date GetToday() override final;
+        virtual u64  GetSystemUptime() override final;
+        virtual u64  GetTimestamp() override final;
 
     private:
         Hal::PortAccess<CMOS_PORT_REG_INDEX> m_indexAccess;

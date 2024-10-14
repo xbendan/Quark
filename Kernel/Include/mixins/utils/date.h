@@ -3,17 +3,21 @@
 #include <mixins/std/c++types.h>
 #include <mixins/std/time.h>
 
+#define YEAR0 1900
+#define EPOCH_YEAR 1970
+#define SECS_DAY (24L * 60L * 60L)
+
 class Date
 {
 public:
     Date() = default;
-    Date(u64 year,
-         u64 month,
-         u64 day,
-         u64 hour,
-         u64 minute,
-         u64 second,
-         u64 millisecond)
+    Date(u32 year,
+         u8  month,
+         u8  day,
+         u8  hour,
+         u8  minute,
+         u8  second,
+         u16 millisecond)
         : m_year(year)
         , m_month(month)
         , m_day(day)
@@ -21,45 +25,127 @@ public:
         , m_minute(minute)
         , m_second(second)
         , m_millisecond(millisecond)
+        , m_dst(false)
     {
     }
+    Date(u64 timestamp) {}
     ~Date() = default;
 
     [[gnu::always_inline]]
     constexpr bool operator==(Date const& other) const = default;
 
-    u64 GetYear() const { return m_year; }
-    u64 GetMonth() const { return m_month; }
-    u64 GetDay() const { return m_day; }
-    u64 GetHour() const { return m_hour; }
-    u64 GetMinute() const { return m_minute; }
-    u64 GetSecond() const { return m_second; }
-    u64 GetMillisecond() const { return m_millisecond; }
+    u32 GetYear() const { return m_year; }
+    u8  GetMonth() const { return m_month; }
+    u8  GetDay() const { return m_day; }
+    u8  GetHour() const { return m_hour; }
+    u8  GetMinute() const { return m_minute; }
+    u8  GetSecond() const { return m_second; }
+    u16 GetMillisecond() const { return m_millisecond; }
 
-    u64 ToMilliseconds() const;
-    u64 ToSeconds() const;
+    /**
+     * @brief Get the date as a timestamp in milliseconds
+     *
+     * @ref https://www.cnblogs.com/pantttian/articles/12826298.html
+     * @return u64
+     */
+    u64 GetAsTimestamp() const
+    {
+        u32 yy = m_year, mm = m_month, dd = m_day;
+        if (0 >= (int)(mm -= 2)) {
+            mm += 12;
+            yy -= 1;
+        }
 
-    Date operator+(Std::TimeSpan const& span) const;
-    Date operator+(Date const& date) const;
-    Date operator-(Std::TimeSpan const& span) const;
-    Date operator-(Date const& date) const;
+        // clang-format off
+        return (((
+            (u64)(yy / 4 - yy / 100 + yy / 400 + (367 * mm / 12) + dd) +
+            yy * 365 - 719499
+            ) * 24 + m_hour
+            ) * 60 + m_minute
+            ) * 60 + m_second;
+        // clang-format on
+    }
+
+    Date operator+(Std::TimeSpan& span) const
+    {
+        return Date::FromTimestamp(GetAsTimestamp() + span.GetAsTimestamp());
+    }
+
+    Date operator+(Date const& date) const
+    {
+        return Date::FromTimestamp(GetAsTimestamp() + date.GetAsTimestamp());
+    }
+
+    Date operator-(Std::TimeSpan& span) const
+    {
+        return Date::FromTimestamp(GetAsTimestamp() - span.GetAsTimestamp());
+    }
+
+    Date operator-(Date const& date) const
+    {
+        return Date::FromTimestamp(GetAsTimestamp() - date.GetAsTimestamp());
+    }
 
     constexpr bool operator<(Date const& other) const;
     constexpr bool operator>(Date const& other) const;
 
-    static constexpr bool IsLeapYear(u64 year)
+    static constexpr inline bool IsLeapYear(u64 year)
     {
-        return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+        return (!((year) % 4) && (((year) % 100) || !((year) % 400)));
+    }
+
+    static constexpr inline u8 GetYearSize(u64 year)
+    {
+        return IsLeapYear(year) ? 366 : 365;
+    }
+
+    static constexpr Date FromTimestamp(u64 timestamp)
+    {
+        static constexpr int daysInMonth[2][12] = {
+            { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
+            { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 },
+        };
+        Date date;
+        u64  dayc, dayno;
+        int  year = EPOCH_YEAR;
+
+        dayc  = timestamp % SECS_DAY;
+        dayno = timestamp / SECS_DAY;
+
+        date.m_second = dayc % 60;
+        date.m_minute = (dayc % 3600) / 60;
+        date.m_hour   = dayc / 3600;
+        // weekday = (dayc + 4) % 7;
+
+        while (dayno >= GetYearSize(year)) {
+            dayno -= GetYearSize(year);
+            year++;
+        }
+
+        date.m_year  = year;
+        // year day = dayno
+        date.m_month = 0;
+
+        while (dayno >= daysInMonth[IsLeapYear(year)][date.m_month]) {
+            dayno -= daysInMonth[IsLeapYear(year)][date.m_month];
+            date.m_month++;
+        }
+
+        date.m_day = ++dayno;
+        date.m_dst = false;
+
+        return date;
     }
 
     static Date Now();
 
 private:
-    u64 m_year;
-    u64 m_month;
-    u64 m_day;
-    u64 m_hour;
-    u64 m_minute;
-    u64 m_second;
-    u64 m_millisecond;
-};
+    u32  m_year;
+    u8   m_month;
+    u8   m_day;
+    u8   m_hour;
+    u8   m_minute;
+    u8   m_second;
+    u16  m_millisecond;
+    bool m_dst;
+} __attribute__((packed));

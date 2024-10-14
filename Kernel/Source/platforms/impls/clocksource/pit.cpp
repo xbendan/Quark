@@ -8,11 +8,12 @@ namespace PIT {
 
     void PITimerDevice::Tick(InterruptStackFrame* frame)
     {
-        m_instance->m_ticks++;
+        m_instance->m_uptime.Inc(MemoryOrder::MemoryOrderRelaxed);
     }
 
     PITimerDevice::PITimerDevice(u32 frequency)
-        : Device(u8"Programmable Interval Timer", Device::Type::TimerOrClock)
+        : Timer(TimerType::PIT)
+        , Device(u8"Programmable Interval Timer", Device::Type::TimerOrClock)
         , m_frequency(frequency)
     {
         m_instance = this;
@@ -56,8 +57,8 @@ namespace PIT {
     {
         assert(ms > 0);
 
-        ms = ms * 1000 + m_uptime.load();
-        while (m_uptime.load() < ms)
+        ms = ms * 1000 + m_uptime.Load();
+        while (m_uptime.Load() < ms)
             asm volatile("pause");
     }
 
@@ -68,7 +69,7 @@ namespace PIT {
 
     void PITimerDevice::SleepUntil(Date date)
     {
-        u64 ms = (date - Date::Now()).ToMilliseconds();
+        u64 ms = (date - Date::Now()).GetAsTimestamp();
         Sleep(ms);
     }
 
@@ -76,6 +77,16 @@ namespace PIT {
 
     Res<TimerAlarm> PITimerDevice::CreateAlarm(TimeSpan, Func<void()>) {}
 
-    Date PITimerDevice::Current() {}
+    Date PITimerDevice::GetToday() {}
+
+    u64 PITimerDevice::GetSystemUptime()
+    {
+        return m_uptime.Load();
+    }
+
+    u64 PITimerDevice::GetTimestamp()
+    {
+        return m_uptime.Load(); // FIXME: Implement
+    }
 
 }
