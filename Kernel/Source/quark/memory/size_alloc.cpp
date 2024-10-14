@@ -61,7 +61,7 @@ namespace Quark::System::Memory {
             cpu->_page = nullptr;
         }
 
-        AddressRange(address, cache->_size).clear();
+        AddressRange(address, cache->_size).Clear();
         return Ok(address);
     }
 
