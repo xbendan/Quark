@@ -26,11 +26,11 @@ public:
             m_selected = TImpl<TSource>::FindFirst();
         }
 
-        return m_selected;
+        return m_selected.Get();
     }
 
     TSource* operator()() const { return GetOrFirst(); }
 
 private:
-    Optional<TSource> m_selected;
+    Optional<TSource&> m_selected = Empty();
 };

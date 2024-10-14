@@ -3,7 +3,7 @@
 #include <mixins/meta/error.h>
 #include <mixins/std/panic.h>
 
-inline void
+static inline void
 assert(bool expr, const char* msg = "Assertion failed")
 {
     if (!expr) {
@@ -11,7 +11,7 @@ assert(bool expr, const char* msg = "Assertion failed")
     }
 }
 
-inline void
+static inline void
 assert(bool expr, Error err)
 {
     if (!expr) {

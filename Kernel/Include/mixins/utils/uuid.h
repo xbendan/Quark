@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mixins/std/c++types.h>
+#include <mixins/std/string.h>
 
 union UUID
 {
@@ -9,8 +10,27 @@ union UUID
     u32 _dwords[4];
     u64 _qwords[2];
 
-    constexpr inline bool operator==(const UUID& other) const
+    constexpr inline bool operator==(UUID const& other) const
     {
         return _qwords[0] == other._qwords[0] && _qwords[1] == other._qwords[1];
+    }
+
+    constexpr inline bool operator!=(UUID const& other) const
+    {
+        return !(*this == other);
+    }
+
+    constexpr inline bool IsNull() const
+    {
+        return _qwords[0] == 0 && _qwords[1] == 0;
+    }
+
+    static UUID FromName(string name)
+    {
+        UUID uuid;
+        for (usize i = 0; i < name.Length(); i++) {
+            uuid._bytes[i % 16] ^= name[i];
+        }
+        return uuid;
     }
 } __attribute__((packed));
