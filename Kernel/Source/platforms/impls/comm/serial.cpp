@@ -37,14 +37,14 @@ namespace Serial {
     bool SerialPortDevice::out(u8* data, usize len)
     {
         if (Platform::X64::CheckInterrupts()) {
-            m_lock.acquireIntDisable();
+            m_lock.AcquireIntDisable();
             while (len--) {
                 while (!(m_lineStatus.In<u8>() & 0x20))
                     ;
                 m_portAccess << *data++;
             }
 
-            m_lock.release();
+            m_lock.Release();
         } else
             while (len--) {
                 while (!(m_lineStatus.In<u8>() & 0x20))

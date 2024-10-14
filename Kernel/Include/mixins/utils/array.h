@@ -21,7 +21,7 @@ public:
         : Slice<T>(_data, N)
     {
     }
-    Array(const Array& other)
+    Array(Array const& other)
         : Slice<T>(_data, N)
     {
         for (usize i = 0; i < N; i++) {
@@ -182,7 +182,7 @@ class Arrays
     static TSource sum(Slice<TSource> const& src)
     {
         TSource result = 0;
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             result += src[i];
         }
         return result;
@@ -192,7 +192,7 @@ class Arrays
         requires(Computable<TSource>)
     static TSource average(Slice<TSource> const& src)
     {
-        return sum(src) / src.size();
+        return sum(src) / src.Length();
     }
 
     template <typename TSource>
@@ -200,7 +200,7 @@ class Arrays
     static TSource max(Slice<TSource> const& src)
     {
         TSource result = src[0];
-        for (usize i = 1; i < src.size(); i++) {
+        for (usize i = 1; i < src.Length(); i++) {
             if (src[i] > result) {
                 result = src[i];
             }
@@ -213,7 +213,7 @@ class Arrays
     static TSource min(Slice<TSource> const& src)
     {
         TSource result = src[0];
-        for (usize i = 1; i < src.size(); i++) {
+        for (usize i = 1; i < src.Length(); i++) {
             if (src[i] < result) {
                 result = src[i];
             }
@@ -227,7 +227,7 @@ class Arrays
                        Func<TResult(TSource const&)> mapper)
     {
         TResult result = 0;
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             result += mapper(src[i]);
         }
         return result;
@@ -238,7 +238,7 @@ class Arrays
     static TResult average(Slice<TSource> const&         src,
                            Func<TResult(TSource const&)> mapper)
     {
-        return sum(src, mapper) / src.size();
+        return sum(src, mapper) / src.Length();
     }
 
     template <typename TSource, typename TResult>
@@ -247,7 +247,7 @@ class Arrays
                        Func<TResult(TSource const&)> mapper)
     {
         TResult result = mapper(src[0]);
-        for (usize i = 1; i < src.size(); i++) {
+        for (usize i = 1; i < src.Length(); i++) {
             if (mapper(src[i]) > result) {
                 result = mapper(src[i]);
             }
@@ -261,7 +261,7 @@ class Arrays
                        Func<TResult(TSource const&)> mapper)
     {
         TResult result = mapper(src[0]);
-        for (usize i = 1; i < src.size(); i++) {
+        for (usize i = 1; i < src.Length(); i++) {
             if (mapper(src[i]) < result) {
                 result = mapper(src[i]);
             }
@@ -276,7 +276,7 @@ class Arrays
     {
         TSource result = src[0];
         TKey    key    = selector(src[0]);
-        for (usize i = 1; i < src.size(); i++) {
+        for (usize i = 1; i < src.Length(); i++) {
             TKey current = selector(src[i]);
             if (current > key) {
                 key    = current;
@@ -293,7 +293,7 @@ class Arrays
     {
         TSource result = src[0];
         TKey    key    = selector(src[0]);
-        for (usize i = 1; i < src.size(); i++) {
+        for (usize i = 1; i < src.Length(); i++) {
             TKey current = selector(src[i]);
             if (current < key) {
                 key    = current;
@@ -319,15 +319,15 @@ class Arrays
     template <typename TSource>
     static TSource findFirst(Slice<TSource>& src)
     {
-        assert(src.size() > 0, Error::IndexOutOfBounds("Array is empty"));
+        assert(src.Length() > 0, Error::IndexOutOfBounds("Array is empty"));
         return src[0];
     }
 
     template <typename TSource>
     static TSource findLast(Slice<TSource>& src)
     {
-        assert(src.size() > 0, Error::IndexOutOfBounds("Array is empty"));
-        return src[src.size() - 1];
+        assert(src.Length() > 0, Error::IndexOutOfBounds("Array is empty"));
+        return src[src.Length() - 1];
     }
 
     template <typename TSource>
@@ -339,7 +339,8 @@ class Arrays
         requires(Sliceable<TSlice<TSource>, TSource>)
     static TSlice<TSource> take(Slice<TSource>& src, usize n)
     {
-        assert(n <= src.size(), Error::IndexOutOfBounds("Array is too small"));
+        assert(n <= src.Length(),
+               Error::IndexOutOfBounds("Array is too small"));
 
         TSlice result{ new TSource[n], n };
         copyArray(result, src, n);
@@ -353,9 +354,9 @@ class Arrays
         usize start = range.get<0>();
         usize end   = range.get<1>();
 
-        assert(start <= src.size(),
+        assert(start <= src.Length(),
                Error::IndexOutOfBounds("Array is too small"));
-        assert(end <= src.size(),
+        assert(end <= src.Length(),
                Error::IndexOutOfBounds("Array is too small"));
 
         usize           count = end - start;
@@ -368,10 +369,11 @@ class Arrays
         requires(Sliceable<TSlice<TSource>, TSource>)
     static TSlice<TSource> takeLast(Slice<TSource>& src, usize n)
     {
-        assert(n <= src.size(), Error::IndexOutOfBounds("Array is too small"));
+        assert(n <= src.Length(),
+               Error::IndexOutOfBounds("Array is too small"));
 
         TSlice<TSource> result{ new TSource[n], n };
-        copyArray(result.data(), &(src[src.size() - n]), n);
+        copyArray(result.data(), &(src[src.Length() - n]), n);
         return result;
     }
 
@@ -381,14 +383,14 @@ class Arrays
                                      Predicate<TSource&> predicate)
     {
         usize count = 0;
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             if (predicate(src[i]))
                 count++;
         }
 
         TSlice<TSource> result{ new TSource[count], count };
         usize           p = 0;
-        for (usize i = 0; i < src.size() && p != count; i++) {
+        for (usize i = 0; i < src.Length() && p != count; i++) {
             if (predicate(src[i]))
                 result[p++] = src[i];
         }
@@ -398,7 +400,8 @@ class Arrays
     template <typename TSource>
     static TSource& single(Slice<TSource>& src)
     {
-        assert(src.size() == 1, Error::InvalidOperation("Array is not single"));
+        assert(src.Length() == 1,
+               Error::InvalidOperation("Array is not single"));
         return src[0];
     }
 
@@ -406,7 +409,7 @@ class Arrays
     static TSource& single(Slice<TSource>& src, Predicate<TSource&> predicate)
     {
         usize index = -1;
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             if (predicate(src[i])) {
                 if (index != -1) {
                     assert(false,
@@ -426,9 +429,9 @@ class Arrays
                                     TSource const&  defaultValue)
     {
         assert(
-            src.size() <= 1,
+            src.Length() <= 1,
             Error::InvalidOperation("Sequence contains more than one element"));
-        return src.size() ? src[0] : defaultValue;
+        return src.Length() ? src[0] : defaultValue;
     }
 
     template <typename TSource>
@@ -436,22 +439,23 @@ class Arrays
     static TSource& defaultIfEmpty(Slice<TSource>& src,
                                    TSource const&  defaultValue)
     {
-        return src.size() ? src[0] : defaultValue;
+        return src.Length() ? src[0] : defaultValue;
     }
 
     template <typename TSource>
     static TSource& defaultIfEmpty(Slice<TSource>& src)
     {
-        return src.size() ? src[0] : TSource{};
+        return src.Length() ? src[0] : TSource{};
     }
 
     template <typename TSource, template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TSource>, TSource>)
     static TSlice<TSource> skip(Slice<TSource>& src, usize n)
     {
-        assert(n <= src.size(), Error::IndexOutOfBounds("Array is too small"));
+        assert(n <= src.Length(),
+               Error::IndexOutOfBounds("Array is too small"));
 
-        usize           count = src.size() - n;
+        usize           count = src.Length() - n;
         TSlice<TSource> result{ new TSource[count], count };
         copyArray(result.data(), &(src[n]), count);
         return result;
@@ -461,9 +465,10 @@ class Arrays
         requires(Sliceable<TSlice<TSource>, TSource>)
     static TSlice<TSource> skipLast(Slice<TSource>& src, usize n)
     {
-        assert(n <= src.size(), Error::IndexOutOfBounds("Array is too small"));
+        assert(n <= src.Length(),
+               Error::IndexOutOfBounds("Array is too small"));
 
-        usize           count = src.size() - n;
+        usize           count = src.Length() - n;
         TSlice<TSource> result{ new TSource[count], count };
         copyArray(result, src, count);
         return result;
@@ -475,14 +480,14 @@ class Arrays
                                      Predicate<TSource&> predicate)
     {
         usize count = 0;
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             if (!predicate(src[i]))
                 count++;
         }
 
         TSlice<TSource> result{ new TSource[count], count };
         usize           p = 0;
-        for (usize i = 0; i < src.size() && p != count; i++) {
+        for (usize i = 0; i < src.Length() && p != count; i++) {
             if (!predicate(src[i]))
                 result[p++] = src[i];
         }
@@ -496,8 +501,8 @@ class Arrays
     static TSlice<TResult> select(Slice<TSource>&         src,
                                   Func<TResult(TSource&)> selector)
     {
-        TSlice<TResult> result{ new TResult[src.size()], src.size() };
-        for (usize i = 0; i < src.size(); i++) {
+        TSlice<TResult> result{ new TResult[src.Length()], src.Length() };
+        for (usize i = 0; i < src.Length(); i++) {
             result[i] = selector(src[i]);
         }
         return result;
@@ -506,7 +511,7 @@ class Arrays
     template <typename TSource>
     static bool allMatch(Slice<TSource>& src, Predicate<TSource&> predicate)
     {
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             if (!predicate(src[i]))
                 return false;
         }
@@ -516,7 +521,7 @@ class Arrays
     template <typename TSource>
     static bool anyMatch(Slice<TSource>& src, Predicate<TSource&> predicate)
     {
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             if (predicate(src[i]))
                 return true;
         }
@@ -526,7 +531,7 @@ class Arrays
     template <typename TSource>
     static bool noneMatch(Slice<TSource>& src, Predicate<TSource&> predicate)
     {
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             if (predicate(src[i]))
                 return false;
         }
@@ -536,7 +541,7 @@ class Arrays
     template <typename TSource>
     static void forEach(Slice<TSource>& src, Action<TSource&> action)
     {
-        for (usize i = 0; i < src.size(); i++) {
+        for (usize i = 0; i < src.Length(); i++) {
             action(src[i]);
         }
     }

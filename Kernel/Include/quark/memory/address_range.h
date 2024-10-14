@@ -62,13 +62,13 @@ namespace Quark::System::Memory {
             return _base == other._base && _size == other._size;
         }
 
-        AddressRange& clear()
+        AddressRange& Clear()
         {
-            set(0);
+            Set(0);
             return *this;
         }
 
-        AddressRange& set(u8 val)
+        AddressRange& Set(u8 val)
         {
             if (_size)
                 for (u64 i = 0; i < _size; i++) {
@@ -78,7 +78,7 @@ namespace Quark::System::Memory {
             return *this;
         }
 
-        Optional<u64> find(u8* val, u64 size, u64 offset = 0x1)
+        Optional<u64> Find(u8* val, u64 size, u64 offset = 0x1)
         {
             if (!_size || !_base) {
                 return Empty();
@@ -100,12 +100,12 @@ namespace Quark::System::Memory {
         }
 
         template <typename TNumType>
-        Optional<u64> find(TNumType* val, u64 size, u64 offset = 0x1)
+        Optional<u64> Find(TNumType* val, u64 size, u64 offset = 0x1)
         {
-            return find((u8*)val, size * sizeof(TNumType), offset);
+            return Find((u8*)val, size * sizeof(TNumType), offset);
         }
 
-        Optional<u64> takeFront(u64 size)
+        Optional<u64> TakeFront(u64 size)
         {
             if (_size < size) {
                 return Empty();
@@ -116,7 +116,7 @@ namespace Quark::System::Memory {
             return base;
         }
 
-        Optional<u64> takeBack(u64 size)
+        Optional<u64> TakeBack(u64 size)
         {
             if (_size < size) {
                 return Empty();
@@ -125,7 +125,7 @@ namespace Quark::System::Memory {
             return _base + _size;
         }
 
-        AddressRange& innerAlign(u64 alignment)
+        AddressRange& InnerAlign(u64 alignment)
         {
             u64 limit = _base + _size;
             _base     = alignUp(_base, alignment);

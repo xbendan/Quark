@@ -7,11 +7,12 @@
 
 namespace Serial {
     using namespace Quark::System;
+    using ::Io::TextWriter;
     using Quark::System::Io::Device;
 
     class SerialPortDevice
         : public Device
-        , public ::Io::TextWriter
+        , public TextWriter
     {
     public:
         SerialPortDevice();

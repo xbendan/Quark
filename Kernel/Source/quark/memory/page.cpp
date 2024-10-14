@@ -18,13 +18,13 @@ namespace Quark::System {
         for (u8 i = 0, j = 0; i < info._addressRanges.size(); i++) {
             if (info._addressRanges[i]._type == MemmapEntry::Free)
                 (g_pageRanges[j++] = info._addressRanges[i]._range)
-                    .innerAlign(PAGE_SIZE_4K);
+                    .InnerAlign(PAGE_SIZE_4K);
         }
         auto allocPhysBlock4K = [](usize amount) -> u64 {
             alignUpRef(amount, PAGE_SIZE_4K);
             Optional<u64> address = 0;
             for (usize i = 0; i < 256; i++) {
-                if ((address = g_pageRanges[i].takeFront(amount)).IsPresent())
+                if ((address = g_pageRanges[i].TakeFront(amount)).IsPresent())
                     return address.Take();
             }
             return 0;

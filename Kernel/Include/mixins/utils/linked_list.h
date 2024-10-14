@@ -354,7 +354,7 @@ public:
         return total;
     }
 
-    TSource average()
+    TSource Average()
         requires(Computable<TSource>)
     {
         return Sum() / Count();
@@ -480,7 +480,14 @@ public:
     {
     }
 
-    Optional<TSource&> FindFirst() override { return _head->_data; }
+    Optional<TSource&> FindFirst() override
+    {
+        if (_head) {
+            return _head->_data;
+        }
+
+        return Empty();
+    }
 
     Optional<TSource&> FindFirst(Predicate<TSource const&> predicate) override
     {

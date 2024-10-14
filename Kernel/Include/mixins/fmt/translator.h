@@ -64,7 +64,7 @@ namespace fmt {
         static void toUnitType(OutputStream<UnitType> auto& stream,
                                ParameterType const&         val)
         {
-            stream.out(val.data(), val.size());
+            stream.out(val.Data(), val.Length());
         }
 
         static string toParameterType() { return {}; }
@@ -81,7 +81,7 @@ namespace fmt {
                                ParameterType const&         val)
         {
             string str(val);
-            stream.out(str.data(), str.size());
+            stream.out(str.Data(), str.Length());
         }
 
         static const char* toParameterType() { return {}; }

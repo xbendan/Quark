@@ -319,7 +319,7 @@ public:
 
     [[gnu::always_inline]]
     constexpr String(Sliceable<U> auto& other)
-        : Slice<U>(other.data(), other.size())
+        : Slice<U>(other.Data(), other.Length())
     {
     }
 
@@ -352,13 +352,13 @@ public:
     [[gnu::always_inline]]
     constexpr bool operator==(String const& other) const
     {
-        if (this->size() != other.size()) {
+        if (this->Length() != other.Length()) {
             return false;
         }
 
-        if (this->data() != other.data()) {
-            for (usize i = 0; i < this->size(); i++) {
-                if (this->data()[i] != other[i]) {
+        if (this->Data() != other.Data()) {
+            for (usize i = 0; i < this->Length(); i++) {
+                if (this->Data()[i] != other[i]) {
                     return false;
                 }
             }
@@ -372,20 +372,26 @@ public:
         return *this == String(other);
     }
 
+    [[gnu::always_inline]]
+    constexpr bool IsEmpty() const
+    {
+        return this->Length() == 0;
+    }
+
     constexpr String<E> Substring(usize begin, usize end)
     {
-        return String<E>(&(this->data()[begin]), end - begin);
+        return String<E>(&(this->Data()[begin]), end - begin);
     }
 
     constexpr String<E> Substring(usize begin)
     {
-        return Substring(begin, this->size());
+        return Substring(begin, this->Length());
     }
 
     constexpr int IndexOf(Unit u) const
     {
-        for (usize i = 0; i < this->size(); i++) {
-            if (this->data()[i] == u) {
+        for (usize i = 0; i < this->Length(); i++) {
+            if (this->Data()[i] == u) {
                 return i;
             }
         }
@@ -394,15 +400,15 @@ public:
 
     constexpr int IndexOf(String<E> const& other) const
     {
-        if (other.size() > this->size()) {
+        if (other.Length() > this->Length()) {
             return -1;
         }
 
-        for (usize i = 0; i < this->size(); i++) {
-            if (this->data()[i] == other[0]) {
+        for (usize i = 0; i < this->Length(); i++) {
+            if (this->Data()[i] == other[0]) {
                 bool found = true;
-                for (usize j = 1; j < other.size(); j++) {
-                    if (this->data()[i + j] != other[j]) {
+                for (usize j = 1; j < other.Length(); j++) {
+                    if (this->Data()[i + j] != other[j]) {
                         found = false;
                         break;
                     }

@@ -17,12 +17,12 @@ namespace Quark::System::Platform::X64 {
         void acquire()
         {
             asm volatile("cli");
-            _count.inc();
+            _count.Inc();
         }
 
         void release()
         {
-            if (_count.load() || (_count.fetchDec()) == 0) {
+            if (_count.Load() || (_count.FetchDec()) == 0) {
                 asm volatile("sti");
             }
         }

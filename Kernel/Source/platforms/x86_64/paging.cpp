@@ -314,8 +314,8 @@ namespace Quark::System::Platform::X64 {
 
     X64AddressSpace<Privilege::Level::System>::X64AddressSpace()
     {
-        AddressRange(&_pml4, sizeof(Pml4)).clear();
-        AddressRange(&_pdpt, sizeof(Pdpt)).clear();
+        AddressRange(&_pml4, sizeof(Pml4)).Clear();
+        AddressRange(&_pdpt, sizeof(Pdpt)).Clear();
 
         _pml4[pml4IndexOf(KERNEL_VIRTUAL_BASE)]
             .withFlags(Hal::VmmFlags::PRESENT | //
@@ -366,6 +366,8 @@ namespace Quark::System::Platform::X64 {
 
         _pdpt[0]  = _pdpt[pdptIndexOf(KERNEL_VIRTUAL_BASE)];
         _pml4Phys = (u64)&_pml4 - KERNEL_VIRTUAL_BASE;
+
+        asm("mov %%rax, %%cr3" ::"a"(_pml4Phys));
     }
 
     Res<u64> X64AddressSpace<Privilege::Level::System>::Alloc4KPages(

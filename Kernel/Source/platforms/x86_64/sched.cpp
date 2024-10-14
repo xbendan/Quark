@@ -39,7 +39,7 @@ namespace Quark::System::Task {
             addq $8, %%rsp
             iretq)" ::"r"(&t->_registers),
             "r"(static_cast<X64AddressSpace<Privilege::Level::System>*>(
-                    t->_process->_addressSpace)
+                    t->GetProcess()->_addressSpace)
                     ->_pml4Phys));
     }
 

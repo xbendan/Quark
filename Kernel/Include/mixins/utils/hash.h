@@ -7,7 +7,7 @@ struct Hash
 {
 public:
     Hash(string name)
-        : _salt(OfValue((u8*)name.data(), name.size()))
+        : _salt(OfValue((u8*)name.Data(), name.Length()))
     {
     }
 
@@ -36,7 +36,7 @@ public:
     template <typename THashType>
     static inline u64 OfSlice(Slice<THashType> slice)
     {
-        return OfValue((u8*)slice.data(), slice.size() * sizeof(THashType));
+        return OfValue((u8*)slice.Data(), slice.Length() * sizeof(THashType));
     }
 
 private:

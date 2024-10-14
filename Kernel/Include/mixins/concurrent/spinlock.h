@@ -24,11 +24,11 @@
 class Spinlock
 {
 public:
-    inline void acquireIntDisable() { acquireLockIntDisable(&m_lock); }
+    inline void AcquireIntDisable() { acquireLockIntDisable(&m_lock); }
 
-    inline void acquire() { acquireLock(&m_lock); }
+    inline void Acquire() { acquireLock(&m_lock); }
 
-    inline void release() { releaseLock(&m_lock); }
+    inline void Release() { releaseLock(&m_lock); }
 
 private:
     volatile int m_lock{ 0 };

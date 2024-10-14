@@ -40,13 +40,13 @@ public:
     }
 
     [[gnu::always_inline]]
-    TType exchange(TType desired, MemoryOrder order = MemoryOrderSeqCst)
+    TType Exchange(TType desired, MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_exchange_n(&m_value, desired, (int)order);
     }
 
     [[gnu::always_inline]]
-    bool compareAndExchange(TType       expected,
+    bool CompareAndExchange(TType       expected,
                             TType       desired,
                             MemoryOrder order = MemoryOrderSeqCst)
     {
@@ -63,73 +63,73 @@ public:
     }
 
     [[gnu::always_inline]]
-    TType fetchAdd(TType val, MemoryOrder order = MemoryOrderSeqCst)
+    TType FetchAdd(TType val, MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_fetch_add(&m_value, val, order);
     }
 
     [[gnu::always_inline]]
-    TType fetchSub(TType val, MemoryOrder order = MemoryOrderSeqCst)
+    TType FetchSub(TType val, MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_fetch_sub(&m_value, val, order);
     }
 
     [[gnu::always_inline]]
-    TType fetchAnd(TType val, MemoryOrder order = MemoryOrderSeqCst)
+    TType FetchAnd(TType val, MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_fetch_and(&m_value, val, order);
     }
 
     [[gnu::always_inline]]
-    TType fetchOr(TType val, MemoryOrder order = MemoryOrderSeqCst)
+    TType FetchOr(TType val, MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_fetch_or(&m_value, val, order);
     }
 
     [[gnu::always_inline]]
-    TType fetchXor(TType val, MemoryOrder order = MemoryOrderSeqCst)
+    TType FetchXor(TType val, MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_fetch_xor(&m_value, val, order);
     }
 
     [[gnu::always_inline]]
-    TType fetchInc(MemoryOrder order = MemoryOrderSeqCst)
+    TType FetchInc(MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_fetch_add(&m_value, 1, order);
     }
 
     [[gnu::always_inline]]
-    TType fetchDec(MemoryOrder order = MemoryOrderSeqCst)
+    TType FetchDec(MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_fetch_sub(&m_value, 1, order);
     }
 
     [[gnu::always_inline]]
-    void inc(MemoryOrder order = MemoryOrderSeqCst)
+    void Inc(MemoryOrder order = MemoryOrderSeqCst)
     {
         __atomic_add_fetch(&m_value, 1, order);
     }
 
     [[gnu::always_inline]]
-    void dec(MemoryOrder order = MemoryOrderSeqCst)
+    void Dec(MemoryOrder order = MemoryOrderSeqCst)
     {
         __atomic_sub_fetch(&m_value, 1, order);
     }
 
     [[gnu::always_inline]]
-    TType load(MemoryOrder order = MemoryOrderSeqCst)
+    TType Load(MemoryOrder order = MemoryOrderSeqCst)
     {
         return __atomic_load_n(&m_value, order);
     }
 
     [[gnu::always_inline]]
-    void store(TType val, MemoryOrder order = MemoryOrderSeqCst)
+    void Store(TType val, MemoryOrder order = MemoryOrderSeqCst)
     {
         __atomic_store_n(&m_value, val, order);
     }
 
     [[gnu::always_inline]]
-    bool isLockFree()
+    bool IsLockFree()
     {
         return __atomic_is_lock_free(sizeof(TType), &m_value);
     }

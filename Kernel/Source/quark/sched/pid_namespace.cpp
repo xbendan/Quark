@@ -9,16 +9,16 @@ namespace Quark::System::Task {
 
     u32 PidNamespace::NextPid()
     {
-        u32 pid = m_nextId.fetchInc();
+        u32 pid = m_nextId.FetchInc();
 
         if (pid >= m_pidmap.Size()) {
             pid = 2048;
-            m_nextId.store(pid);
+            m_nextId.Store(pid);
         }
 
         if (m_pidmap.at(pid)) {
             pid = m_pidmap.find(1);
-            m_nextId.store(pid);
+            m_nextId.Store(pid);
         }
 
         return pid;

@@ -40,9 +40,9 @@ struct Slice
 
     constexpr T const& operator[](usize i) const { return _buf[i]; }
 
-    constexpr T const* data() const { return _buf; }
+    constexpr T const* Data() const { return _buf; }
 
-    constexpr usize size() const { return _len; }
+    constexpr usize Length() const { return _len; }
 
     constexpr T const* begin() const { return _buf; }
 
