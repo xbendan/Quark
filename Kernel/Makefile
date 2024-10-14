@@ -4,7 +4,7 @@ PLATFORM = none
 BUILD_VERSION = 0.0.1
 BUILD_MODE = release
 BUILD_NAME = $(FILENAME)-v$(BUILD_VERSION)-$(PLATFORM)-$(BUILD_MODE)
-FINAL_PATH ?= /mnt/c/Users/MejiroArdan/Codes/Cxxlang/$(BUILD_NAME).iso
+FINAL_PATH ?= /mnt/d/Codes/Cxxlang/$(BUILD_NAME).iso
 BUILD_PATH = Build/platforms/$(PLATFORM)
 DIST_PATH = Dist/$(BUILD_NAME).elf
 DIST_IMAGE = Dist/$(BUILD_NAME).iso
@@ -19,10 +19,10 @@ CXXFLAGS = \
 	-std=c++23 \
 	-mcmodel=kernel \
 	-mno-red-zone \
-	-O0 \
+	-O2 \
 	-g  
 LDFLAGS = \
- 	-nostdlib -z max-page-size=0x1000  
+ 	-static -m elf_x86_64 -nostdlib -z max-page-size=0x1000  
 
 # Source files
 DIRS := $(shell find ./Source/$(FILENAME)/ -maxdepth 1 -type d)  
@@ -111,8 +111,9 @@ build-x86_64: $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_
 
 run-x86_64:
 	@echo "Running x86_64 kernel..."
-	@qemu-system-x86_64.exe -cdrom $(patsubst /mnt/c/%, C:/%, $(FINAL_PATH)) -s -S \
-		-no-reboot -no-shutdown -monitor stdio \
+	@qemu-system-x86_64.exe -cdrom $(patsubst /mnt/d/%, D:/%, $(FINAL_PATH)) -s -S \
+		-monitor stdio \
+		-cpu qemu64,+ssse3,+sse4.1,+sse4.2 \
 		-smp 4 -m 512m 
 
 clean:  

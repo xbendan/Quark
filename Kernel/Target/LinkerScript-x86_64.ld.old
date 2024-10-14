@@ -13,46 +13,41 @@ PHDRS {
 SECTIONS {
     KERNEL_VMA = 0xffffffff80000000;
 
-    . = KERNEL_VMA;
+    . = 0x100000;
+    .boot.text : { KEEP(*(.boot.text)) }
+    .boot.data : { KEEP(*(.boot.data)) }
+
+    . += KERNEL_VMA;
 
     KERNEL_START = .;
-
     .requests : {
         KEEP(*(.requests_start_marker))
         KEEP(*(.requests))
         KEEP(*(.requests_end_marker))
-    } :requests
-	
-    /* Move to the next memory page for .text */
-	
-    . = ALIGN(CONSTANT(MAXPAGESIZE));
+    } : requests
+
+    . = ALIGN(4K);
+
+    .st2hdr ALIGN(4K) : AT(ADDR(.st2hdr) - KERNEL_VMA) {
+        KEEP(*(.st2hdr))
+    }
 
     .text ALIGN(4K) : AT(ADDR(.text) - KERNEL_VMA) {
         KEEP(*(.text*))
-    } :text
-
-    /* Move to the next memory page for .rodata */
-    . = ALIGN(CONSTANT(MAXPAGESIZE));
+    }
 
     .rodata ALIGN(4K) : AT(ADDR(.rodata) - KERNEL_VMA) {
         KEEP(*(.rodata*))
-    } :rodata
-
-    /* Move to the next memory page for .data */
-    . = ALIGN(CONSTANT(MAXPAGESIZE));
+    }
 
     .data ALIGN(4K) : AT(ADDR(.data) - KERNEL_VMA) {
         KEEP(*(.data*))
-    } :data
+    }
 
-    /* NOTE: .bss needs to be the last thing mapped to :data, otherwise lots of */
-    /* unnecessary zeros will be written to the binary. */
-    /* If you need, for example, .init_array and .fini_array, those should be placed */
-    /* above this. */
     .bss ALIGN(4K) : AT(ADDR(.bss) - KERNEL_VMA) {
         KEEP(*(COMMON))
         KEEP(*(.bss*))
-    } :data
+    }
 
     KERNEL_END = .;
 
