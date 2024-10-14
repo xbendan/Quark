@@ -32,6 +32,19 @@ _lidt:
     lidt [rdi]
     ret
 
+fpu_testword: dw 0x55AA
+
+global _lfpu
+_lfpu:
+    mov eax, cr0
+    and eax, 0x2C
+    mov cr0, eax
+    fninit
+    ; fnstsw [fpu_testword]
+    ; cmp word[fpu_testword], 0
+    ; jne .no_fpu
+    ; jmp .has_fpu
+
 section .data
 global __cxa_atexit
 __cxa_atexit:
