@@ -56,6 +56,9 @@
 #define CPUID_EDX_IA64 (1 << 30)
 #define CPUID_EDX_PBE (1 << 31)
 
+#define CPUID_VENDOR 0U
+#define CPUID_FEATURES 1U
+
 #define MSR_APIC_BASE 0x1b
 #define MSR_EFER 0xC0000080
 #define MSR_STAR 0xC0000081
@@ -123,7 +126,7 @@ namespace Quark::System::Platform::X64 {
     //     TSC_AUX      = 0xC0000103,
     // };
 
-    union CPUID
+    struct CPUID
     {
         enum class Vendor
         {
@@ -144,6 +147,23 @@ namespace Quark::System::Platform::X64 {
             HEDT,
         };
 
+        enum Leaf : u32
+        {
+            Vendor           = 0,
+            Features         = 1,
+            Cache            = 2,
+            Serial           = 3,
+            Monitor          = 5,
+            Thermal          = 6,
+            Structured       = 7,
+            Extended         = 0x80000000,
+            ExtendedFeatures = 0x80000001,
+            Brand            = 0x80000002,
+            BrandMore        = 0x80000003,
+            BrandEnd         = 0x80000004,
+            AddressSize      = 0x80000008,
+        };
+
         struct
         {
             u32 _eax;
@@ -151,8 +171,7 @@ namespace Quark::System::Platform::X64 {
             u32 _ecx;
             u32 _edx;
         };
-
-        Array<char[16]> _ven;
+        // char _ven[16];
 
         CPUID(u32 leaf, u32 subleaf)
         {
@@ -161,18 +180,26 @@ namespace Quark::System::Platform::X64 {
                          : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
                          : "a"(leaf), "c"(subleaf));
             // assert leaf <= max leaf
-            if (leaf == 0) {
-                for (int i = 0; i < 4; i++) {
-                    _ven[i * 4 + 0] = ebx >> (i * 8);
-                    _ven[i * 4 + 1] = ecx >> (i * 8);
-                    _ven[i * 4 + 2] = edx >> (i * 8);
+            switch (leaf) {
+                case Leaf::Vendor: {
+                    // for (int i = 0; i < 4; i++) {
+                    //     _ven[i * 4 + 0] = ebx >> (i * 8);
+                    //     _ven[i * 4 + 1] = ecx >> (i * 8);
+                    //     _ven[i * 4 + 2] = edx >> (i * 8);
+                    // }
+                    // _edx = 0;
+                    break;
                 }
-                _edx = 0;
-            } else {
-                _eax = eax;
-                _ebx = ebx;
-                _ecx = ecx;
-                _edx = edx;
+                case Leaf::Features: {
+                    _eax = eax;
+                    _ebx = ebx;
+                    _ecx = ecx;
+                    _edx = edx;
+                    break;
+                }
+                default: {
+                    break;
+                }
             }
         }
     };
@@ -231,7 +258,7 @@ namespace Quark::System::Platform::X64 {
 
     static inline void wrcr4(u64 cr4)
     {
-        asm volatile("mov %0, %%cr4" : : "r"(cr4) : "memory");
+        asm volatile("mov %0, %%cr4" : : "r"(cr4));
     }
 
     template <u8 N>

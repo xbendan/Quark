@@ -14,6 +14,13 @@
 #include <quark/memory/address_range.h>
 #include <quark/os/main.h>
 
+extern "C"
+{
+    void _lgdt(void*);
+    void _lidt(void*);
+    void _lfpu();
+}
+
 extern "C" void
 _lgdt(void*);
 extern "C" void
@@ -75,38 +82,52 @@ namespace Quark::System {
         asm volatile("ltr %%ax" ::"a"(0x28));
 
         // Check if the system supports the required features
-        CPUID cpuid(0, 0);
+        CPUID cpuid(1, 0);
+        // u32   eax, ebx, ecx, edx;
+        // asm volatile("cpuid"
+        //              : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+        //              : "a"(1), "c"(0));
         assert(cpuid._ecx & CPUID_ECX_SSE4_2,
                "System requires [SSE4.2] to run while it's not supported");
         assert(cpuid._edx & CPUID_EDX_FPU,
                "System requires [FPU] to run while it's not supported."
-               "FPUs are coprocessors that are used to perform floating-point "
+               "FPUs are coprocessors that are used to perform floating-point"
                "operations");
         assert(cpuid._edx & CPUID_EDX_APIC,
                "System requires [APIC] to run while it's not supported, "
                "The Advanced Programmable Interrupt Controller (APIC) is a "
                "family of interrupt controllers");
-        assert(cpuid._edx & CPUID_EDX_ACPI,
-               "System requires [ACPI] to run while it's not supported, "
-               "The Advanced Configuration and Power Interface (ACPI) is an "
-               "open industry specification that defines power management and "
-               "configuration interfaces between operating systems and "
-               "hardware");
+        // WTF is this?
+        // Why the CPUID provided by QEMU doesn't have ACPI bit?
+        // assert(edx & CPUID_EDX_ACPI,
+        //        "System requires [ACPI] to run while it's not supported, "
+        //        "The Advanced Configuration and Power Interface (ACPI) is an "
+        //        "open industry specification that defines power management "
+        //        "and configuration interfaces between operating systems and "
+        //        "hardware");
         assert(cpuid._edx & CPUID_EDX_MSR,
                "System requires [MSR] to run while it's not supported, "
-               "Model-specific registers (MSRs) are special registers in the "
-               "x86 architecture");
+               "Model-specific registers (MSRs) are special registers in "
+               "the x86 architecture");
 
         // Enable FPU here
-        CR<0> cr0;
-        cr0 -= CR0_EMULATE_COPROCESSOR;
-        cr0 += (CR0_EXTENSION_TYPE | //
-                CR0_NUMERIC_ERROR |  //
-                CR0_MONITOR_COPROCESSOR);
-        CR<4> cr4;
-        cr4 += (CR4_OSFXSR |     //
-                CR4_OSXMMEXCPT | //
-                CR4_OSXSAVE);
+        // CR<0> cr0;
+        // cr0 -= CR0_EMULATE_COPROCESSOR;
+        // cr0 += (CR0_EXTENSION_TYPE | //
+        //         CR0_NUMERIC_ERROR |  //
+        //         CR0_MONITOR_COPROCESSOR);
+        // CR<4> cr4;
+        // cr4 += (CR4_OSFXSR |     //
+        //         CR4_OSXMMEXCPT | //
+        //         CR4_OSXSAVE);
+
+        _lfpu();
+
+        // u32 cr4 = rdcr4();
+        // cr4 |= (CR4_OSFXSR |     //
+        //         CR4_OSXMMEXCPT | //
+        //         CR4_OSXSAVE);
+        // wrcr4(cr4);
 
         return Ok();
     }

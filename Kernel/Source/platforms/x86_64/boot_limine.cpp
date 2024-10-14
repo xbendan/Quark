@@ -70,11 +70,9 @@ extern "C"
     __attribute__((used,
                    section(".requests_end_marker"))) //
     static volatile LIMINE_REQUESTS_END_MARKER;
-}
 
-extern "C" [[noreturn]]
-void
-kload_limine(void)
+    [[noreturn]]
+    void kload_limine(void)
 {
     LaunchConfiguration& conf = Quark::System::getLaunchConfiguration();
 
@@ -120,9 +118,10 @@ kload_limine(void)
                 break;
             }
             case LIMINE_MEMMAP_FRAMEBUFFER: {
-                // LinearFramebufferDevice* fb = new LinearFramebufferDevice();
-                // fb->init(entry->base, entry->length, 0, 0, 0);
-                // conf._graphics._framebuffer = fb;
+                    // LinearFramebufferDevice* fb = new
+                    // LinearFramebufferDevice(); fb->init(entry->base,
+                    // entry->length, 0, 0, 0); conf._graphics._framebuffer =
+                    // fb;
                 mapEntry._type = MemmapEntry::Type::Data;
                 break;
             }
@@ -133,4 +132,14 @@ kload_limine(void)
 
     while (true)
         asm volatile("hlt; pause;");
+}
+
+    __attribute__((used,
+                   section(".requests"))) //
+    static volatile limine_entry_point_request lmReqEntryPoint{
+        .id       = LIMINE_ENTRY_POINT_REQUEST,
+        .revision = 0,
+        .response = {},
+        .entry    = kload_limine,
+    };
 }

@@ -40,17 +40,22 @@ namespace Quark::System::Io {
         };
 
         Device(string name)
-            : m_name(name)
-            , m_deviceType(Type::Unknown)
+            : Device(name, UUID::FromName(name), Type::Unknown)
         {
             // _uuid = UUID::generate();
         }
 
         Device(string name, Type deviceType)
-            : m_name(name)
-            , m_deviceType(deviceType)
+            : Device(name, UUID::FromName(name), deviceType)
         {
             // _uuid = UUID::generate();
+        }
+
+        Device(string name, UUID uuid, Type deviceType)
+            : m_name(name)
+            , m_uniqueId(uuid)
+            , m_deviceType(deviceType)
+        {
         }
 
         ~Device()

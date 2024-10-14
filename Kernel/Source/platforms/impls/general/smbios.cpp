@@ -14,11 +14,11 @@ namespace Quark::System::Hal {
         Memory::AddressRange range(address, 0x10000);
 
         Optional<u64> result;
-        if ((result = range.find(__signatureL2, 4, 0x10)).IsPresent()) {
+        if ((result = range.Find(__signatureL2, 4, 0x10)).IsPresent()) {
             m_majorVer   = 2;
             m_smbiosInfo = (void*)result.Take();
             log(u8"[SMBIOS] Found SMBIOS 2.0 at %p\n", m_smbiosInfo);
-        } else if ((result = range.find(__signatureL3, 5, 0x10)).IsPresent()) {
+        } else if ((result = range.Find(__signatureL3, 5, 0x10)).IsPresent()) {
             m_majorVer   = 3;
             m_smbiosInfo = (void*)result.Take();
             log(u8"[SMBIOS] Found SMBIOS 3.0 at %p\n", m_smbiosInfo);

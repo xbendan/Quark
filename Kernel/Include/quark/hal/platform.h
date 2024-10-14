@@ -34,8 +34,8 @@ namespace Quark::System::Hal {
         } _bitWidth;
         enum Features : u8
         {
-            AddressSpaceIsolation,
-            ProcessContextSwitch,
+            AddressSpaceIsolation = 1 << 0,
+            ProcessContextSwitch  = 1 << 1,
         };
         Flags<Features> _features;
     };

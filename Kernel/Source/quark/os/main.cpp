@@ -4,8 +4,11 @@
 #include <mixins/std/panic.h>
 #include <quark/api/logging.h>
 
+#include <drivers/comm/device.h>
+
 namespace Quark::System {
-    LaunchConfiguration launchConfig;
+    LaunchConfiguration      launchConfig;
+    Serial::SerialPortDevice serial;
 
     LaunchConfiguration& getLaunchConfiguration()
     {
@@ -16,6 +19,8 @@ namespace Quark::System {
     void SetupKernel(LaunchConfiguration* conf)
     {
         Hal::Platform& platform = conf->_platform;
+
+        new (&serial) Serial::SerialPortDevice();
         log(u8"Setting up kernel...");
 
         log(u8"Initializing architecture-specific features...");
