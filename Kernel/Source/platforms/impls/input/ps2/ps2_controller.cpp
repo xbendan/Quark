@@ -20,8 +20,8 @@ namespace PS2 {
         Device::FindByName<ACPI::ControllerDevice>(
             "Advanced Configuration & Power Interface Controller")
             .IfPresent([&](ACPI::ControllerDevice* device) {
-                fadt = device->FindTable<ACPI::FixedAcpiDescTable>("FACP")
-                           .Unwrap();
+                fadt =
+                    device->FindTable<ACPI::FixedAcpiDescTable>("FACP").Take();
             });
         if (fadt == nullptr) {
             return Error::DeviceFault("FADT table not found.");

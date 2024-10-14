@@ -19,8 +19,8 @@ namespace PCI {
 
         auto table = acpi.Take()->FindTable<ACPI::PCIExpressSpecTable>("MCFG");
 
-        if (table.IsOkay()) {
-            m_pciExpressTable = table.Unwrap();
+        if (table.IsPresent()) {
+            m_pciExpressTable = table.Take();
             m_accessMode      = ConfigAccessMode::Enhanced;
         } else
             m_accessMode = ConfigAccessMode::Legacy;

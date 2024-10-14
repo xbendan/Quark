@@ -23,9 +23,9 @@ namespace APIC {
 
         Device::FindByName<ACPI::ControllerDevice>("ACPI Management Device")
             .IfPresent([&madt](ACPI::ControllerDevice* acpi) {
-                Res<ACPI::MADT*> opt = acpi->FindTable<ACPI::MADT>("APIC");
-                if (opt.IsOkay())
-                    madt = opt.Unwrap("MADT table not found.");
+                Optional<ACPI::MADT*> opt = acpi->FindTable<ACPI::MADT>("APIC");
+                if (opt.IsPresent())
+                    madt = opt.Take("MADT table not found.");
             });
         if (madt == nullptr)
             return Error::DeviceFault("MADT table not found.");

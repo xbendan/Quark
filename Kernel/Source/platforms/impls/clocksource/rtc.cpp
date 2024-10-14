@@ -13,7 +13,7 @@ namespace CMOS {
                     [](ACPI::ControllerDevice* acpi) {
                         return acpi ? acpi->FindTable<ACPI::FixedAcpiDescTable>(
                                               "FADT")
-                                          .Unwrap()
+                                          .Take()
                                     : nullptr;
                     })
                 .Take();
@@ -86,7 +86,13 @@ namespace CMOS {
         }
     }
 
-    Date RealTimeClockDevice::Current()
+    void RealTimeClockDevice::Sleep(u64 ms) {}
+
+    void RealTimeClockDevice::SleepNanos(u64 ms) {}
+
+    void RealTimeClockDevice::SleepUntil(Date date) {}
+
+    Date RealTimeClockDevice::GetToday()
     {
         u8 cen, year, month, day, hours, minutes, seconds;
         u8 regb;
@@ -131,7 +137,13 @@ namespace CMOS {
         return Date(fullyear, month, day, hours, minutes, seconds, 0);
     }
 
-    void RealTimeClockDevice::Sleep(u64 ms) {}
+    u64 RealTimeClockDevice::GetSystemUptime()
+    {
+        return 0;
+    }
 
-    void RealTimeClockDevice::SleepUntil(Date date) {}
+    u64 RealTimeClockDevice::GetTimestamp()
+    {
+        return GetToday().GetAsTimestamp();
+    }
 }
