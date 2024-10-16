@@ -2,20 +2,16 @@
 
 #include <mixins/std/c++types.h>
 #include <mixins/utils/flags.h>
+#include <quark/hal/definition.h>
+
+#if defined(__x86_64__)
+#include <platforms/x86_64/paging.h>
+#elif defined(__aarch64__)
+
+#elif defined(__risv__)
+
+#endif
 
 namespace Quark::System::Hal {
-    enum class VmmFlags : u64
-    {
-        PRESENT = 0,
-        WRITABLE,
-        USER,
-        WRITE_THROUGH,
-        CACHE_DISABLED,
-        ACCESSED,
-        DIRTY,
-        PAGE_SIZE,
-        GLOBAL,
-        DISABLE_EXECUTE
-    };
-    MakeFlags$(VmmFlags);
+    using VmmFlags = Quark::System::Platform::__ARCH_NAMESPACE::VmmFlags;
 } // namespace Quark::System::Hal

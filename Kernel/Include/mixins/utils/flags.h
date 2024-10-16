@@ -7,22 +7,22 @@
     inline T operator~(T rhs)                                                  \
     {                                                                          \
         using U = Std::UnderlyingType<T>;                                      \
-        return (T) ~(1 << (U)rhs);                                             \
+        return (T) ~(U)rhs;                                                    \
     }                                                                          \
     inline T operator|(T lhs, T rhs)                                           \
     {                                                                          \
         using U = Std::UnderlyingType<T>;                                      \
-        return (T)((1 << (U)lhs) | (1 << (U)rhs));                             \
+        return (T)((U)lhs | (U)rhs);                                           \
     }                                                                          \
     inline T operator&(T lhs, T rhs)                                           \
     {                                                                          \
         using U = Std::UnderlyingType<T>;                                      \
-        return (T)((1 << (U)lhs) & (1 << (U)rhs));                             \
+        return (T)((U)lhs & (U)rhs);                                           \
     }                                                                          \
     inline T operator^(T lhs, T rhs)                                           \
     {                                                                          \
         using U = Std::UnderlyingType<T>;                                      \
-        return (T)((1 << (U)lhs) ^ (1 << (U)rhs));                             \
+        return (T)((U)lhs ^ (U)rhs);                                           \
     }                                                                          \
     inline T& operator|=(T& lhs, T rhs)                                        \
     {                                                                          \
@@ -63,7 +63,7 @@ public:
 
     Flags<E>& operator|=(E rhs)
     {
-        _flags |= (1 << (U)rhs);
+        _flags |= (U)rhs;
         return *this;
     }
 
@@ -75,7 +75,7 @@ public:
 
     Flags<E>& operator&=(E rhs)
     {
-        _flags &= (1 << (U)rhs);
+        _flags &= (U)rhs;
         return *this;
     }
 
@@ -87,7 +87,7 @@ public:
 
     Flags<E>& operator^=(E rhs)
     {
-        _flags ^= (1 << (U)rhs);
+        _flags ^= (U)rhs;
         return *this;
     }
 
@@ -115,13 +115,13 @@ public:
 
     bool operator!=(E rhs) { return _flags != (U)rhs; }
 
-    bool has(E flag) { return _flags & (1 << (U)flag); }
+    bool has(E flag) { return _flags & (U)flag; }
 
-    bool hasNot(E flag) { return !(_flags & (1 << (U)flag)); }
+    bool hasNot(E flag) { return !(_flags & (U)flag); }
 
-    void set(E flag) { _flags |= (1 << (U)flag); }
+    void set(E flag) { _flags |= (U)flag; }
 
-    void clear(E flag) { _flags &= ~(1 << (U)flag); }
+    void clear(E flag) { _flags &= ~(U)flag; }
 
 private:
     U _flags;

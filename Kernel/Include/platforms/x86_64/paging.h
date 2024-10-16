@@ -1,284 +1,223 @@
+#pragma once
+
 #include <mixins/std/c++types.h>
 #include <mixins/utils/array.h>
 #include <mixins/utils/bitmap.h>
-#include <quark/hal/vmm.h>
-#include <quark/memory/address_space.h>
-#include <quark/privilege/user.h>
+#include <mixins/utils/flags.h>
 
 #define VMM_PAGE_ADDRESS_MASK 0x0000fffffffff000
 #define VMM_PAGE_ENTRY_COUNT 512
 
+#define PML4_GET_INDEX(addr) ((addr >> 39) & 0x1FF)
+#define PDPT_GET_INDEX(addr) ((addr >> 30) & 0x1FF)
+#define PDIR_GET_INDEX(addr) ((addr >> 21) & 0x1FF)
+#define PAGE_GET_INDEX(addr) ((addr >> 12) & 0x1FF)
+#define PAGE_OFFSET_MASK 0x0000000000000FFF
+
+#define VMM_PAGE_PRESENT (1 << 0)
+#define VMM_PAGE_WRITABLE (1 << 1)
+#define VMM_PAGE_USER (1 << 2)
+#define VMM_PAGE_WRITE_THROUGH (1 << 3)
+#define VMM_PAGE_CACHE_DISABLED (1 << 4)
+#define VMM_PAGE_ACCESSED (1 << 5)
+#define VMM_PAGE_DIRTY (1 << 6)
+#define VMM_PAGE_PAGE_SIZE (1 << 7)
+#define VMM_PAGE_GLOBAL (1 << 7)
+#define VMM_PAGE_DISABLE_EXECUTE (1 << 11)
+
+#define KERNEL_BASE_PML4_INDEX PML4_GET_INDEX(KERNEL_VIRTUAL_BASE)
+#define KERNEL_BASE_PDPT_INDEX PDPT_GET_INDEX(KERNEL_VIRTUAL_BASE)
+#define KERNEL_HEAP_PDPT_INDEX 511
+
 namespace Quark::System::Platform::X64 {
-    using namespace Quark::System::Memory;
+    using pageflags_t = u64;
+    using pml4_t      = pageflags_t[VMM_PAGE_ENTRY_COUNT];
+    using pdpt_t      = pageflags_t[VMM_PAGE_ENTRY_COUNT];
+    using pagedir_t   = pageflags_t[VMM_PAGE_ENTRY_COUNT];
+    using pagetbl_t   = pageflags_t[VMM_PAGE_ENTRY_COUNT];
 
-    template <u8 _Lv>
-    class MapLevel
+    enum class VmmFlags : u64
     {
-    public:
-        union Entry
-        {
-            u64 _flags;
-
-            struct
-            {
-                u64 _present : 1;
-                u64 _writable : 1;
-                u64 _user : 1;
-                u64 _writeThrough : 1;
-                u64 _cacheDisabled : 1;
-                u64 _accessed : 1;
-                u64 _dirty : 1;
-                u64 _pageSize : 1;
-                u64 _global : 1;
-                u64 __reserved__2 : 3;
-                u64 _address : 40;
-                u64 __reserved__3 : 11;
-                u64 _disableExecute : 1;
-            } __attribute__((packed));
-
-            Entry& withFlags(Hal::VmmFlags flags, bool set = true)
-            {
-                switch (flags) {
-                    case Hal::VmmFlags::PRESENT:
-                        _present = set;
-                        break;
-                    case Hal::VmmFlags::WRITABLE:
-                        _writable = set;
-                        break;
-                    case Hal::VmmFlags::USER:
-                        _user = set;
-                        break;
-                    case Hal::VmmFlags::WRITE_THROUGH:
-                        _writeThrough = set;
-                        break;
-                    case Hal::VmmFlags::CACHE_DISABLED:
-                        _cacheDisabled = set;
-                        break;
-                    case Hal::VmmFlags::ACCESSED:
-                        _accessed = set;
-                        break;
-                    case Hal::VmmFlags::DIRTY:
-                        _dirty = set;
-                        break;
-                    case Hal::VmmFlags::PAGE_SIZE:
-                        _pageSize = set;
-                        break;
-                    case Hal::VmmFlags::GLOBAL:
-                        _global = set;
-                        break;
-                    case Hal::VmmFlags::DISABLE_EXECUTE:
-                        _disableExecute = set;
-                        break;
-                }
-                return *this;
-            }
-
-            Entry& withFlags(Flags<Hal::VmmFlags> flags, bool set = true)
-            {
-                _present        = flags & Hal::VmmFlags::PRESENT;
-                _writable       = flags & Hal::VmmFlags::WRITABLE;
-                _user           = flags & Hal::VmmFlags::USER;
-                _writeThrough   = flags & Hal::VmmFlags::WRITE_THROUGH;
-                _cacheDisabled  = flags & Hal::VmmFlags::CACHE_DISABLED;
-                _accessed       = flags & Hal::VmmFlags::ACCESSED;
-                _dirty          = flags & Hal::VmmFlags::DIRTY;
-                _pageSize       = flags & Hal::VmmFlags::PAGE_SIZE;
-                _global         = flags & Hal::VmmFlags::GLOBAL;
-                _disableExecute = flags & Hal::VmmFlags::DISABLE_EXECUTE;
-
-                return *this;
-            }
-
-            Entry& clearFlags(Flags<Hal::VmmFlags> flags)
-            {
-                _present        = !(flags & Hal::VmmFlags::PRESENT);
-                _writable       = !(flags & Hal::VmmFlags::WRITABLE);
-                _user           = !(flags & Hal::VmmFlags::USER);
-                _writeThrough   = !(flags & Hal::VmmFlags::WRITE_THROUGH);
-                _cacheDisabled  = !(flags & Hal::VmmFlags::CACHE_DISABLED);
-                _accessed       = !(flags & Hal::VmmFlags::ACCESSED);
-                _dirty          = !(flags & Hal::VmmFlags::DIRTY);
-                _pageSize       = !(flags & Hal::VmmFlags::PAGE_SIZE);
-                _global         = !(flags & Hal::VmmFlags::GLOBAL);
-                _disableExecute = !(flags & Hal::VmmFlags::DISABLE_EXECUTE);
-
-                return *this;
-            }
-
-            Entry& withAddress(u64 address)
-            {
-                _address = address & VMM_PAGE_ADDRESS_MASK;
-                return *this;
-            }
-
-        } __attribute__((packed)) _entries[VMM_PAGE_ENTRY_COUNT];
-
-        static_assert(sizeof(MapLevel<_Lv>::Entry) == 8);
-
-        constexpr static usize _len = 512;
-
-        Entry& operator[](usize index) { return _entries[index]; }
-
-        const Entry& operator[](usize index) const { return _entries[index]; }
+        PRESENT         = (1 << 0),
+        WRITABLE        = (1 << 1),
+        USER            = (1 << 2),
+        WRITE_THROUGH   = (1 << 3),
+        CACHE_DISABLED  = (1 << 4),
+        ACCESSED        = (1 << 5),
+        DIRTY           = (1 << 6),
+        PAGE_SIZE       = (1 << 7),
+        GLOBAL          = (1 << 7),
+        DISABLE_EXECUTE = (1 << 11),
     };
+    MakeFlags$(VmmFlags);
 
-    using Pml4      = MapLevel<4>; // Page Map Level 4, 256 TiB
-    using Pdpt      = MapLevel<3>; // Page Directory Pointer Table, 512 GiB
-    using PageDir   = MapLevel<2>; // Page Directory, 1 GiB
-    using PageTable = MapLevel<1>; // Page Table, 2 MiB
-
-    template <Privilege::Level>
-    class X64AddressSpace;
-
-    template <>
-    class X64AddressSpace<Privilege::Level::User> : public AddressSpace
+    constexpr inline void SetPageFrame(pageflags_t& pf, u64 address, u64 flags)
     {
-    public:
-        X64AddressSpace();
-        ~X64AddressSpace();
-
-        Res<u64> Alloc4KPages(
-            usize amount, //
-            Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
-                                   Hal::VmmFlags::WRITABLE |
-                                   Hal::VmmFlags::USER) override;
-        Res<u64> Alloc2MPages(
-            usize amount, //
-            Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
-                                   Hal::VmmFlags::WRITABLE |
-                                   Hal::VmmFlags::USER) override;
-
-        Res<> Free4KPages(u64   address, //
-                          usize amount) override;
-        Res<> Free2MPages(u64   address, //
-                          usize amount) override;
-
-        Res<> Map4KPages(u64                  phys, //
-                         u64                  virt,
-                         usize                amount,
-                         Flags<Hal::VmmFlags> flags) override;
-        Res<> Map2MPages(u64                  phys, //
-                         u64                  virt,
-                         usize                amount,
-                         Flags<Hal::VmmFlags> flags) override;
-
-        Res<Flags<Hal::VmmFlags>> getFlags(u64 address) override;
-        Res<>                     setFlags(u64                  address,
-                                           Flags<Hal::VmmFlags> flags,
-                                           bool                 set = true) override;
-        // Res<Flags<Hal::VmmFlags>> setFlagsThenGet(u64 address,
-        //                                           Flags<Hal::VmmFlags> flags,
-        //                                           bool set = true) override;
-
-        Res<u64> GetPhysAddress(u64 address) override;
-
-        Pml4                     _pml4;
-        Pdpt                     _pdpt;
-        /*
-            Theoretically, a program can take up to 512 gigabytes space.
-            This is exactly the size of a page directory pointer table, aka
-            PDPT, which is 4096 bytes * 512 entries (a page table) * 512 entries
-            (a page directory) * 512 entries (a page directory pointer table) =
-            512 GB.
-
-            This _pageDirs pointer will actually point to an array of pointers,
-            each of which points to a page directory table.
-         */
-        Array<PageDir* [512]>    _pageDirs;
-        /*
-            _pageTables is a two-dimensional array of pointers, each of which
-            points to a page table. The first dimension is the index of the
-            page directory pointer table, and the second dimension is the index
-            of the page directory table.
-         */
-        Array<PageTable** [512]> _pageTables;
-
-        u64   _pml4Phys;
-        Pdpt* _pdptPhys;
-        Pdpt* _pdptKern;
-
-        void*   _zeroPage;
-        /*
-            For each user-mode address space, the bitmap is used to track the
-            allocated pages. In total, each address space can take up to 512
-            gigabytes space, which is 512 * 1024 * 1024 * 1024 / 4096 =
-            134,217,728 pages. This means that the bitmap could also take up to
-            134,217,728 / 8 = 16,777,216 bytes = 16 megabytes. This is a huge
-            amount of memory, consider that not all of the pages are used.
-            Therefore, we use a two-dimensional array to track it. Each time we
-            allocate 4 pages (16384 bytes) for the record, these pages can track
-            about 16384 * 8 = 131,072 pages, hence the 2D array is exactly
-            equals to "u64 array[16384 / 8][1024]"
-         */
-        Bitmap* _bitmap;
-    };
-
-    template <>
-    class X64AddressSpace<Privilege::Level::System> : public AddressSpace
-    {
-    public:
-        X64AddressSpace();
-        ~X64AddressSpace() = default;
-
-        Res<u64> Alloc4KPages(
-            usize amount, //
-            Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
-                                   Hal::VmmFlags::WRITABLE) override;
-        Res<u64> Alloc2MPages(
-            usize amount, //
-            Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
-                                   Hal::VmmFlags::WRITABLE) override;
-
-        Res<> Map4KPages(u64                  phys, //
-                         u64                  virt,
-                         usize                amount,
-                         Flags<Hal::VmmFlags> flags) override;
-        Res<> Map2MPages(u64                  phys, //
-                         u64                  virt,
-                         usize                amount,
-                         Flags<Hal::VmmFlags> flags) override;
-
-        Res<> Free4KPages(u64   address, //
-                          usize amount) override;
-        Res<> Free2MPages(u64   address, //
-                          usize amount) override;
-
-        Res<Flags<Hal::VmmFlags>> getFlags(u64 address) override;
-        Res<>                     setFlags(u64                  address, //
-                                           Flags<Hal::VmmFlags> flags,
-                                           bool                 set = true) override;
-        // Res<Flags<Hal::VmmFlags>> setFlagsThenGet(u64 address,
-        //                                           Flags<Hal::VmmFlags> flags,
-        //                                           bool set = true) override;
-
-        Res<u64> GetPhysAddress(u64 address) override;
-
-        Pml4                     _pml4;
-        Pdpt                     _pdpt;
-        Array<PageDir* [512]>    _pageDirs;
-        Array<PageTable** [512]> _pageTables;
-
-        u64 _pml4Phys;
-    };
-
-    inline constexpr u16 pml4IndexOf(u64 addr)
-    {
-        return (addr >> 39) & 0x1FF;
+        pf = (pf & ~VMM_PAGE_ADDRESS_MASK) | (address & VMM_PAGE_ADDRESS_MASK) |
+             (flags & ~VMM_PAGE_ADDRESS_MASK);
     }
 
-    inline constexpr u16 pdptIndexOf(u64 addr)
+    inline void SetPageFrame(pageflags_t&    pf,
+                             u64             address,
+                             Flags<VmmFlags> flags)
     {
-        return (addr >> 30) & 0x1FF;
+        u64 _flags = (flags() & ~VMM_PAGE_ADDRESS_MASK) |
+                     (address & VMM_PAGE_ADDRESS_MASK);
+        pf = _flags;
     }
 
-    inline constexpr u16 pdirIndexOf(u64 addr)
+    inline void SetPageFlags(pageflags_t&    pf,
+                             Flags<VmmFlags> flags,
+                             bool            set = true)
     {
-        return (addr >> 21) & 0x1FF;
+        u64 _flags = flags() & ~VMM_PAGE_ADDRESS_MASK;
+        pf         = set ? (pf | _flags) : (pf & ~_flags);
     }
 
-    inline constexpr u16 pageIndexOf(u64 addr)
+    template <typename T>
+    inline T* AllocatePageTable()
     {
-        return (addr >> 12) & 0x1FF;
+        return (T*)new pageflags_t[VMM_PAGE_ENTRY_COUNT];
     }
+}
+
+namespace Quark::System::Platform::X64 {
+
+    // template <u8 _Lv>
+    // class MapLevel
+    // {
+    // public:
+    //     union Entry
+    //     {
+    //         u64 _flags;
+
+    //         struct
+    //         {
+    //             u64 _present : 1;
+    //             u64 _writable : 1;
+    //             u64 _user : 1;
+    //             u64 _writeThrough : 1;
+    //             u64 _cacheDisabled : 1;
+    //             u64 _accessed : 1;
+    //             u64 _dirty : 1;
+    //             u64 _pageSize : 1;
+    //             u64 _global : 1;
+    //             u64 __reserved__2 : 3;
+    //             u64 _address : 40;
+    //             u64 __reserved__3 : 11;
+    //             u64 _disableExecute : 1;
+    //         } __attribute__((packed));
+
+    //         Entry& WithFlags(VmmFlags flags, bool set = true)
+    //         {
+    //             switch (flags) {
+    //                 case VmmFlags::PRESENT:
+    //                     _present = set;
+    //                     break;
+    //                 case VmmFlags::WRITABLE:
+    //                     _writable = set;
+    //                     break;
+    //                 case VmmFlags::USER:
+    //                     _user = set;
+    //                     break;
+    //                 case VmmFlags::WRITE_THROUGH:
+    //                     _writeThrough = set;
+    //                     break;
+    //                 case VmmFlags::CACHE_DISABLED:
+    //                     _cacheDisabled = set;
+    //                     break;
+    //                 case VmmFlags::ACCESSED:
+    //                     _accessed = set;
+    //                     break;
+    //                 case VmmFlags::DIRTY:
+    //                     _dirty = set;
+    //                     break;
+    //                 case VmmFlags::PAGE_SIZE:
+    //                     _pageSize = set;
+    //                     break;
+    //                 case VmmFlags::GLOBAL:
+    //                     _global = set;
+    //                     break;
+    //                 case VmmFlags::DISABLE_EXECUTE:
+    //                     _disableExecute = set;
+    //                     break;
+    //             }
+    //             return *this;
+    //         }
+
+    //         Entry& withFlags(Flags<VmmFlags> flags, bool set = true)
+    //         {
+    //             _present        = flags & VmmFlags::PRESENT;
+    //             _writable       = flags & VmmFlags::WRITABLE;
+    //             _user           = flags & VmmFlags::USER;
+    //             _writeThrough   = flags & VmmFlags::WRITE_THROUGH;
+    //             _cacheDisabled  = flags & VmmFlags::CACHE_DISABLED;
+    //             _accessed       = flags & VmmFlags::ACCESSED;
+    //             _dirty          = flags & VmmFlags::DIRTY;
+    //             _pageSize       = flags & VmmFlags::PAGE_SIZE;
+    //             _global         = flags & VmmFlags::GLOBAL;
+    //             _disableExecute = flags & VmmFlags::DISABLE_EXECUTE;
+
+    //             return *this;
+    //         }
+
+    //         Entry& clearFlags(Flags<VmmFlags> flags)
+    //         {
+    //             _present        = !(flags & VmmFlags::PRESENT);
+    //             _writable       = !(flags & VmmFlags::WRITABLE);
+    //             _user           = !(flags & VmmFlags::USER);
+    //             _writeThrough   = !(flags & VmmFlags::WRITE_THROUGH);
+    //             _cacheDisabled  = !(flags & VmmFlags::CACHE_DISABLED);
+    //             _accessed       = !(flags & VmmFlags::ACCESSED);
+    //             _dirty          = !(flags & VmmFlags::DIRTY);
+    //             _pageSize       = !(flags & VmmFlags::PAGE_SIZE);
+    //             _global         = !(flags & VmmFlags::GLOBAL);
+    //             _disableExecute = !(flags & VmmFlags::DISABLE_EXECUTE);
+
+    //             return *this;
+    //         }
+
+    //         Entry& WithAddress(u64 address)
+    //         {
+    //             _address = address & VMM_PAGE_ADDRESS_MASK;
+    //             return *this;
+    //         }
+
+    //     } __attribute__((packed)) _entries[VMM_PAGE_ENTRY_COUNT];
+
+    //     static_assert(sizeof(MapLevel<_Lv>::Entry) == 8);
+
+    //     constexpr static usize _len = 512;
+
+    //     Entry& operator[](usize index) { return _entries[index]; }
+
+    //     const Entry& operator[](usize index) const { return _entries[index];
+    //     }
+    // };
+
+    // using Pml4      = MapLevel<4>; // Page Map Level 4, 256 TiB
+    // using Pdpt      = MapLevel<3>; // Page Directory Pointer Table, 512 GiB
+    // using PageDir   = MapLevel<2>; // Page Directory, 1 GiB
+    // using PageTable = MapLevel<1>; // Page Table, 2 MiB
+
+    // inline constexpr u16 pml4IndexOf(u64 addr)
+    // {
+    //     return (addr >> 39) & 0x1FF;
+    // }
+
+    // inline constexpr u16 pdptIndexOf(u64 addr)
+    // {
+    //     return (addr >> 30) & 0x1FF;
+    // }
+
+    // inline constexpr u16 pdirIndexOf(u64 addr)
+    // {
+    //     return (addr >> 21) & 0x1FF;
+    // }
+
+    // inline constexpr u16 pageIndexOf(u64 addr)
+    // {
+    //     return (addr >> 12) & 0x1FF;
+    // }
 
 } // namespace Quark::System::Platform::X64

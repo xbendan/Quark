@@ -111,17 +111,7 @@ namespace Quark::System {
                "the x86 architecture");
 
         // Enable FPU here
-        // CR<0> cr0;
-        // cr0 -= CR0_EMULATE_COPROCESSOR;
-        // cr0 += (CR0_EXTENSION_TYPE | //
-        //         CR0_NUMERIC_ERROR |  //
-        //         CR0_MONITOR_COPROCESSOR);
-        // CR<4> cr4;
-        // cr4 += (CR4_OSFXSR |     //
-        //         CR4_OSXMMEXCPT | //
-        //         CR4_OSXSAVE);
-
-        _lfpu();
+        // _lfpu();
 
         // u32 cr4 = rdcr4();
         // cr4 |= (CR4_OSFXSR |     //

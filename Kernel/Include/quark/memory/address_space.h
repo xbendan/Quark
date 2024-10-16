@@ -5,7 +5,6 @@
 #include <mixins/utils/array.h>
 #include <quark/hal/vmm.h>
 #include <quark/privilege/user.h>
-// #include <quark/memory/page.h>
 
 #define KERNEL_VIRTUAL_BASE 0xffffffff80000000
 #define IO_VIRTUAL_BASE (KERNEL_VIRTUAL_BASE - 0x100000000)

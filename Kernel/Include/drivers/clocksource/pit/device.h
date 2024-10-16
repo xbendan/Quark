@@ -3,7 +3,7 @@
 #include <mixins/utils/linked_list.h>
 #include <quark/clocksource/timer.h>
 #include <quark/dev/device.h>
-#include <quark/hal/definition.h>
+#include <quark/hal/interrupts.h>
 #include <quark/hal/ports.h>
 
 namespace PIT {

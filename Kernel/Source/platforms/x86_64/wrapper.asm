@@ -34,17 +34,20 @@ _lidt:
 
 fpu_testword: dw 0x55AA
 
+[bits 32]
 global _lfpu
 _lfpu:
     mov eax, cr0
     and eax, 0x2C
     mov cr0, eax
     fninit
+    ret
     ; fnstsw [fpu_testword]
     ; cmp word[fpu_testword], 0
     ; jne .no_fpu
     ; jmp .has_fpu
 
+[bits 64]
 section .data
 global __cxa_atexit
 __cxa_atexit:

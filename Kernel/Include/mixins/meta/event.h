@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/concurrent/spinlock.h>
 #include <mixins/meta/func.h>
 #include <mixins/meta/inert.h>
