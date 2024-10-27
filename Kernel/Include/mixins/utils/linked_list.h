@@ -9,6 +9,13 @@
 #include <mixins/utils/iterator.h>
 
 template <typename TSource>
+struct LinkedNode
+{
+    TSource* _prev;
+    TSource* _next;
+};
+
+template <typename TSource>
 class LinkedList : public IList<TSource>
 {
     using TSourceReference =
@@ -573,7 +580,7 @@ public:
     Optional<TSource> TakeFirst(Predicate<TSource const&> predicate)
     {
         if (_size == 0) {
-            Std::panic("Sequence contains no elements");
+            Std::SystemPanic("Sequence contains no elements");
         }
 
         Node* node = _head;
@@ -633,7 +640,7 @@ public:
     TSource& Single() override
     {
         if (_size != 1) {
-            Std::panic("Sequence contains more than one element");
+            Std::SystemPanic("Sequence contains more than one element");
         }
         return _head->_data;
     }
@@ -643,7 +650,7 @@ public:
     TSource& SingleOrDefault(TSource const& defaultValue) override
     {
         if (_size > 1) {
-            Std::panic("Sequence contains more than one element");
+            Std::SystemPanic("Sequence contains more than one element");
         }
         if (_size == 0) {
             return const_cast<TSource&>(defaultValue);
@@ -800,7 +807,7 @@ public:
     TSource& operator[](usize const& index) override
     {
         if (index >= _size)
-            Std::panic(Error::IndexOutOfBounds("Index out of bounds"));
+            Std::ThrowError(Error::IndexOutOfBounds("Index out of bounds"));
 
         usize i    = index;
         Node* node = _head;
@@ -813,7 +820,7 @@ public:
     TSource const& operator[](usize const& index) const override
     {
         if (index >= _size)
-            Std::panic(Error::IndexOutOfBounds("Index out of bounds"));
+            Std::ThrowError(Error::IndexOutOfBounds("Index out of bounds"));
 
         usize i    = index;
         Node* node = _head;

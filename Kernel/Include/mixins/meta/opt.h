@@ -159,7 +159,7 @@ struct [[nodiscard]] Optional<T>
     constexpr T operator*()
     {
         if (!_present)
-            Std::panic("No value present");
+            Std::SystemPanic("No value present");
 
         return *_value;
     }
@@ -168,7 +168,7 @@ struct [[nodiscard]] Optional<T>
     constexpr T const& operator*() const
     {
         if (!_present)
-            Std::panic("No value present");
+            Std::SystemPanic("No value present");
 
         return *_value;
     }
@@ -177,7 +177,7 @@ struct [[nodiscard]] Optional<T>
     constexpr T Get(const char* msg = "No value present")
     {
         if (!_present)
-            Std::panic(msg);
+            Std::SystemPanic(msg);
 
         return *_value;
     }
@@ -192,7 +192,7 @@ struct [[nodiscard]] Optional<T>
     constexpr T Take(const char* msg = "No value present")
     {
         if (!_present)
-            Std::panic(msg);
+            Std::SystemPanic(msg);
 
         T v = *_value;
         Clear();
@@ -396,7 +396,7 @@ struct [[nodiscard]] Optional
     constexpr T& operator*()
     {
         if (!_present)
-            Std::panic("No value present");
+            Std::SystemPanic("No value present");
 
         return _value;
     }
@@ -423,7 +423,7 @@ struct [[nodiscard]] Optional
     constexpr T const& operator*() const
     {
         if (!_present)
-            Std::panic("No value present");
+            Std::SystemPanic("No value present");
 
         return _value;
     }
@@ -443,7 +443,7 @@ struct [[nodiscard]] Optional
     constexpr T& Get(const char* msg = "No value present")
     {
         if (!_present)
-            Std::panic(msg);
+            Std::SystemPanic(msg);
 
         return _value;
     }
@@ -452,7 +452,7 @@ struct [[nodiscard]] Optional
     constexpr T const& Get(const char* msg = "No value present") const
     {
         if (!_present)
-            Std::panic(msg);
+            Std::SystemPanic(msg);
 
         return _value;
     }
@@ -467,7 +467,7 @@ struct [[nodiscard]] Optional
     constexpr T Take(const char* msg = "No value present")
     {
         if (!_present)
-            Std::panic(msg);
+            Std::SystemPanic(msg);
 
         T v = Std::move(_value);
         Clear();

@@ -88,7 +88,7 @@ struct Res
         const char* msg = "called `Result::unwrap()` on an error")
     {
         if (!_inner.template is<Ok<V>>()) {
-            Std::panic(msg);
+            Std::SystemPanic(msg);
         }
         return _inner.template unwrap<Ok<V>>().inner;
     }
@@ -98,7 +98,7 @@ struct Res
         const char* msg = "called `Result::unwrap()` on an error") const
     {
         if (!_inner.template is<Ok<V>>()) {
-            Std::panic(msg);
+            Std::SystemPanic(msg);
         }
         return _inner.template unwrap<Ok<V>>().inner;
     }
@@ -107,7 +107,7 @@ struct Res
     constexpr const E& Err() const
     {
         if (!_inner.template is<E>()) {
-            Std::panic("called `Result::error()` on an ok value");
+            Std::SystemPanic("called `Result::error()` on an ok value");
         }
         return _inner.template unwrap<E>();
     }

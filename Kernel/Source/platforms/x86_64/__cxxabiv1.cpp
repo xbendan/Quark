@@ -3,7 +3,7 @@
 extern "C" void
 __cxa_pure_virtual()
 {
-    Std::panic("Pure virtual function called");
+    Std::SystemPanic("Pure virtual function called");
 }
 
 namespace __cxxabiv1 {
