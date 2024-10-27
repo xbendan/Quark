@@ -35,7 +35,45 @@ namespace Quark::System::Hal {
     Res<ICollection<ICPULocalDevice*>*> SetupMultiprocessing();
 
     ICPULocalDevice* GetCPULocal(u32 id);
-    ICPULocalDevice* getCPULocal();
+    ICPULocalDevice* GetCPULocal();
     void             SetCPULocal(u32 id, ICPULocalDevice* local);
     void             SetCPULocal(ICPULocalDevice* local);
+
+    template <typename T>
+    struct CPULocal final
+    {
+        constexpr CPULocal()
+            : _data(nullptr)
+        {
+        }
+        constexpr CPULocal(int amount)
+        {
+            if (_data == nullptr) {
+                _data = new T[amount];
+            }
+        }
+        ~CPULocal()
+        {
+            if (_data != nullptr) {
+                delete[] _data;
+            }
+        }
+
+        inline T* Get() const
+        {
+            auto* cpu = GetCPULocal();
+            if (_data == nullptr || cpu == nullptr) {
+                return nullptr;
+            }
+            return &_data[cpu->_id];
+        }
+
+        const T* Get(int index) const;
+
+        constexpr T* operator()() const { return Get(); }
+
+    private:
+        T*    _data;
+        usize _align;
+    };
 }

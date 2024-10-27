@@ -313,6 +313,15 @@ namespace Quark::System::Platform::X64 {
         asm volatile("swapgs");
     }
 
+    static inline bool CheckInterrupts()
+    {
+        volatile u64 flags;
+        asm volatile("pushfq;"
+                     "pop %0;"
+                     : "=rm"(flags)::"memory", "cc");
+        return flags & 0x200;
+    }
+
     static inline void SetCPULocal(CPULocalDevice* cpu)
     {
         asm volatile("wrmsr" ::"a"((u64)cpu & 0xffffffff) /* Value low */,
@@ -326,16 +335,14 @@ namespace Quark::System::Platform::X64 {
     static inline CPULocalDevice* GetCPULocal()
     {
         CPULocalDevice* cpu;
-        asm volatile("swapgs; movq %%gs:0, %0; swapgs;" : "=r"(cpu));
+        int             intEnable = CheckInterrupts();
+        asm("cli");
+        asm volatile(
+            "swapgs; movq %%gs:0, %0; swapgs;"
+            : "=r"(
+                cpu)); // CPU info is 16-byte aligned as per liballoc alignment
+        if (intEnable)
+            asm("sti");
         return cpu;
-    }
-
-    static inline bool CheckInterrupts()
-    {
-        volatile u64 flags;
-        asm volatile("pushfq;"
-                     "pop %0;"
-                     : "=rm"(flags)::"memory", "cc");
-        return flags & 0x200;
     }
 } // namespace Quark::System::Platform::X64

@@ -33,6 +33,8 @@ namespace Quark::System::Platform::X64 {
     struct ThreadEx : public Task::Thread
     {
     public:
+        ThreadEx(Task::Process*);
+
         void* _stackUser;
         void* _stackUserBase;
         void* _stackKernel;

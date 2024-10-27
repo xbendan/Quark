@@ -3,6 +3,16 @@
 #include <platforms/x86_64/sched.h>
 #include <quark/sched/process.h>
 
+namespace Quark::System::Platform::X64 {
+    ThreadEx::ThreadEx(Task::Process* process)
+        : Task::Thread(process, process->GetNextThreadId())
+    {
+        _stackKernel = new u8[4096];
+        _fxState     = new u8[512];
+        _fsBase      = reinterpret_cast<u64>(process->_addressSpace);
+    }
+}
+
 namespace Quark::System::Task {
     using namespace Quark::System::Platform::X64;
 
@@ -46,4 +56,20 @@ namespace Quark::System::Task {
     void Scheduler::ScheduleToNext(ProcessContext* ctx) {}
 
     void Scheduler::ScheduleAllContexts() {}
+
+    Thread* ProcessFactory::CreateThread(Process* process)
+    {
+        return new ThreadEx(process);
+    }
+
+    Thread* ProcessFactory::CreateThreadEx(Process*      process,
+                                           u8            priority,
+                                           const string& name,
+                                           const string& description,
+                                           const string& command,
+                                           const string& arguments)
+    {
+        // TODO: Implement this
+        return nullptr;
+    }
 }

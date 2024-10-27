@@ -13,7 +13,7 @@ namespace Quark::System::Task {
         : _processId(processId)
         , _name(name)
         , _addressSpace(addressSpace)
-        , _mainThread(new Thread(this, 0))
+        , _mainThread(ProcessFactory::CreateThread(this))
         , m_childrenThreadList()
     {
         m_childrenThreadList.Add(_mainThread);

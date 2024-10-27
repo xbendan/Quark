@@ -28,7 +28,9 @@ namespace Quark::System::Task {
         }
 
         m_kernelProcess = new Process(0, "Kernel", addressSpace, 0, 0, 0);
-        m_processes[0]  = m_kernelProcess;
+
+        m_processes    = new RefPtr<Process>[65536];
+        m_processes[0] = m_kernelProcess;
 
         return Ok(m_kernelProcess);
     }
