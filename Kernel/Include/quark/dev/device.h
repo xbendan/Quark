@@ -4,8 +4,9 @@
 #include <mixins/meta/result.h>
 #include <mixins/std/string.h>
 #include <mixins/utils/array.h>
-#include <mixins/utils/linked_list.h>
 #include <mixins/utils/uuid.h>
+
+#include <mixins/utils/linked_list.h>
 
 namespace Quark::System::Io {
     class Device
@@ -125,6 +126,8 @@ namespace Quark::System::Io {
         UUID   m_uniqueId;
         Type   m_deviceType;
         bool   m_isStarted;
+
+        static inline LinkedList<Device*> Devices;
     };
 
     class EnumerationDevice : public Device

@@ -2,6 +2,7 @@
 
 #include <drivers/acpi/spec.h>
 #include <drivers/apic/spec.h>
+#include <mixins/utils/linked_list.h>
 #include <quark/dev/device.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/memory/address_space.h>
