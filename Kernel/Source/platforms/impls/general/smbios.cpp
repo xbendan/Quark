@@ -1,9 +1,11 @@
 #include <drivers/smbios/device.h>
-#include <quark/api/logging.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
+#include <quark/os/logging.h>
 
 namespace Quark::System::Hal {
+    using namespace Quark::System::Diagnostic;
+
     const char* __signatureL2 = "_SM_";
     const char* __signatureL3 = "_SM3_";
 
@@ -17,11 +19,11 @@ namespace Quark::System::Hal {
         if ((result = range.Find(__signatureL2, 4, 0x10)).IsPresent()) {
             m_majorVer   = 2;
             m_smbiosInfo = (void*)result.Take();
-            log(u8"[SMBIOS] Found SMBIOS 2.0 at %p\n", m_smbiosInfo);
+            info(u8"[SMBIOS] Found SMBIOS 2.0 at %p\n", m_smbiosInfo);
         } else if ((result = range.Find(__signatureL3, 5, 0x10)).IsPresent()) {
             m_majorVer   = 3;
             m_smbiosInfo = (void*)result.Take();
-            log(u8"[SMBIOS] Found SMBIOS 3.0 at %p\n", m_smbiosInfo);
+            info(u8"[SMBIOS] Found SMBIOS 3.0 at %p\n", m_smbiosInfo);
         }
     }
 } // namespace Quark::System::Hal

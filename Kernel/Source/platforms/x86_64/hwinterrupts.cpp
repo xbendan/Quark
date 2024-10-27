@@ -2,10 +2,11 @@
 #include <platforms/x86_64/tables.h>
 
 #include <mixins/utils/array.h>
-#include <quark/api/logging.h>
 #include <quark/hal/interrupts.h>
+#include <quark/os/logging.h>
 
 namespace Quark::System::Platform::X64 {
+    using namespace Quark::System::Diagnostic;
     using namespace Quark::System::Hal;
 
     InterruptDescTbl           tbl = {};
@@ -204,7 +205,7 @@ namespace Quark::System::Platform::X64 {
 
     void UnhandledException(InterruptStackFrame* context)
     {
-        log(u8"Unhandled exception %d\n", context->intno);
+        warn(u8"Unhandled exception %d\n", context->intno);
     }
 
     void DivisionError(InterruptStackFrame* context)

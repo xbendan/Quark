@@ -2,29 +2,31 @@
 
 #include <mixins/meta/buf.h>
 #include <mixins/std/panic.h>
-#include <quark/api/logging.h>
+#include <quark/os/logging.h>
 
 #include <drivers/comm/device.h>
 
 namespace Quark::System {
-    LaunchConfiguration      launchConfig;
+    using namespace Quark::System::Diagnostic;
+
+    BootInfo                 launchConfig;
     Serial::SerialPortDevice serial;
 
-    LaunchConfiguration& getLaunchConfiguration()
+    BootInfo& getLaunchConfiguration()
     {
         return launchConfig;
     }
 
     [[noreturn]]
-    void SetupKernel(LaunchConfiguration* conf)
+    void SetupKernel()
     {
-        Hal::Platform& platform = conf->_platform;
+        Hal::Platform& platform = BootInfo::Platform;
 
         new (&serial) Serial::SerialPortDevice();
         log(u8"Setting up kernel...");
 
         log(u8"Initializing architecture-specific features...");
-        SetupArch(conf);
+        SetupArch();
         log(u8"OK.");
 
         log(u8"Initializing address space isolation (Virtual memory):\n");
@@ -32,7 +34,8 @@ namespace Quark::System {
         if (platform._features.hasNot(Hal::Platform::AddressSpaceIsolation)) {
             log(u8"VMM is not supported on this platform.\n");
         } else
-            kernelAddressSpace = InitVirtMemory().Unwrap();
+            kernelAddressSpace = BootInfo::MemoryInfo._addressSpace =
+                InitVirtMemory().Unwrap();
 
         log(u8"Initializing memory management...\n");
         InitPhysMemory().Unwrap();
@@ -55,22 +58,24 @@ namespace Quark::System {
 } // namespace Quark::System
 
 namespace Std {
-    [[noreturn]] void panic(Error err)
+    using namespace Quark::System::Diagnostic;
+
+    [[noreturn]] void ThrowError(Error err)
     {
         while (true)
             asm volatile("hlt; pause;");
     }
 
-    [[noreturn]] void panic(string msg)
+    [[noreturn]] void SystemPanic(string msg)
     {
         // TODO: Implement panic
-        log(u8"---- QUARK KERNEL PANIC ----");
-        log(u8"Time:        {}", 0);
-        log(u8"Description: {}", msg);
-        log(u8" ");
-        log(u8"This is a fatal error, halting the system.");
-        log(u8"Stacktrace:");
-        log(u8"----------------------------");
+        error(u8"---- QUARK KERNEL PANIC ----");
+        log(LogLevel::Error, u8"Time:        {}", 0);
+        log(LogLevel::Error, u8"Description: {}", msg);
+        log(LogLevel::Error, u8" ");
+        log(LogLevel::Error, u8"This is a fatal error, halting the system.");
+        log(LogLevel::Error, u8"Stacktrace:");
+        log(LogLevel::Error, u8"----------------------------");
 
         while (true)
             asm volatile("hlt; pause;");

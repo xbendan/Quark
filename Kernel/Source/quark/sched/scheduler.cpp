@@ -1,5 +1,4 @@
 #include <mixins/utils/linked_queue.h>
-#include <quark/api/logging.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/sched/sched.h>
 #include <quark/sched/thread.h>
