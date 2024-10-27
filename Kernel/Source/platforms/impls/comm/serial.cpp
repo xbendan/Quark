@@ -17,50 +17,40 @@ namespace Serial {
         PortAccess<>::Out<u8>(Port::COM1 + PortOffset::ModemControl, 0x0B);
     }
 
-    void SerialPortDevice::Write(string str)
+    void SerialPortDevice::operator<<(string str)
     {
-        static_assert(Std::isSame<string::Unit, u8>);
+        ScopedLock<true> lock(m_lock);
+        for (auto c : str) {
+            while (!(m_lineStatus.In<u8>() & 0x20))
+                ;
+            m_portAccess << c;
+        }
     }
 
-    void SerialPortDevice::WriteNewline()
-    {
-        out('\n');
-    }
-
-    void SerialPortDevice::out(u8 data)
+    void SerialPortDevice::operator<<(string::Unit c)
     {
         while (!(m_lineStatus.In<u8>() & 0x20))
             ;
-        m_portAccess << data;
+        m_portAccess << c;
     }
 
-    bool SerialPortDevice::out(u8* data, usize len)
+    void SerialPortDevice::operator<<(string::Unit* str)
     {
-        if (Platform::X64::CheckInterrupts()) {
-            m_lock.AcquireIntDisable();
-            while (len--) {
-                while (!(m_lineStatus.In<u8>() & 0x20))
-                    ;
-                m_portAccess << *data++;
-            }
-
-            m_lock.Release();
-        } else
-            while (len--) {
-                while (!(m_lineStatus.In<u8>() & 0x20))
-                    ;
-                m_portAccess << *data++;
-            }
-        return true;
+        ScopedLock<true> lock(m_lock);
+        while (*str) {
+            while (!(m_lineStatus.In<u8>() & 0x20))
+                ;
+            m_portAccess << *str++;
+        }
     }
 
-    void SerialPortDevice::skip(usize len)
+    void SerialPortDevice::operator<<(Buf<string::Unit> const& buf)
     {
-        // do nothing
-    }
-
-    void SerialPortDevice::close()
-    {
-        // do nothing
+        ScopedLock<true> lock(m_lock);
+        for (int i = 0; i < buf.Length(); i++) {
+            while (!(m_lineStatus.In<u8>() & 0x20))
+                ;
+            m_portAccess << buf[i];
+        }
     }
 }
