@@ -6,20 +6,38 @@
 #include <mixins/utils/flags.h>
 #include <quark/hal/pmm.h>
 
-#define PAGE_SIZE_4K 4096ULL
-#define PAGE_SIZE_2M 209'7152ULL
-#define PAGE_SIZE_1G 10'7374'1824ULL
+#define PAGE_SIZE_4K 0x1000ULL
+#define PAGE_SIZE_2M 0x200000ULL
+#define PAGE_SIZE_1G 0x40000000ULL
 
 #define PAGE_SIZE_PARTITION (PAGE_SIZE_1G / 8)
+#define PAGE_BLOCK_AMOUNT (PAGE_SIZE_PARTITION / PAGE_SIZE_4K)
+#define PAGE_CHAIN_AMOUNT 0x400
+#define PAGE_BIOS_RESERVED 0x100000
+#define PAGE_SHIFT 12
 
 namespace Quark::System::Memory {
-    struct PhysMemFrame
+    struct BuddyPageInfo
     {
-        PhysMemFrame* _next{};
-        PhysMemFrame* _previous{};
-        u8            _level;
+        u8  _level;
+        u16 _chainLength;
+    } __attribute__((packed));
+    using buddyinfo_t = BuddyPageInfo;
+
+    struct PageFrame
+    {
+        PageFrame* _next{};
+        PageFrame* _previous{};
 
         Flags<Hal::PmmFlags> _flags;
+
+        // struct /* buddy */
+        // {
+        //     u8  _level;
+        //     u16 _chainLength{ PAGE_CHAIN_AMOUNT };
+        // } __attribute__((packed));
+        u8  _level;
+        u16 _chainLength;
 
         struct /* slub */
         {
@@ -35,24 +53,23 @@ namespace Quark::System::Memory {
 
         union
         {
-            u64           _priv;
-            PhysMemFrame* _pageHead;
-            void*         _kmemPool;
+            u64        _priv;
+            PageFrame* _pageHead;
+            void*      _kmemPool;
         };
 
         u64 _address;
 
-        Optional<PhysMemFrame*> split();
-        Optional<PhysMemFrame*> merge(PhysMemFrame* page);
-        Optional<PhysMemFrame*> merge();
+        Optional<PageFrame*> Divide();
+        Optional<PageFrame*> Combine(PageFrame* page);
+        Optional<PageFrame*> Combine();
 
-        static PhysMemFrame* at(u64 address);
+        static PageFrame* ByAddress(u64 address);
     };
-
-    static_assert(sizeof(PhysMemFrame) == 48,
+    static_assert(sizeof(PageFrame) == 48,
                   "Physical memory frame size mismatch");
 
-    static inline bool isPageAligned(u64 address,
+    static inline bool IsPageAligned(u64 address,
                                      u8  level,
                                      u64 pageSize = PAGE_SIZE_4K)
     {

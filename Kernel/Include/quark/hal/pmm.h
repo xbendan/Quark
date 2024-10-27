@@ -6,10 +6,17 @@
 namespace Quark::System::Hal {
     enum class PmmFlags : u8
     {
-        FREE = 0,
-        KERNEL,
-        SWAPPED,
-        SHARED,
+        FREE    = (1 << 0),
+        KERNEL  = (1 << 1),
+        SWAPPED = (1 << 2),
+        SHARED  = (1 << 3),
     };
     MakeFlags$(PmmFlags);
+
+    enum class PmmType : u8
+    {
+        DMA = 1,
+        DMA32,
+        NORMAL,
+    };
 }

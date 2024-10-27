@@ -1,4 +1,5 @@
 #include <quark/memory/address_space.h>
+#include <quark/memory/buddy_system.h>
 #include <quark/memory/memory_info.h>
 #include <quark/memory/page_alloc.h>
 
@@ -6,10 +7,10 @@
 #include <mixins/math/compute.h>
 
 namespace Quark::System::Memory {
-    Array<AddressRange[256]>                         g_pageRanges;
-    Array<PhysMemQueue[BUDDY_LEVEL_UPPER_LIMIT + 1]> g_pageQueues;
-    PhysMemFrame**                                   g_pageFrames;
+    PageFrame** g_pageFrames;
     // PhysMemFrame**               g_pageFrames;
+
+    BuddyZone buddyZones[ZONE_TYPES];
 
     // General Memory Allocation and Free
 
@@ -17,13 +18,13 @@ namespace Quark::System::Memory {
                               AddressSpace*        addressSpace,
                               Flags<Hal::VmmFlags> flags)
     {
-        Res<u64> phys = AllocatePhysMemory4K(amount);
+        Res<PageFrame*> phys = AllocatePhysFrame4K(amount);
 
         if (phys.IsOkay()) {
             u64 address = 0;
 
-            addressSpace->Map4KPages(
-                phys.Unwrap(),
+            addressSpace->MapAddress4K(
+                phys.Unwrap()->_address,
                 address =
                     AllocateVirtMemory4K(amount, addressSpace, flags).Unwrap(),
                 amount,
@@ -62,92 +63,47 @@ namespace Quark::System::Memory {
             return Error::InvalidArgument();
         }
 
-        addressSpace->Map4KPages(phys, virt, amount, flags);
+        addressSpace->MapAddress4K(phys, virt, amount, flags);
 
         return Ok();
     }
 
     // Physical Memory Management
 
-    Res<PhysMemFrame*> AllocatePhysFrame4K(usize amount)
+    Res<PageFrame*> AllocatePhysFrame4K(usize amount, Hal::PmmType allocType)
     {
-        if (amount == 0 || (amount % PAGE_SIZE_4K) != 0) {
-            return Error::AllocateFailed("Invalid allocation size");
+        u8 t = static_cast<u8>(allocType);
+        if (t > static_cast<u8>(Hal::PmmType::NORMAL)) {
+            return Error::AllocateFailed("Invalid allocation type");
         }
 
-        alignTwoExponent(amount);
-
-        /* Loop search for the level with free page */
-        u8 level = 0;
-        while (level < BUDDY_LEVEL_UPPER_LIMIT) {
-            if ((1 << level) >= amount && g_pageQueues[level].count())
-                break;
-            level++;
-        }
-
-        /* If no page is found, return out of memory error */
-        if (level > BUDDY_LEVEL_UPPER_LIMIT || !g_pageQueues[level].count()) {
-            return Error::OutOfMemory();
-        }
-
-        PhysMemFrame* p = g_pageQueues[level].dequeue().Take();
-        while ((1 << level) > amount && level > 0) {
-            level--;
-            g_pageQueues[level].enqueue(p->split().Take());
-        }
-
-        p->_flags.clear(Hal::PmmFlags::FREE);
-
-        return Ok(p);
+        return buddyZones[t].Allocate4KPages(amount);
     }
 
     Res<u64> AllocatePhysMemory4K(usize amount)
     {
-        return AllocatePhysFrame4K(amount).Select<u64>(
-            [](PhysMemFrame* frame) { return frame->_address; });
+        auto res = AllocatePhysFrame4K(amount);
+        if (res.IsError()) {
+            return res.Err();
+        }
+        return Ok(res.Unwrap()->_address);
+
+        // return AllocatePhysFrame4K(amount).Select<u64>(
+        //     [](PhysMemFrame* frame) { return frame->_address; });
     }
 
-    Res<> FreePhysMemory4K(usize address, usize amount)
+    Res<> FreePhysFrame4K(PageFrame* page)
     {
-        PhysMemFrame* page = PhysMemFrame::at(address);
+        return FreePhysMemory4K(page->_address, page->_chainLength);
+    }
 
-        /* Ensure the page is okay to be free */
-        if (page->_flags & (Hal::PmmFlags::FREE |   //
-                            Hal::PmmFlags::KERNEL | //
-                            Hal::PmmFlags::SWAPPED)) {
-            return Error::PageNotFree();
+    Res<> FreePhysMemory4K(u64 address, usize amount)
+    {
+        for (int i = 0; i < ZONE_TYPES; i++) {
+            if (buddyZones[i].GetRange().WithinRange(address))
+                return buddyZones[i].Free4KPages(address);
         }
-
-        /* Mark the page as free */
-        page->_flags |= Hal::PmmFlags::FREE;
-        while (page->_level < BUDDY_LEVEL_UPPER_LIMIT) {
-            /*
-                Merge the page until it reaches the upper bound
-                or the another page needed is not free, then jump
-                out of the loop
-             */
-            u64           offset  = GetLevelAsOffset(page->_level);
-            u64           newAddr = (page->_address % (1 << (offset * 2)))
-                                        ? page->_address + offset
-                                        : page->_address - offset;
-            PhysMemFrame* newPage = PhysMemFrame::at(newAddr);
-
-            if (newPage->_flags.has(Hal::PmmFlags::FREE)) {
-                if (newPage->_previous || newPage->_next) {
-                    g_pageQueues[newPage->_level].dequeue(newPage);
-                }
-
-                PhysMemFrame* result = page->merge(newPage).Take();
-                if (result != nullptr) {
-                    page = result;
-                    continue;
-                }
-            } else
-                break;
-        }
-        g_pageQueues[page->_level].enqueue(page);
-
-        return Ok();
+        return Error::PageNotExist();
     }
     // Virtual Memory Management
 
@@ -159,7 +115,7 @@ namespace Quark::System::Memory {
             return Error::InvalidArgument();
         }
 
-        return addressSpace->Alloc4KPages(amount, flags);
+        return addressSpace->AllocateVirtPages4K(amount, flags);
     }
 
     Res<> FreeVirtMemory4K(usize         address,
@@ -170,6 +126,6 @@ namespace Quark::System::Memory {
             return Error::InvalidArgument();
         }
 
-        return addressSpace->Free4KPages(address, amount);
+        return addressSpace->FreeVirtPages4K(address, amount);
     }
 }

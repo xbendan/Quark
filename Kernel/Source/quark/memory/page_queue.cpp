@@ -1,7 +1,7 @@
-#include <quark/memory/page_alloc.h>
+#include <quark/memory/page_queue.h>
 
 namespace Quark::System::Memory {
-    void PhysMemQueue::enqueue(PhysMemFrame* page)
+    void PageQueue::Enqueue(PageFrame* page)
     {
         if (!m_count) {
             m_head = page;
@@ -14,13 +14,13 @@ namespace Quark::System::Memory {
         m_count++;
     }
 
-    Optional<PhysMemFrame*> PhysMemQueue::dequeue()
+    PageFrame* PageQueue::Dequeue()
     {
         if (!m_count) {
-            return Empty{};
+            return nullptr;
         }
-        PhysMemFrame* page = m_head;
-        m_head             = m_head->_next;
+        PageFrame* page = m_head;
+        m_head          = m_head->_next;
         if (m_head) {
             m_head->_previous = nullptr;
         } else {
@@ -30,7 +30,7 @@ namespace Quark::System::Memory {
         return page;
     }
 
-    PhysMemFrame* PhysMemQueue::dequeue(PhysMemFrame* page)
+    PageFrame* PageQueue::Dequeue(PageFrame* page)
     {
         if (page == nullptr) {
             return nullptr;

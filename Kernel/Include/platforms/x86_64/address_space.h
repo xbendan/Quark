@@ -13,28 +13,28 @@ namespace Quark::System::Platform::X64 {
         X64AddressSpace();
         ~X64AddressSpace();
 
-        Res<u64> Alloc4KPages(usize amount, //
-                              Flags<VmmFlags> = VmmFlags::PRESENT |
-                                                VmmFlags::WRITABLE |
-                                                VmmFlags::USER) override;
-        Res<u64> Alloc2MPages(usize amount, //
-                              Flags<VmmFlags> = VmmFlags::PRESENT |
-                                                VmmFlags::WRITABLE |
-                                                VmmFlags::USER) override;
+        Res<u64> AllocateVirtPages4K(usize amount, //
+                                     Flags<VmmFlags> = VmmFlags::PRESENT |
+                                                       VmmFlags::WRITABLE |
+                                                       VmmFlags::USER) override;
+        Res<u64> AllocateVirtPages2M(usize amount, //
+                                     Flags<VmmFlags> = VmmFlags::PRESENT |
+                                                       VmmFlags::WRITABLE |
+                                                       VmmFlags::USER) override;
 
-        Res<> Free4KPages(u64   address, //
-                          usize amount) override;
-        Res<> Free2MPages(u64   address, //
-                          usize amount) override;
+        Res<> FreeVirtPages4K(u64   address, //
+                              usize amount) override;
+        Res<> FreeVirtPages2M(u64   address, //
+                              usize amount) override;
 
-        Res<> Map4KPages(u64             phys, //
-                         u64             virt,
-                         usize           amount,
-                         Flags<VmmFlags> flags) override;
-        Res<> Map2MPages(u64             phys, //
-                         u64             virt,
-                         usize           amount,
-                         Flags<VmmFlags> flags) override;
+        Res<> MapAddress4K(u64             phys, //
+                           u64             virt,
+                           usize           amount,
+                           Flags<VmmFlags> flags) override;
+        Res<> MapAddress2M(u64             phys, //
+                           u64             virt,
+                           usize           amount,
+                           Flags<VmmFlags> flags) override;
 
         Res<Flags<VmmFlags>> getFlags(u64 address) override;
         Res<>                setFlags(u64             address,
@@ -94,26 +94,26 @@ namespace Quark::System::Platform::X64 {
         X64AddressSpace();
         ~X64AddressSpace() = default;
 
-        Res<u64> Alloc4KPages(usize amount, //
-                              Flags<VmmFlags> = VmmFlags::PRESENT |
-                                                VmmFlags::WRITABLE) override;
-        Res<u64> Alloc2MPages(usize amount, //
-                              Flags<VmmFlags> = VmmFlags::PRESENT |
-                                                VmmFlags::WRITABLE) override;
+        Res<u64> AllocateVirtPages4K(
+            usize amount, //
+            Flags<VmmFlags> = VmmFlags::PRESENT | VmmFlags::WRITABLE) override;
+        Res<u64> AllocateVirtPages2M(
+            usize amount, //
+            Flags<VmmFlags> = VmmFlags::PRESENT | VmmFlags::WRITABLE) override;
 
-        Res<> Map4KPages(u64             phys, //
-                         u64             virt,
-                         usize           amount,
-                         Flags<VmmFlags> flags) override;
-        Res<> Map2MPages(u64             phys, //
-                         u64             virt,
-                         usize           amount,
-                         Flags<VmmFlags> flags) override;
+        Res<> MapAddress4K(u64             phys, //
+                           u64             virt,
+                           usize           amount,
+                           Flags<VmmFlags> flags) override;
+        Res<> MapAddress2M(u64             phys, //
+                           u64             virt,
+                           usize           amount,
+                           Flags<VmmFlags> flags) override;
 
-        Res<> Free4KPages(u64   address, //
-                          usize amount) override;
-        Res<> Free2MPages(u64   address, //
-                          usize amount) override;
+        Res<> FreeVirtPages4K(u64   address, //
+                              usize amount) override;
+        Res<> FreeVirtPages2M(u64   address, //
+                              usize amount) override;
 
         Res<Flags<VmmFlags>> getFlags(u64 address) override;
         Res<>                setFlags(u64             address, //
@@ -125,8 +125,6 @@ namespace Quark::System::Platform::X64 {
 
         Res<u64> GetPhysAddress(u64 address) override;
 
-        pml4_t      _pml4;
-        pdpt_t      _pdpt;
         pagedir_t*  _pageDirs[512];
         pagetbl_t** _pageTables[512];
 

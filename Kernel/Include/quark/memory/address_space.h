@@ -6,11 +6,19 @@
 #include <quark/hal/vmm.h>
 #include <quark/privilege/user.h>
 
-#define KERNEL_VIRTUAL_BASE 0xffffffff80000000
+#define KERNEL_VIRTUAL_BASE 0xffffffff80000000ULL
+#define KERNEL_HEAP_BASE (KERNEL_VIRTUAL_BASE + 0x40000000)
 #define IO_VIRTUAL_BASE (KERNEL_VIRTUAL_BASE - 0x100000000)
 
 namespace Quark::System::Memory {
     u64 CopyAsIOAddress(u64 address);
+
+    template <typename T>
+    inline T* CopyAsIOAddress(T* address)
+    {
+        return reinterpret_cast<T*>(
+            CopyAsIOAddress(reinterpret_cast<u64>(address)));
+    }
 
     class AddressSpace
     {
@@ -28,26 +36,26 @@ namespace Quark::System::Memory {
 
         virtual ~AddressSpace() {}
 
-        virtual Res<u64> Alloc4KPages(
+        virtual Res<u64> AllocateVirtPages4K(
             usize amount, //
             Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
                                    Hal::VmmFlags::WRITABLE) = 0;
-        virtual Res<u64> Alloc2MPages(
+        virtual Res<u64> AllocateVirtPages2M(
             usize amount, //
             Flags<Hal::VmmFlags> = Hal::VmmFlags::PRESENT |
                                    Hal::VmmFlags::WRITABLE) = 0;
 
-        virtual Res<> Free4KPages(u64 address, usize amount) = 0;
-        virtual Res<> Free2MPages(u64 address, usize amount) = 0;
+        virtual Res<> FreeVirtPages4K(u64 address, usize amount) = 0;
+        virtual Res<> FreeVirtPages2M(u64 address, usize amount) = 0;
 
-        virtual Res<> Map4KPages(u64                  phys, //
-                                 u64                  virt,
-                                 usize                amount,
-                                 Flags<Hal::VmmFlags> flags) = 0;
-        virtual Res<> Map2MPages(u64                  phys, //
-                                 u64                  virt,
-                                 usize                amount,
-                                 Flags<Hal::VmmFlags> flags) = 0;
+        virtual Res<> MapAddress4K(u64                  phys, //
+                                   u64                  virt,
+                                   usize                amount,
+                                   Flags<Hal::VmmFlags> flags) = 0;
+        virtual Res<> MapAddress2M(u64                  phys, //
+                                   u64                  virt,
+                                   usize                amount,
+                                   Flags<Hal::VmmFlags> flags) = 0;
 
         /**
          * @brief Get the presented flags from input flags

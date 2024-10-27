@@ -7,36 +7,34 @@
 #include <mixins/std/type_traits.h>
 
 namespace Quark::System::Memory {
-    enum class MemoryType
-    {
-        USABLE,
-        RESERVED,
-        RECLAIMABLE,
-        KERNEL
-    };
 
-    struct AddressRange
+    struct AddressRange : public Range<u64>
     {
-        u64 _base, _size;
-
         template <typename T, typename U>
             requires((Std::isIntegral<T> || Std::isPointer<T>) and
                      (Std::isIntegral<U>))
         constexpr AddressRange(T base, U size)
-            : _base((u64)base)
-            , _size((u64)size)
+            : Range((u64)base, (u64)base + size)
         {
         }
 
         constexpr AddressRange(u64 base, u64 size)
-            : _base(base)
-            , _size(size)
+            : Range(base, base + size)
         {
         }
 
         constexpr AddressRange(Range<u64> range)
-            : _base(range._min)
-            , _size(range._max - range._min)
+            : Range(Std::move(range))
+        {
+        }
+
+        constexpr AddressRange(const AddressRange& other)
+            : Range(other)
+        {
+        }
+
+        constexpr AddressRange(AddressRange&& other)
+            : Range(Std::forward<Range>(other))
         {
         }
 
@@ -44,50 +42,56 @@ namespace Quark::System::Memory {
 
         constexpr AddressRange& operator=(const AddressRange& other)
         {
-            _base = other._base;
-            _size = other._size;
+            _min = other._min;
+            _max = other._max;
             return *this;
         }
 
         template <typename V>
         constexpr AddressRange& operator=(Range<V> range) noexcept
         {
-            _base = (u64)range._min;
-            _size = (u64)range._max - range._min;
+            _min = (u64)range._min;
+            _max = (u64)range._max;
             return *this;
         }
 
         constexpr bool operator==(const AddressRange& other) const
         {
-            return _base == other._base && _size == other._size;
+            return _min == other._min && _max == other._max;
         }
 
-        AddressRange& Clear()
+        inline u64 From() const { return _min; }
+
+        inline u64 To() const { return _max; }
+
+        inline u64 Length() const { return _max >= _min ? _max - _min : 0; }
+
+        AddressRange& SetZero()
         {
-            Set(0);
+            SetValue(0);
             return *this;
         }
 
-        AddressRange& Set(u8 val)
+        AddressRange& SetValue(u8 val)
         {
-            if (_size)
-                for (u64 i = 0; i < _size; i++) {
-                    ((u8*)_base)[i] = val;
-                }
+            u64 len = Length();
+            for (u64 i = 0; i < len; i++) {
+                ((u8*)_min)[i] = val;
+            }
 
             return *this;
         }
 
         Optional<u64> Find(u8* val, u64 size, u64 offset = 0x1)
         {
-            if (!_size || !_base) {
+            if (!_min || !_max) {
                 return Empty();
             }
-            for (u64 i = 0; i < _size; i += offset) {
-                if (((u8*)_base)[i] == val[0]) {
+            for (u64 i = 0; i < Length(); i += offset) {
+                if (((u8*)_min)[i] == val[0]) {
                     u64 j = 0;
                     for (; j < size; j++) {
-                        if (((u8*)_base)[i + j] != val[j]) {
+                        if (((u8*)_min)[i + j] != val[j]) {
                             break;
                         }
                     }
@@ -107,31 +111,55 @@ namespace Quark::System::Memory {
 
         Optional<u64> TakeFront(u64 size)
         {
-            if (_size < size) {
+            if (Length() < size) {
                 return Empty();
             }
-            u64 base = _base;
-            _base += size;
-            _size -= size;
-            return base;
+            u64 address = _min;
+            _min += size;
+
+            return address;
         }
 
         Optional<u64> TakeBack(u64 size)
         {
-            if (_size < size) {
+            if (Length() < size) {
                 return Empty();
             }
-            _size -= size;
-            return _base + _size;
+            _max -= size;
+
+            return _max;
         }
 
         AddressRange& InnerAlign(u64 alignment)
         {
-            u64 limit = _base + _size;
-            _base     = alignUp(_base, alignment);
-            _size     = alignDown(limit, alignment) - _base;
+            Math::AlignUpRef(_min, alignment);
+            Math::AlignDownRef(_max, alignment);
 
             return *this;
+        }
+
+        AddressRange& OuterAlign(u64 alignment)
+        {
+            Math::AlignDownRef(_min, alignment);
+            Math::AlignUpRef(_max, alignment);
+
+            return *this;
+        }
+
+        AddressRange& ConstraintsTo(AddressRange& other)
+        {
+            _min = ((Range<u64>)other).ConstraintsTo(_min);
+            _max = ((Range<u64>)other).ConstraintsTo(_max);
+
+            return *this;
+        }
+
+        void CopyTo(u8* dest)
+        {
+            u64 len = Length();
+            for (u64 i = 0; i < len; i++) {
+                dest[i] = ((u8*)_min)[i];
+            }
         }
     };
 } // namespace Quark::System::Memory

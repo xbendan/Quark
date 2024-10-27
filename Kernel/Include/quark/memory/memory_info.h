@@ -3,14 +3,16 @@
 #include <mixins/std/c++types.h>
 #include <mixins/utils/array.h>
 #include <quark/memory/address_range.h>
+#include <quark/memory/address_space.h>
 
 namespace Quark::System::Memory {
     struct MemmapEntry
     {
-        AddressRange _range;
+        AddressRange Range;
         enum Type
         {
-            Free,
+            Unset = 0,
+            Free  = 1,
             Reserved,
             Reclaimable,
             AcpiReclaimable,
@@ -25,22 +27,26 @@ namespace Quark::System::Memory {
             Code,
             Bss,
             Other,
-        } _type;
+        } Type;
     };
 
-    struct MemoryConfiguration
+    struct MemoryConfigTable
     {
         u64 _totalSize;
         u64 _availableSize;
         u64 _limit;
         u64 _committed;
 
-        Array<MemmapEntry[256]> _addressRanges;
+        u64 _kPhysOffset{ 0 };
+        u64 _kVirtOffset{ KERNEL_VIRTUAL_BASE };
+
+        AddressSpace*           _addressSpace;
+        Array<MemmapEntry[256]> _addressRanges{};
     };
 
     struct MemoryAllocationStatus
     {
-        MemoryConfiguration& _conf;
+        MemoryConfigTable& _conf;
 
         u64 _allocatedPages;
         u64 _freePages;

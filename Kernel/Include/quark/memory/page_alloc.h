@@ -4,18 +4,13 @@
 #include <mixins/meta/result.h>
 #include <mixins/utils/array.h>
 #include <mixins/utils/linked_queue.h>
+#include <quark/hal/pmm.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
 #include <quark/memory/page.h>
-#include <quark/memory/page_queue.h>
-
-#define BUDDY_LEVEL_UPPER_LIMIT 10
-#define BUDDY_LEVEL_LOWER_LIMIT 0
 
 namespace Quark::System::Memory {
-    extern Array<AddressRange[256]>                         g_pageRanges;
-    extern Array<PhysMemQueue[BUDDY_LEVEL_UPPER_LIMIT + 1]> g_pageQueues;
-    extern PhysMemFrame**                                   g_pageFrames;
+    extern PageFrame** g_pageFrames;
 
     Res<u64> Allocate(usize amount);
     Res<>    Free(u64 address);
@@ -60,13 +55,17 @@ namespace Quark::System::Memory {
                      AddressSpace*        addressSpace,
                      Flags<Hal::VmmFlags> flags);
 
+    Res<> UnmapAddress(u64 virt, usize amount, AddressSpace* addressSpace);
+
     /**
      * @brief
      *
      * @param amount
      * @return Res<PhysMemFrame*>
      */
-    Res<PhysMemFrame*> AllocatePhysFrame4K(usize amount);
+    Res<PageFrame*> AllocatePhysFrame4K(
+        usize        amount,
+        Hal::PmmType allocType = Hal::PmmType::NORMAL);
 
     /**
      * @brief
@@ -79,11 +78,19 @@ namespace Quark::System::Memory {
     /**
      * @brief
      *
+     * @param frame
+     * @return Res<>
+     */
+    Res<> FreePhysFrame4K(PageFrame* frame);
+
+    /**
+     * @brief
+     *
      * @param address
      * @param amount
      * @return Res<>
      */
-    Res<> FreePhysMemory4K(usize address, usize amount);
+    Res<> FreePhysMemory4K(u64 address, usize amount);
 
     /**
      * @brief
