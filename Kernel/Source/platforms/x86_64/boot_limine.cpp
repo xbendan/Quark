@@ -5,12 +5,12 @@
 #include <quark/init/boot_info.h>
 #include <quark/os/main.h>
 
-using Quark::System::LaunchConfiguration;
+using Quark::System::BootInfo;
 using Quark::System::Graphics::LinearFramebufferDevice;
 using Quark::System::Hal::Platform;
 using Quark::System::Memory::AddressRange;
 using Quark::System::Memory::MemmapEntry;
-using Quark::System::Memory::MemoryConfiguration;
+using Quark::System::Memory::MemoryConfigTable;
 
 extern "C"
 {
@@ -63,20 +63,34 @@ extern "C"
     //     .revision = 0
     // };
 
-    __attribute__((used,
-                   section(".requests_start_marker"))) //
-    static volatile LIMINE_REQUESTS_START_MARKER;
+    // __attribute__((used,
+    //                section(".requests"))) //
+    // static volatile limine_hhdm_request lmReqHhdm{
+    //     .id       = LIMINE_HHDM_REQUEST,
+    //     .revision = 0,
+    //     .response = {},
+    // };
 
     __attribute__((used,
-                   section(".requests_end_marker"))) //
-    static volatile LIMINE_REQUESTS_END_MARKER;
+                   section(".requests"))) //
+    static volatile limine_kernel_address_request lmReqKernelAddress{
+        .id       = LIMINE_KERNEL_ADDRESS_REQUEST,
+        .revision = 0,
+        .response = {},
+    };
+
+    // __attribute__((used,
+    //                section(".requests_start_marker"))) //
+    // static volatile LIMINE_REQUESTS_START_MARKER;
+
+    // __attribute__((used,
+    //                section(".requests_end_marker"))) //
+    // static volatile LIMINE_REQUESTS_END_MARKER;
 
     [[noreturn]]
     void kload_limine(void)
     {
-        LaunchConfiguration& conf = Quark::System::getLaunchConfiguration();
-
-        conf._platform = {
+        BootInfo::Platform = {
             "AMD64",
             "1.0",
             Platform::Type::Desktop,
@@ -84,37 +98,57 @@ extern "C"
             Platform::AddressSpaceIsolation | Platform::ProcessContextSwitch,
         };
 
-        conf._bootTime = lmReqBootTime.response->boot_time;
+        BootInfo::BootTime = lmReqBootTime.response->boot_time;
 
         // Handle memory map
-        MemoryConfiguration&    confMemory   = conf._memory;
+        auto& mem = *(new (&BootInfo::MemoryInfo) MemoryConfigTable());
+
         limine_memmap_response* lmRespMemmap = lmReqMemmap.response;
         for (int i = 0; i < lmRespMemmap->entry_count; i++) {
-            MemmapEntry&         mapEntry = confMemory._addressRanges[i];
+            MemmapEntry&         mapEntry = mem._addressRanges[i];
             limine_memmap_entry* entry    = lmRespMemmap->entries[i];
 
-            mapEntry._range = AddressRange(entry->base, entry->length);
+            mem._totalSize += entry->length;
+            mapEntry.Range = AddressRange(entry->base, entry->length);
             switch (entry->type) {
                 case LIMINE_MEMMAP_USABLE: {
-                    confMemory._availableSize += entry->length;
-                    mapEntry._type = MemmapEntry::Type::Free;
+                    mem._availableSize += entry->length;
+                    mapEntry.Type = MemmapEntry::Type::Free;
+                    break;
+                }
+                case LIMINE_MEMMAP_RESERVED: /*
+                    这些区间是没有被映射到任何地方，不能当作RAM来使用，
+                    但是kernel可以决定将这些区间映射到其他地方，
+                    比如PCI设备。 */
+                {
+                    mapEntry.Type = MemmapEntry::Type::Reserved;
                     break;
                 }
                 case LIMINE_MEMMAP_KERNEL_AND_MODULES: {
-                    mapEntry._type = MemmapEntry::Type::Kernel;
+                    mapEntry.Type = MemmapEntry::Type::Kernel;
                     break;
                 }
-                case LIMINE_MEMMAP_ACPI_RECLAIMABLE: {
-                    mapEntry._type = MemmapEntry::Type::AcpiReclaimable;
+                case LIMINE_MEMMAP_ACPI_NVS: /*
+                    映射到用来存放ACPI数据的非易失性存储空间，
+                    操作系统不能使用。*/
+                {
+                    mapEntry.Type = MemmapEntry::Type::AcpiNvs;
+                    break;
+                }
+                case LIMINE_MEMMAP_ACPI_RECLAIMABLE: /*
+                    映射到用来存放ACPI数据的RAM空间，操作系统应该将
+                    ACPI Table读入到这个区间内。*/
+                {
+                    mapEntry.Type = MemmapEntry::Type::AcpiReclaimable;
                     break;
                 }
                 case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE: {
-                    confMemory._availableSize += entry->length;
-                    mapEntry._type = MemmapEntry::Type::Reclaimable;
+                    mem._availableSize += entry->length;
+                    mapEntry.Type = MemmapEntry::Type::Reclaimable;
                     break;
                 }
                 case LIMINE_MEMMAP_BAD_MEMORY: {
-                    mapEntry._type = MemmapEntry::Type::BadMemory;
+                    mapEntry.Type = MemmapEntry::Type::BadMemory;
                     break;
                 }
                 case LIMINE_MEMMAP_FRAMEBUFFER: {
@@ -122,13 +156,22 @@ extern "C"
                     // LinearFramebufferDevice(); fb->init(entry->base,
                     // entry->length, 0, 0, 0); conf._graphics._framebuffer =
                     // fb;
-                    mapEntry._type = MemmapEntry::Type::Data;
+                    mapEntry.Type = MemmapEntry::Type::Data;
                     break;
                 }
             }
+
+            if (entry->type != LIMINE_MEMMAP_RESERVED) {
+                mem._limit = max(mem._limit, entry->base + entry->length);
+            }
         }
 
-        Quark::System::SetupKernel(&conf);
+        limine_kernel_address_response* lmRespKernelAddress =
+            lmReqKernelAddress.response;
+        mem._kPhysOffset = lmRespKernelAddress->physical_base;
+        mem._kVirtOffset = lmRespKernelAddress->virtual_base;
+
+        Quark::System::SetupKernel();
 
         while (true)
             asm volatile("hlt; pause;");
