@@ -1,5 +1,7 @@
+#!/bin/bash
+
 LIMINE_URL="https://github.com/limine-bootloader/limine.git"
-LIMINE_BRANCH="v8.x-binary"
+LIMINE_BRANCH="v3.0-branch-binary"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PATH_THIRDPARTY="$(realpath --relative-to="$SCRIPT_DIR" "$SCRIPT_DIR/../Thirdparty")"

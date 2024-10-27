@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ARCH=${ARCH:="x86_64"}
 MAKE=${MAKE:="make"}
 
