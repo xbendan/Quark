@@ -4,35 +4,35 @@
 #include <mixins/std/type_traits.h>
 
 #define MakeFlags$(T)                                                          \
-    inline T operator~(T rhs)                                                  \
+    constexpr inline T operator~(T rhs)                                        \
     {                                                                          \
         using U = Std::UnderlyingType<T>;                                      \
         return (T) ~(U)rhs;                                                    \
     }                                                                          \
-    inline T operator|(T lhs, T rhs)                                           \
+    constexpr inline T operator|(T lhs, T rhs)                                 \
     {                                                                          \
         using U = Std::UnderlyingType<T>;                                      \
         return (T)((U)lhs | (U)rhs);                                           \
     }                                                                          \
-    inline T operator&(T lhs, T rhs)                                           \
+    constexpr inline T operator&(T lhs, T rhs)                                 \
     {                                                                          \
         using U = Std::UnderlyingType<T>;                                      \
         return (T)((U)lhs & (U)rhs);                                           \
     }                                                                          \
-    inline T operator^(T lhs, T rhs)                                           \
+    constexpr inline T operator^(T lhs, T rhs)                                 \
     {                                                                          \
         using U = Std::UnderlyingType<T>;                                      \
         return (T)((U)lhs ^ (U)rhs);                                           \
     }                                                                          \
-    inline T& operator|=(T& lhs, T rhs)                                        \
+    constexpr inline T& operator|=(T& lhs, T rhs)                              \
     {                                                                          \
         return lhs = lhs | rhs;                                                \
     }                                                                          \
-    inline T& operator&=(T& lhs, T rhs)                                        \
+    constexpr inline T& operator&=(T& lhs, T rhs)                              \
     {                                                                          \
         return lhs = lhs & rhs;                                                \
     }                                                                          \
-    inline T& operator^=(T& lhs, T rhs)                                        \
+    constexpr inline T& operator^=(T& lhs, T rhs)                              \
     {                                                                          \
         return lhs = lhs ^ rhs;                                                \
     }
@@ -43,14 +43,14 @@ class Flags
     using U = Std::UnderlyingType<E>;
 
 public:
-    Flags() = default;
+    constexpr Flags() = default;
 
-    Flags(U flags)
+    constexpr Flags(U flags)
         : _flags(flags)
     {
     }
 
-    Flags(E flags)
+    constexpr Flags(E flags)
         : _flags((U)flags)
     {
     }
@@ -121,8 +121,8 @@ public:
 
     void set(E flag) { _flags |= (U)flag; }
 
-    void clear(E flag) { _flags &= ~(U)flag; }
+    void Unset(E flag) { _flags &= ~(U)flag; }
 
 private:
-    U _flags;
+    U _flags{ 0 };
 };
