@@ -75,10 +75,16 @@ namespace Quark::System::Memory {
         AddressRange& SetValue(u8 val)
         {
             u64 len = Length();
+#if defined(__x86_64__)
+            asm volatile("rep stosb"
+                         : "+D"(_min), "+c"(len)
+                         : "a"(val)
+                         : "memory");
+#elif
             for (u64 i = 0; i < len; i++) {
                 ((u8*)_min)[i] = val;
             }
-
+#endif
             return *this;
         }
 
@@ -87,6 +93,7 @@ namespace Quark::System::Memory {
             if (!_min || !_max) {
                 return Empty();
             }
+
             for (u64 i = 0; i < Length(); i += offset) {
                 if (((u8*)_min)[i] == val[0]) {
                     u64 j = 0;
