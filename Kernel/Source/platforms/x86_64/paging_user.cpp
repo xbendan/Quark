@@ -8,15 +8,6 @@
 #define PAGE_FLAGS_PR (VmmFlags::PRESENT | VmmFlags::WRITABLE)
 
 namespace Quark::System::Platform::X64 {
-    using Quark::System::Memory::AddressRange;
-
-    pagedir_t kPageDirs;
-    pagedir_t kIoDirs[4];
-    pagedir_t kHeapDirs;
-    pagetbl_t kHeapTbls[512];
-
-    X64AddressSpace<Privilege::Level::System> kAddressSpace;
-
     X64AddressSpace<Privilege::Level::User>::X64AddressSpace()
         : _pml4Phys((u64)&_pml4 - KERNEL_VIRTUAL_BASE)
         , _bitmap(new Bitmap(1'6384 / 8 * 1024))
@@ -49,7 +40,7 @@ namespace Quark::System::Platform::X64 {
         // I hate nested pointers.
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::User>::Alloc4KPages(
+    Res<u64> X64AddressSpace<Privilege::Level::User>::AllocateVirtPages4K(
         usize           amount, //
         Flags<VmmFlags> flags)
     {
@@ -85,15 +76,15 @@ namespace Quark::System::Platform::X64 {
         return Ok(index << 12);
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::User>::Alloc2MPages(
+    Res<u64> X64AddressSpace<Privilege::Level::User>::AllocateVirtPages2M(
         usize           amount,
         Flags<VmmFlags> flags)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::Free4KPages(u64   address,
-                                                               usize amount)
+    Res<> X64AddressSpace<Privilege::Level::User>::FreeVirtPages4K(u64 address,
+                                                                   usize amount)
     {
         u64 index = address >> 12;
         u16 i, j, k;
@@ -115,13 +106,13 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::Free2MPages(u64   address,
-                                                               usize amount)
+    Res<> X64AddressSpace<Privilege::Level::User>::FreeVirtPages2M(u64 address,
+                                                                   usize amount)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::Map4KPages(
+    Res<> X64AddressSpace<Privilege::Level::User>::MapAddress4K(
         u64             phys, //
         u64             virt,
         usize           amount,
@@ -165,7 +156,7 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::Map2MPages(
+    Res<> X64AddressSpace<Privilege::Level::User>::MapAddress2M(
         u64             phys, //
         u64             virt,
         usize           amount,
@@ -240,194 +231,4 @@ namespace Quark::System::Platform::X64 {
 
         return Error::NotImplemented();
     }
-
-    // Res<Flags<VmmFlags>> X64AddressSpace<
-    //     Privilege::Level::User>::setFlagsThenGet(u64 address,
-    //                                          Flags<VmmFlags> flags,
-    //                                          bool                 set)
-    // {
-    //     u64 index = address >> 12;
-    //     u16 i, j, k;
-    //     i = (index >> 18) & 0x1ff;
-    //     j = (index >> 9) & 0x1ff;
-    //     k = index & 0x1ff;
-
-    //     if (!_pageDirs[i] || !_pageTables[i][j])
-    //         return Error::PageMayBroken();
-
-    //     MapLevel<1>::Entry& ent = (*_pageTables[i][j])[k];
-    //     if (set) {
-    //         ent.withFlags(flags);
-    //     } else {
-    //         ent.clearFlags(flags);
-    //     }
-
-    //     Flags<VmmFlags> newFlags;
-    //     if (ent._present) {
-    //         newFlags |= VmmFlags::PRESENT;
-    //     }
-    //     if (ent._writable) {
-    //         newFlags |= VmmFlags::WRITABLE;
-    //     }
-    //     if (ent._user) {
-    //         newFlags |= VmmFlags::USER;
-    //     }
-    //     if (ent._accessed) {
-    //         newFlags |= VmmFlags::ACCESSED;
-    //     }
-    //     if (ent._dirty) {
-    //         newFlags |= VmmFlags::DIRTY;
-    //     }
-    //     if (ent._pageSize) {
-    //         newFlags |= VmmFlags::PAGE_SIZE;
-    //     }
-    //     if (ent._global) {
-    //         newFlags |= VmmFlags::GLOBAL;
-    //     }
-    //     if (ent._disableExecute) {
-    //         newFlags |= VmmFlags::DISABLE_EXECUTE;
-    //     }
-    //     return Ok(newFlags);
-    // }
-
-    X64AddressSpace<Privilege::Level::System>::X64AddressSpace()
-    {
-        AddressRange(&_pml4, sizeof(pml4_t)).Clear();
-        AddressRange(&_pdpt, sizeof(pdpt_t)).Clear();
-
-        SetPageFrame(_pml4[KERNEL_BASE_PML4_INDEX],
-                     (u64)&_pdpt - KERNEL_VIRTUAL_BASE,
-                     VmmFlags::PRESENT | VmmFlags::WRITABLE);
-        _pml4[0] = _pml4[KERNEL_BASE_PML4_INDEX];
-
-        // Map kernel base
-        SetPageFrame(_pdpt[KERNEL_BASE_PDPT_INDEX],
-                     (u64)&kPageDirs - KERNEL_VIRTUAL_BASE,
-                     VmmFlags::PRESENT | VmmFlags::WRITABLE);
-        for (int i = 0; i < VMM_PAGE_ENTRY_COUNT; i++) {
-            SetPageFrame(kPageDirs[i],
-                         PAGE_SIZE_2M * i,
-                         VmmFlags::PRESENT | VmmFlags::WRITABLE);
-        }
-        _pageDirs[0] = &kPageDirs;
-
-        // Map kernel heap
-        SetPageFrame(_pdpt[KERNEL_HEAP_PDPT_INDEX],
-                     (u64)&kHeapDirs - KERNEL_VIRTUAL_BASE,
-                     VmmFlags::PRESENT | VmmFlags::WRITABLE);
-        for (int i = 0; i < VMM_PAGE_ENTRY_COUNT; i++) {
-            SetPageFrame(kHeapDirs[i],
-                         (u64)&kHeapTbls - KERNEL_VIRTUAL_BASE +
-                             PAGE_SIZE_4K * i,
-                         VmmFlags::PRESENT | VmmFlags::WRITABLE);
-        }
-
-        // Set IO tables
-        for (int i = 0; i < 4; i++) {
-            SetPageFrame(_pdpt[PDPT_GET_INDEX(IO_VIRTUAL_BASE) + i],
-                         (u64)&kIoDirs[i] - KERNEL_VIRTUAL_BASE,
-                         VmmFlags::PRESENT | VmmFlags::WRITABLE);
-            for (int j = 0; j < VMM_PAGE_ENTRY_COUNT; j++) {
-                SetPageFrame(kIoDirs[i][j],
-                             PAGE_SIZE_1G * i + PAGE_SIZE_2M * j,
-                             VmmFlags::PRESENT | VmmFlags::WRITABLE);
-            }
-        }
-
-        _pdpt[0]  = _pdpt[KERNEL_BASE_PDPT_INDEX];
-        _pml4Phys = (u64)&_pml4 - KERNEL_VIRTUAL_BASE;
-
-        // asm("mov %%rax, %%cr3" ::"a"(_pml4Phys));
-    }
-
-    Res<u64> X64AddressSpace<Privilege::Level::System>::Alloc4KPages(
-        usize           amount,
-        Flags<VmmFlags> flags)
-    {
-
-        return Error::NotImplemented();
-    }
-
-    Res<u64> X64AddressSpace<Privilege::Level::System>::Alloc2MPages(
-        usize           amount,
-        Flags<VmmFlags> flags)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<> X64AddressSpace<Privilege::Level::System>::Free4KPages(u64   address,
-                                                                 usize amount)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<> X64AddressSpace<Privilege::Level::System>::Free2MPages(u64   address,
-                                                                 usize amount)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<> X64AddressSpace<Privilege::Level::System>::Map4KPages(
-        u64             phys, //
-        u64             virt,
-        usize           amount,
-        Flags<VmmFlags> flags)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<> X64AddressSpace<Privilege::Level::System>::Map2MPages(
-        u64             phys, //
-        u64             virt,
-        usize           amount,
-        Flags<VmmFlags> flags)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<Flags<VmmFlags>> X64AddressSpace<Privilege::Level::System>::getFlags(
-        u64 address)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<> X64AddressSpace<Privilege::Level::System>::setFlags(
-        u64             address,
-        Flags<VmmFlags> flags,
-        bool            set)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<u64> X64AddressSpace<Privilege::Level::System>::GetPhysAddress(
-        u64 address)
-    {
-        return Error::NotImplemented();
-    }
 } // namespace Quark::System::Platform::X64
-
-namespace Quark::System {
-    using Quark::System::Memory::AddressSpace;
-    using namespace Quark::System::Platform::X64;
-
-    Res<AddressSpace*> InitVirtMemory()
-    {
-        AddressSpace* p = &kAddressSpace;
-        if (!kAddressSpace._pml4Phys) {
-            new (p) X64AddressSpace<Privilege::Level::System>();
-        }
-        return Ok(p);
-    }
-}
-
-namespace Quark::System::Memory {
-    Res<AddressSpace*> AddressSpace::Create(Privilege::Level lv)
-    {
-        return Ok((AddressSpace*)new X64AddressSpace<Privilege::Level::User>());
-    }
-
-    u64 CopyAsIOAddress(u64 address)
-    {
-        return address + IO_VIRTUAL_BASE;
-    }
-}

@@ -14,6 +14,11 @@
 #define PAGE_GET_INDEX(addr) ((addr >> 12) & 0x1FF)
 #define PAGE_OFFSET_MASK 0x0000000000000FFF
 
+#define PAGES_PER_TABLE 512
+#define TABLES_PER_DIR 512
+#define DIRS_PER_PDPT 512
+#define PDPTS_PER_PML4 512
+
 #define VMM_PAGE_PRESENT (1 << 0)
 #define VMM_PAGE_WRITABLE (1 << 1)
 #define VMM_PAGE_USER (1 << 2)
@@ -79,145 +84,9 @@ namespace Quark::System::Platform::X64 {
     {
         return (T*)new pageflags_t[VMM_PAGE_ENTRY_COUNT];
     }
+
+    inline bool operator&(pageflags_t flags, VmmFlags flag)
+    {
+        return flags & static_cast<u64>(flag);
+    }
 }
-
-namespace Quark::System::Platform::X64 {
-
-    // template <u8 _Lv>
-    // class MapLevel
-    // {
-    // public:
-    //     union Entry
-    //     {
-    //         u64 _flags;
-
-    //         struct
-    //         {
-    //             u64 _present : 1;
-    //             u64 _writable : 1;
-    //             u64 _user : 1;
-    //             u64 _writeThrough : 1;
-    //             u64 _cacheDisabled : 1;
-    //             u64 _accessed : 1;
-    //             u64 _dirty : 1;
-    //             u64 _pageSize : 1;
-    //             u64 _global : 1;
-    //             u64 __reserved__2 : 3;
-    //             u64 _address : 40;
-    //             u64 __reserved__3 : 11;
-    //             u64 _disableExecute : 1;
-    //         } __attribute__((packed));
-
-    //         Entry& WithFlags(VmmFlags flags, bool set = true)
-    //         {
-    //             switch (flags) {
-    //                 case VmmFlags::PRESENT:
-    //                     _present = set;
-    //                     break;
-    //                 case VmmFlags::WRITABLE:
-    //                     _writable = set;
-    //                     break;
-    //                 case VmmFlags::USER:
-    //                     _user = set;
-    //                     break;
-    //                 case VmmFlags::WRITE_THROUGH:
-    //                     _writeThrough = set;
-    //                     break;
-    //                 case VmmFlags::CACHE_DISABLED:
-    //                     _cacheDisabled = set;
-    //                     break;
-    //                 case VmmFlags::ACCESSED:
-    //                     _accessed = set;
-    //                     break;
-    //                 case VmmFlags::DIRTY:
-    //                     _dirty = set;
-    //                     break;
-    //                 case VmmFlags::PAGE_SIZE:
-    //                     _pageSize = set;
-    //                     break;
-    //                 case VmmFlags::GLOBAL:
-    //                     _global = set;
-    //                     break;
-    //                 case VmmFlags::DISABLE_EXECUTE:
-    //                     _disableExecute = set;
-    //                     break;
-    //             }
-    //             return *this;
-    //         }
-
-    //         Entry& withFlags(Flags<VmmFlags> flags, bool set = true)
-    //         {
-    //             _present        = flags & VmmFlags::PRESENT;
-    //             _writable       = flags & VmmFlags::WRITABLE;
-    //             _user           = flags & VmmFlags::USER;
-    //             _writeThrough   = flags & VmmFlags::WRITE_THROUGH;
-    //             _cacheDisabled  = flags & VmmFlags::CACHE_DISABLED;
-    //             _accessed       = flags & VmmFlags::ACCESSED;
-    //             _dirty          = flags & VmmFlags::DIRTY;
-    //             _pageSize       = flags & VmmFlags::PAGE_SIZE;
-    //             _global         = flags & VmmFlags::GLOBAL;
-    //             _disableExecute = flags & VmmFlags::DISABLE_EXECUTE;
-
-    //             return *this;
-    //         }
-
-    //         Entry& clearFlags(Flags<VmmFlags> flags)
-    //         {
-    //             _present        = !(flags & VmmFlags::PRESENT);
-    //             _writable       = !(flags & VmmFlags::WRITABLE);
-    //             _user           = !(flags & VmmFlags::USER);
-    //             _writeThrough   = !(flags & VmmFlags::WRITE_THROUGH);
-    //             _cacheDisabled  = !(flags & VmmFlags::CACHE_DISABLED);
-    //             _accessed       = !(flags & VmmFlags::ACCESSED);
-    //             _dirty          = !(flags & VmmFlags::DIRTY);
-    //             _pageSize       = !(flags & VmmFlags::PAGE_SIZE);
-    //             _global         = !(flags & VmmFlags::GLOBAL);
-    //             _disableExecute = !(flags & VmmFlags::DISABLE_EXECUTE);
-
-    //             return *this;
-    //         }
-
-    //         Entry& WithAddress(u64 address)
-    //         {
-    //             _address = address & VMM_PAGE_ADDRESS_MASK;
-    //             return *this;
-    //         }
-
-    //     } __attribute__((packed)) _entries[VMM_PAGE_ENTRY_COUNT];
-
-    //     static_assert(sizeof(MapLevel<_Lv>::Entry) == 8);
-
-    //     constexpr static usize _len = 512;
-
-    //     Entry& operator[](usize index) { return _entries[index]; }
-
-    //     const Entry& operator[](usize index) const { return _entries[index];
-    //     }
-    // };
-
-    // using Pml4      = MapLevel<4>; // Page Map Level 4, 256 TiB
-    // using Pdpt      = MapLevel<3>; // Page Directory Pointer Table, 512 GiB
-    // using PageDir   = MapLevel<2>; // Page Directory, 1 GiB
-    // using PageTable = MapLevel<1>; // Page Table, 2 MiB
-
-    // inline constexpr u16 pml4IndexOf(u64 addr)
-    // {
-    //     return (addr >> 39) & 0x1FF;
-    // }
-
-    // inline constexpr u16 pdptIndexOf(u64 addr)
-    // {
-    //     return (addr >> 30) & 0x1FF;
-    // }
-
-    // inline constexpr u16 pdirIndexOf(u64 addr)
-    // {
-    //     return (addr >> 21) & 0x1FF;
-    // }
-
-    // inline constexpr u16 pageIndexOf(u64 addr)
-    // {
-    //     return (addr >> 12) & 0x1FF;
-    // }
-
-} // namespace Quark::System::Platform::X64
