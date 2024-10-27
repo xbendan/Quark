@@ -6,10 +6,10 @@
 #include <quark/gfx/info.h>
 
 namespace Quark::System::Graphics {
-    class IVideoDisplayDevice : public Io::Device
+    class IVideoOutputDevice : public Io::Device
     {
     public:
-        IVideoDisplayDevice(string name, Size resolution)
+        IVideoOutputDevice(string name, Size resolution)
             : Device(name, Device::Type::DisplayOutput)
             , m_resolution(resolution)
         {

@@ -4,7 +4,7 @@
 #include <quark/gfx/surface.h>
 
 namespace Quark::System::Graphics {
-    class LinearFramebufferDevice : public IVideoDisplayDevice
+    class LinearFramebufferDevice : public IVideoOutputDevice
     {
     public:
         LinearFramebufferDevice(u64 address,
@@ -12,7 +12,7 @@ namespace Quark::System::Graphics {
                                 u32 height,
                                 u16 pitch,
                                 u16 bpp)
-            : IVideoDisplayDevice("Linear Framebuffer", { width, height })
+            : IVideoOutputDevice("Linear Framebuffer", { width, height })
             , _surface({ width, height }, reinterpret_cast<Rgba*>(address))
         {
         }
