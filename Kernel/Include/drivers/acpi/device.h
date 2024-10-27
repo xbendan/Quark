@@ -3,9 +3,9 @@
 #include <quark/dev/device.h>
 
 namespace ACPI {
-    using namespace Quark::System;
+    using Quark::System::Io::Device;
 
-    class ControllerDevice : public Io::Device
+    class ControllerDevice : public Device
     {
     public:
         ControllerDevice();

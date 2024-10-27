@@ -38,7 +38,7 @@ namespace VESA {
 
     class VGATextOutputDevice
         : public IVideoOutputDevice
-        , public Io::TextWriter
+        , public TextWriter
     {
     public:
         VGATextOutputDevice();

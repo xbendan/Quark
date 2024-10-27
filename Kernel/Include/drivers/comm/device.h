@@ -6,8 +6,7 @@
 #include <quark/hal/ports.h>
 
 namespace Serial {
-    using namespace Quark::System;
-    using ::Io::TextWriter;
+    using Quark::System::Hal::PortAccess;
     using Quark::System::Io::Device;
 
     class SerialPortDevice final
@@ -31,8 +30,8 @@ namespace Serial {
 
     private:
         // Spinlock                                             m_lock;
-        lock_t                                               m_lock;
-        Hal::PortAccess<Port::COM1>                          m_portAccess;
-        Hal::PortAccess<Port::COM1 + PortOffset::LineStatus> m_lineStatus;
+        lock_t                                          m_lock;
+        PortAccess<Port::COM1>                          m_portAccess;
+        PortAccess<Port::COM1 + PortOffset::LineStatus> m_lineStatus;
     };
 } // namespace Quark::System::Hal
