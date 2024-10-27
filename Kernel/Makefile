@@ -1,13 +1,21 @@
 FILENAME = quark
 PLATFORM = none
-# BUILD_VERSION := $(shell git describe --tags --always --dirty)
-BUILD_VERSION = 0.0.1
+BUILD_VERSION := $(shell ../Scripts/get-version.sh)
 BUILD_MODE = release
-BUILD_NAME = $(FILENAME)-v$(BUILD_VERSION)-$(PLATFORM)-$(BUILD_MODE)
+BUILD_NAME = $(FILENAME)-$(PLATFORM)-v$(BUILD_VERSION)-$(BUILD_MODE)
 FINAL_PATH ?= /mnt/d/Codes/Cxxlang/$(BUILD_NAME).iso
 BUILD_PATH = Build/platforms/$(PLATFORM)
 DIST_PATH = Dist/$(BUILD_NAME).elf
 DIST_IMAGE = Dist/$(BUILD_NAME).iso
+
+GRUB_PATH=Target/grub_root
+GRUB_CONFIG=$(GRUB_PATH)/boot/grub/grub.cfg  
+
+LIMINE_PATH=Target/limine_root
+LIMINE_CONFIG=$(LIMINE_PATH)/limine.cfg
+
+STIVALE_PATH=Target/stivale2_root
+STIVALE_CONFIG=$(STIVALE_PATH)/boot/limine.cfg
 
 CXXFLAGS = \
 	-Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-write-strings \
@@ -53,6 +61,36 @@ ifeq ($(strip $(PLATFORM)),none)
     override PLATFORM := x86_64
 endif  
 
+check_version:
+	@echo "Checking kernel version..."
+	@../Scripts/get-version.sh
+
+check_grubscript:
+	@echo "Checking grub script..."
+	@mkdir -p $(GRUB_PATH)/boot/grub
+	@echo 'set timeout=3' 							> $(GRUB_CONFIG)
+	@echo 'set default=0' 							>> $(GRUB_CONFIG)
+	@echo '' 										>> $(GRUB_CONFIG)
+	@echo 'menuentry "$(BUILD_NAME)" {' 			>> $(GRUB_CONFIG)
+	@echo '    multiboot2 /boot/$(BUILD_NAME).elf' 	>> $(GRUB_CONFIG)
+	@echo '    boot' 								>> $(GRUB_CONFIG)
+	@echo '}' 										>> $(GRUB_CONFIG)
+	@echo 'menuentry "Reboot" --class=reboot {'  	>> $(GRUB_CONFIG)
+	@echo '    reboot' 								>> $(GRUB_CONFIG)
+	@echo '}' 										>> $(GRUB_CONFIG)
+
+check_stivalescript:
+	@echo "Checking stivale script..."
+	@mkdir -p $(STIVALE_PATH)/boot
+	@echo 'TIMEOUT=0' 								> $(STIVALE_CONFIG)
+	@echo 'VERBOSE=yes' 							>> $(STIVALE_CONFIG)
+	@echo '' 										>> $(STIVALE_CONFIG)
+	@echo ':$(BUILD_NAME)' 							>> $(STIVALE_CONFIG)
+	@echo 'PROTOCOL=stivale2' 						>> $(STIVALE_CONFIG)
+	@echo 'KERNEL_PATH=boot:///$(BUILD_NAME).elf' 	>> $(STIVALE_CONFIG)
+	@echo 'KASLR=no' 								>> $(STIVALE_CONFIG)
+	@echo 'DEPRECATION_WARNING=no' 					>> $(STIVALE_CONFIG)
+
 check_arguments:
 	@echo "Checking arguments..."
 	@echo "Filename: $(FILENAME)"
@@ -90,7 +128,8 @@ auto: check_arguments
 	@$(MAKE) build-$(PLATFORM) -j4 PLATFORM=$(PLATFORM) AS=$(AS) CXX=$(CXX) LD=$(LD)  
 	@$(MAKE) run-$(PLATFORM) 
 
-build-x86_64: $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_ASSEMBLY)
+build-x86_64: check_stivalescript $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_ASSEMBLY)
+	@echo "Check prerequisites..."
 	@echo "Building x86_64 kernel..."  
 	@echo "Making building directory $(BUILD_PATH)."  
 	@mkdir -p $(BUILD_PATH)  
@@ -100,21 +139,30 @@ build-x86_64: $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_
 	@$(LD) $(LDFLAGS) -o $(DIST_PATH) \
 		-T Target/LinkerScript-$(PLATFORM).ld \
 		$(GENERIC_SOURCE) $(PLATFORM_SOURCE) $(PLATFORM_ASSEMBLY) $(DRIVERS_SOURCE)  
-	cp $(DIST_PATH) Target/limine_root/boot/$(FILENAME)-$(PLATFORM)-$(BUILD_MODE).elf  
-	xorriso -as mkisofs -b boot/limine/limine-bios-cd.bin \
+# cp $(DIST_PATH) Target/limine_root/boot/$(FILENAME)-$(PLATFORM)-$(BUILD_MODE).elf  
+# xorriso -as mkisofs -b boot/limine/limine-bios-cd.bin \
+# 	-no-emul-boot -boot-load-size 4 -boot-info-table \
+# 	--efi-boot boot/limine/limine-uefi-cd.bin \
+# 	-efi-boot-part --efi-boot-image --protective-msdos-label \
+# 	Target/limine_root -o $(DIST_IMAGE)
+# ../Thirdparty/limine/limine bios-install $(DIST_IMAGE)  
+#
+# @cp $(DIST_PATH) $(GRUB_PATH)/boot/$(BUILD_NAME).elf
+# grub-mkrescue /usr/lib/grub/i386-pc -o $(DIST_IMAGE) $(GRUB_PATH)  
+	@cp $(DIST_PATH) $(STIVALE_PATH)/$(BUILD_NAME).elf
+	xorriso -as mkisofs -b boot/limine-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
-		--efi-boot boot/limine/limine-uefi-cd.bin \
-		-efi-boot-part --efi-boot-image --protective-msdos-label \
-		Target/limine_root -o $(DIST_IMAGE)
-	../Thirdparty/limine/limine bios-install $(DIST_IMAGE)  
-	cp $(DIST_IMAGE) $(FINAL_PATH)  
+		--efi-boot boot/limine-cd-efi.bin -efi-boot-part \
+		--efi-boot-image --protective-msdos-label \
+		$(STIVALE_PATH) -o $(DIST_IMAGE)  
+	@cp $(DIST_IMAGE) $(FINAL_PATH)  
 
 run-x86_64:
 	@echo "Running x86_64 kernel..."
 	@qemu-system-x86_64.exe -cdrom $(patsubst /mnt/d/%, D:/%, $(FINAL_PATH)) -s -S \
 		-monitor stdio \
 		-cpu qemu64,+ssse3,+sse4.1,+sse4.2 \
-		-smp 4 -m 512m 
+		-smp 4 -m 64m 
 
 clean:  
 	@echo "Cleaning up..."
