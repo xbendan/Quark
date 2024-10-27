@@ -11,7 +11,7 @@
 #include <drivers/ps2/device.h>
 
 #include <quark/memory/address_range.h>
-#include <quark/os/logging.h>
+#include <quark/os/diagnostic/logging.h>
 #include <quark/os/main.h>
 
 extern "C"

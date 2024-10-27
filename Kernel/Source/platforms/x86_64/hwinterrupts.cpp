@@ -3,7 +3,7 @@
 
 #include <mixins/utils/array.h>
 #include <quark/hal/interrupts.h>
-#include <quark/os/logging.h>
+#include <quark/os/diagnostic/logging.h>
 
 namespace Quark::System::Platform::X64 {
     using namespace Quark::System::Diagnostic;

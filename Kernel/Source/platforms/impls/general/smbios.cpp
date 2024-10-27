@@ -1,7 +1,7 @@
 #include <drivers/smbios/device.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
-#include <quark/os/logging.h>
+#include <quark/os/diagnostic/logging.h>
 
 namespace Quark::System::Hal {
     using namespace Quark::System::Diagnostic;

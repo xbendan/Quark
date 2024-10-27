@@ -25,8 +25,8 @@ namespace Quark::System::Diagnostic {
     class Logger
     {
     public:
-        static inline void AddListener(Flags<LogLevel>   levels,
-                                       ::Io::TextWriter* textOutput);
+        static inline void AddListener(Flags<LogLevel> levels,
+                                       TextWriter*     textOutput);
     };
 
     void log(LogLevel level, string msg);

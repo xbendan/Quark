@@ -1,10 +1,12 @@
 #include <drivers/acpi/device.h>
 #include <mixins/meta/func.h>
-#include <quark/api/logging.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
+#include <quark/os/diagnostic/logging.h>
 
 namespace ACPI {
+    using namespace Quark::System::Diagnostic;
+    using namespace Quark::System;
     using Quark::System::Memory::AddressRange;
 
     static const char* _signature = "RSD PTR ";

@@ -3,11 +3,11 @@
 #include <drivers/apic/spec.h>
 #include <platforms/x86_64/cpu.h>
 #include <platforms/x86_64/sched.h>
-#include <quark/api/logging.h>
+#include <quark/os/diagnostic/logging.h>
 
 namespace APIC {
-    using namespace Quark::System::API;
     using namespace Platform::X64;
+    using namespace Quark::System::Diagnostic;
 
     GenericControllerDevice::GenericControllerDevice()
         : Device("Advanced Programmable Interrupt Controller",
@@ -48,12 +48,12 @@ namespace APIC {
 
                         m_units->pushBack(
                             new Local(apicLocal->_apicId, this, device));
-                        log(u8"[APIC] Local APIC, Processor ID: %d, APIC ID: "
-                            u8"%d, "
-                            "Flags: %d\n",
-                            apicLocal->_processorId,
-                            apicLocal->_apicId,
-                            apicLocal->_flags);
+                        info(u8"[APIC] Local APIC, Processor ID: %d, APIC ID: "
+                             u8"%d, "
+                             "Flags: %d\n",
+                             apicLocal->_processorId,
+                             apicLocal->_apicId,
+                             apicLocal->_flags);
                     }
                     break;
                 }
@@ -62,11 +62,11 @@ namespace APIC {
                         static_cast<ACPI::MultiApicDescTable::IoApic*>(entry);
                     if (!apicIo->_gSiB) {
                         m_ioBasePhys = apicIo->_address;
-                        log(u8"[APIC] I/O APIC, ID: %d, Address: %x, Global "
-                            "System Interrupt Base: %d\n",
-                            apicIo->_apicId,
-                            apicIo->_address,
-                            apicIo->_gSiB);
+                        info(u8"[APIC] I/O APIC, ID: %d, Address: %x, Global "
+                             "System Interrupt Base: %d\n",
+                             apicIo->_apicId,
+                             apicIo->_address,
+                             apicIo->_gSiB);
                     }
                     break;
                 }
@@ -75,11 +75,11 @@ namespace APIC {
                         static_cast<ACPI::MultiApicDescTable::
                                         InterruptServiceOverride*>(entry);
                     m_overrides->pushBack(iso);
-                    log(u8"[APIC] Interrupt Service Override, Bus Source: %d, "
-                        "IRQ Source: %d, Global System Interrupt: %d\n",
-                        iso->_busSource,
-                        iso->_irqSource,
-                        iso->_gSi);
+                    info(u8"[APIC] Interrupt Service Override, Bus Source: %d, "
+                         "IRQ Source: %d, Global System Interrupt: %d\n",
+                         iso->_busSource,
+                         iso->_irqSource,
+                         iso->_gSi);
 
                     break;
                 }
@@ -88,10 +88,10 @@ namespace APIC {
                         static_cast<
                             ACPI::MultiApicDescTable::NonMaskableInterrupt*>(
                             entry);
-                    log(u8"[APIC] NMI Source: %d, Global System Interrupt: "
-                        u8"%d\n",
-                        nmi->_processorId,
-                        nmi->_type);
+                    info(u8"[APIC] NMI Source: %d, Global System Interrupt: "
+                         u8"%d\n",
+                         nmi->_processorId,
+                         nmi->_type);
                     break;
                 }
                 case 0x04: /* Local APIC Non-maskable Interrupt */ {
@@ -107,19 +107,20 @@ namespace APIC {
                     ACPI::MultiApicDescTable::LocalApic* apicLocal =
                         static_cast<ACPI::MultiApicDescTable::LocalApic*>(
                             entry);
-                    log(u8"[APIC] Local APIC Address Override, Processor ID: "
-                        u8"%d, "
-                        "APIC ID: %d, Flags: %d\n",
-                        apicLocal->_processorId,
-                        apicLocal->_apicId,
-                        apicLocal->_flags);
+                    info(u8"[APIC] Local APIC Address Override, Processor ID: "
+                         u8"%d, "
+                         "APIC ID: %d, Flags: %d\n",
+                         apicLocal->_processorId,
+                         apicLocal->_apicId,
+                         apicLocal->_flags);
                     break;
                 }
                 case 0x09: /* Processor Local x2APIC */ {
                     ACPI::MultiApicDescTable::Localx2Apic* x2apicLocal =
                         static_cast<ACPI::MultiApicDescTable::Localx2Apic*>(
                             entry);
-                    log(u8"[APIC] Local x2APIC, x2APIC ID: %d, Flags: %d, UID: "
+                    info(
+                        u8"[APIC] Local x2APIC, x2APIC ID: %d, Flags: %d, UID: "
                         "%d\n",
                         x2apicLocal->_x2apicId,
                         x2apicLocal->_flags,
@@ -130,11 +131,11 @@ namespace APIC {
                     ACPI::MultiApicDescTable::Nmix2Apic* nmi =
                         static_cast<ACPI::MultiApicDescTable::Nmix2Apic*>(
                             entry);
-                    log(u8"[APIC] NMI Source: %d, UID: %d, Local APIC LINT: "
-                        u8"%d\n",
-                        nmi->_flags,
-                        nmi->_uid,
-                        nmi->_lInt);
+                    info(u8"[APIC] NMI Source: %d, UID: %d, Local APIC LINT: "
+                         u8"%d\n",
+                         nmi->_flags,
+                         nmi->_uid,
+                         nmi->_lInt);
                     break;
                 }
             }

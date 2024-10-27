@@ -2,7 +2,7 @@
 
 #include <mixins/meta/buf.h>
 #include <mixins/std/panic.h>
-#include <quark/os/logging.h>
+#include <quark/os/diagnostic/logging.h>
 
 #include <drivers/comm/device.h>
 
