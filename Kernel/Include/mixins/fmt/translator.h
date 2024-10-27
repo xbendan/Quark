@@ -20,7 +20,7 @@ namespace fmt {
     };
 
     template <typename T>
-        requires Std::isIntegral<T>
+        requires Std::isIntegral<Std::RemoveCvRef<T>>
     class Translator<string::Unit, T>
     {
     public:
@@ -29,16 +29,17 @@ namespace fmt {
 
         // static constexpr bool isImplemented = true;
 
-        static void toUnitType(OutputStream<UnitType> auto& stream,
-                               ParameterType const&         val,
-                               NumberFormat                 format,
+        template <typename... Args>
+        static void ToUnitType(OutputStream<UnitType> auto& stream,
+                               ParameterType&               val,
 
-                               bool withPrefix      = false,
-                               bool withCapitalized = false)
+                               NumberFormat format          = DecimalFormat,
+                               bool         withPrefix      = false,
+                               bool         withCapitalized = false)
         {
             if (withPrefix) {
-                stream.out('0');
-                stream.out(format._p);
+                stream << '0';
+                stream << format._p;
             }
 
             do {
@@ -46,12 +47,12 @@ namespace fmt {
                 UnitType u     = (digit < 10)
                                      ? digit + '0'
                                      : digit - 10 + (withCapitalized ? 'A' : 'a');
-                stream.out(u);
+                stream << u;
                 val /= format._base;
             } while (val > 0);
         }
 
-        static T toParameterType() { return {}; }
+        static T ToParameterType() { return {}; }
     };
 
     template <>
@@ -61,13 +62,13 @@ namespace fmt {
         using UnitType      = string::Unit;
         using ParameterType = string;
 
-        static void toUnitType(OutputStream<UnitType> auto& stream,
+        static void ToUnitType(OutputStream<UnitType> auto& stream,
                                ParameterType const&         val)
         {
             stream.out(val.Data(), val.Length());
         }
 
-        static string toParameterType() { return {}; }
+        static string ToParameterType() { return {}; }
     };
 
     template <>
@@ -77,14 +78,14 @@ namespace fmt {
         using UnitType      = string::Unit;
         using ParameterType = const char*;
 
-        static void toUnitType(OutputStream<UnitType> auto& stream,
+        static void ToUnitType(OutputStream<UnitType> auto& stream,
                                ParameterType const&         val)
         {
             string str(val);
             stream.out(str.Data(), str.Length());
         }
 
-        static const char* toParameterType() { return {}; }
+        static const char* ToParameterType() { return {}; }
     };
 
     template <typename T>
@@ -94,14 +95,14 @@ namespace fmt {
         using UnitType      = string::Unit;
         using ParameterType = T*;
 
-        static void toUnitType(OutputStream<UnitType> auto& stream,
-                               ParameterType const&         val)
+        static void ToUnitType(OutputStream<UnitType> auto& stream,
+                               ParameterType&               val)
         {
-            Translator<string::Unit, u64>::toUnitType(
-                stream, reinterpret_cast<u64>(val), HexadecimalFormat, true);
+            Translator<string::Unit, u64>::ToUnitType(
+                stream, reinterpret_cast<u64&>(val), HexadecimalFormat, true);
         }
 
-        static T* toParameterType() { return nullptr; }
+        static T* ToParameterType() { return nullptr; }
     };
 
     template <typename T>

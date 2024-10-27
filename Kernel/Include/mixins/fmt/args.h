@@ -11,10 +11,10 @@ namespace fmt {
     template <typename... Ts>
     struct Args : public _Args
     {
-        Tuple<Ts...> _data;
+        Tuple<Std::RemoveCvRef<Ts>...> _data;
 
         Args(Ts&&... args)
-            : _data{ Std::forward<Ts>(args)... }
+            : _data{ Std::forward<Std::RemoveCvRef<Ts>>(args)... }
         {
         }
         ~Args() override = default;
