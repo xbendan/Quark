@@ -16,16 +16,15 @@ namespace Quark::System {
     using Quark::System::Memory::AddressSpace;
     using Quark::System::Task::Process;
 
-    LaunchConfiguration& getLaunchConfiguration();
-
     [[noreturn]]
-    void  SetupKernel(LaunchConfiguration* bootInfo);
-    Res<> SetupArch(LaunchConfiguration* bootInfo);
+    void  SetupKernel();
+    Res<> SetupArch();
 
     Res<>                    InitPhysMemory();
     Res<AddressSpace*>       InitVirtMemory();
     Res<IList<Io::Device*>*> EnumerateInitialDevices();
     Res<IList<Io::Device*>*> SetupDevices();
+    Res<>                    InitKernelMemory();
     Res<>                    SetupInterrupts();
     Res<>                    InitTasks();
     Res<>                    InitFileSystems();

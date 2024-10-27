@@ -9,16 +9,15 @@
 #include <quark/memory/memory_info.h>
 
 namespace Quark::System {
-    using Memory::MemoryConfiguration;
+    using Memory::MemoryConfigTable;
 
-    struct LaunchConfiguration
+    struct BootInfo
     {
-        u64 _bootTime;
-        u64 _bootFlags;
-        u64 _checksum;
+        static inline u64  BootTime;
+        static inline char BootloaderName[64];
 
-        MemoryConfiguration _memory;
+        static inline MemoryConfigTable MemoryInfo;
 
-        Hal::Platform _platform;
+        static inline Hal::Platform Platform;
     };
 }
