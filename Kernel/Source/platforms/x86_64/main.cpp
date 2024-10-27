@@ -10,8 +10,8 @@
 #include <drivers/pci/enumeration.h>
 #include <drivers/ps2/device.h>
 
-#include <quark/api/logging.h>
 #include <quark/memory/address_range.h>
+#include <quark/os/logging.h>
 #include <quark/os/main.h>
 
 extern "C"
@@ -31,6 +31,7 @@ extern u64 interruptVectors[];
 namespace Quark::System {
     using namespace Quark::System::Memory;
     using namespace Quark::System::Platform::X64;
+    using namespace Quark::System::Diagnostic;
 
     InterruptDescTbl                kIdt = {};
     Inert<CPULocalDevice>           kCPULocal;
@@ -49,7 +50,7 @@ namespace Quark::System {
         return Ok((IList<Io::Device*>*)devices);
     }
 
-    Res<> SetupArch(LaunchConfiguration* launchConfig)
+    Res<> SetupArch()
     {
         asm volatile("cli");
 
@@ -87,16 +88,19 @@ namespace Quark::System {
         // asm volatile("cpuid"
         //              : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
         //              : "a"(1), "c"(0));
-        assert(cpuid._ecx & CPUID_ECX_SSE4_2,
-               "System requires [SSE4.2] to run while it's not supported");
-        assert(cpuid._edx & CPUID_EDX_FPU,
-               "System requires [FPU] to run while it's not supported."
-               "FPUs are coprocessors that are used to perform floating-point"
-               "operations");
-        assert(cpuid._edx & CPUID_EDX_APIC,
-               "System requires [APIC] to run while it's not supported, "
-               "The Advanced Programmable Interrupt Controller (APIC) is a "
-               "family of interrupt controllers");
+        MakeAssertion(
+            cpuid._ecx & CPUID_ECX_SSE4_2,
+            "System requires [SSE4.2] to run while it's not supported");
+        MakeAssertion(
+            cpuid._edx & CPUID_EDX_FPU,
+            "System requires [FPU] to run while it's not supported."
+            "FPUs are coprocessors that are used to perform floating-point"
+            "operations");
+        MakeAssertion(
+            cpuid._edx & CPUID_EDX_APIC,
+            "System requires [APIC] to run while it's not supported, "
+            "The Advanced Programmable Interrupt Controller (APIC) is a "
+            "family of interrupt controllers");
         // WTF is this?
         // Why the CPUID provided by QEMU doesn't have ACPI bit?
         // assert(edx & CPUID_EDX_ACPI,
@@ -105,10 +109,11 @@ namespace Quark::System {
         //        "open industry specification that defines power management "
         //        "and configuration interfaces between operating systems and "
         //        "hardware");
-        assert(cpuid._edx & CPUID_EDX_MSR,
-               "System requires [MSR] to run while it's not supported, "
-               "Model-specific registers (MSRs) are special registers in "
-               "the x86 architecture");
+        MakeAssertion(
+            cpuid._edx & CPUID_EDX_MSR,
+            "System requires [MSR] to run while it's not supported, "
+            "Model-specific registers (MSRs) are special registers in "
+            "the x86 architecture");
 
         // Enable FPU here
         // _lfpu();

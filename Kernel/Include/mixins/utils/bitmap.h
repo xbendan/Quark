@@ -7,7 +7,7 @@ class Bitmap
 {
 public:
     Bitmap(usize size)
-        : _data(new u64[divCeil(size, 64)])
+        : _data(new u64[DivCeil(size, 64)])
         , _size(size)
         , _taken(0)
     {

@@ -17,7 +17,7 @@ namespace CMOS {
                                     : nullptr;
                     })
                 .Take();
-        assert(fadt);
+        MakeAssertion(fadt);
 
         m_centuryRegsiter = fadt->_century;
         // TODO: Log

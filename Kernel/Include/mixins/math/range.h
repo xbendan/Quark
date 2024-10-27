@@ -23,69 +23,81 @@ struct Range
     {
     }
 
-    [[gnu::always_inline]]
-    T clamp(T value) const
+    __attribute__((always_inline)) constexpr inline Range(Range&& other)
+        : _min(other._min)
+        , _max(other._max)
     {
-        return value<_min ? _min : value> _max ? _max : value;
+    }
+
+    __attribute__((always_inline)) constexpr inline Range(Range const& other)
+        : _min(other._min)
+        , _max(other._max)
+    {
     }
 
     [[gnu::always_inline]]
-    T range() const
+    T Clamp(T value) const
+    {
+        return value < _min ? _min : value > _max ? _max : value;
+    }
+
+    [[gnu::always_inline]]
+    T Length() const
     {
         return _max - _min;
     }
 
     [[gnu::always_inline]]
-    T lerp(T t) const
+    T Lerp(T t) const
     {
-        return _min + t * range();
+        return _min + t * Range();
     }
 
     [[gnu::always_inline]]
-    T invlerp(T value) const
+    T InvLerp(T value) const
     {
-        return (value - _min) / range();
+        return (value - _min) / Range();
     }
 
     [[gnu::always_inline]]
-    T remap(T value, const Range& other) const
+    T Remap(T value, const Range& other) const
     {
-        return other.lerp(invlerp(value));
+        return other.Lerp(InvLerp(value));
     }
 
     [[gnu::always_inline]]
-    T remap(T value, T min, T max) const
+    T Remap(T value, T min, T max) const
     {
-        return lerp((value - min) / (max - min));
+        return Lerp((value - min) / (max - min));
     }
 
     [[gnu::always_inline]]
-    T remap(T value, T min, T max, T newMin, T newMax) const
+    T Remap(T value, T min, T max, T newMin, T newMax) const
     {
         return newMin + (newMax - newMin) * (value - min) / (max - min);
     }
 
     [[gnu::always_inline]]
-    T remap(T value, const Range& other, T newMin, T newMax) const
+    T Remap(T value, const Range& other, T newMin, T newMax) const
     {
-        return newMin + (newMax - newMin) * invlerp(value);
+        return newMin + (newMax - newMin) * InvLerp(value);
     }
 
     [[gnu::always_inline]]
-    T remap(T value, T min, T max, const Range& newRange) const
+    T Remap(T value, T min, T max, const Range& newRange) const
     {
-        return newRange.lerp((value - min) / (max - min));
+        return newRange.Lerp((value - min) / (max - min));
     }
 
     [[gnu::always_inline]]
-    bool contains(T value) const
+    bool WithinRange(T value) const
     {
         return value >= _min && value <= _max;
     }
 
-    T constrainTo(T value) const
+    T ConstraintsTo(T value) const
     {
-        return value<_min ? _min : value> _max ? _max : value;
+        return value < _min ? _min : value > _max ? _max : value;
     }
 
     [[gnu::always_inline]]

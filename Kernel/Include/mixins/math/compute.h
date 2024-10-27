@@ -3,10 +3,14 @@
 #include <mixins/std/concepts.h>
 #include <mixins/std/type_traits.h>
 
+namespace Math {
+
+}
+
 template <typename T, typename U = T>
     requires Std::isArithmetic<T> && Std::isArithmetic<U>
 T
-divCeil(T a, U b)
+DivCeil(T a, U b)
 {
     return (a / b) + (a % b != 0);
 }
@@ -14,7 +18,7 @@ divCeil(T a, U b)
 template <typename T, typename U = T>
     requires Std::isArithmetic<T> && Std::isArithmetic<U>
 T
-divFloor(T a, U b)
+DivFloor(T a, U b)
 {
     return a / b;
 }
@@ -22,7 +26,7 @@ divFloor(T a, U b)
 template <typename T>
     requires(Std::isArithmetic<T> && Comparable<T>)
 int
-compare(T a, T b)
+Compare(T a, T b)
 {
     if (a < b) {
         return -1;

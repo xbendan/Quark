@@ -83,11 +83,11 @@ namespace Quark::System::Hal {
         auto* apic = Device::FindByName<APIC::GenericControllerDevice>(
                          "Advanced Programmable Interrupt Controller")
                          .Take();
-        assert(apic != nullptr,
-               "Multi processing feature requires APIC device");
+        MakeAssertion(apic != nullptr,
+                      "Multi processing feature requires APIC device");
 
-        assert(_cpuLocals == nullptr,
-               "Do not call SetupMultiprocessing() more than once");
+        MakeAssertion(_cpuLocals == nullptr,
+                      "Do not call SetupMultiprocessing() more than once");
         _cpuLocals = apic->GetAPICLocals()->Select<ICPULocalDevice*>(
             [](APIC::GenericControllerDevice::Local* const& apicLocal) {
                 return apicLocal->_device;

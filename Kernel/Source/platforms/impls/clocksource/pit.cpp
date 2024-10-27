@@ -55,7 +55,7 @@ namespace PIT {
 
     void PITimerDevice::Sleep(u64 ms)
     {
-        assert(ms > 0);
+        MakeAssertion(ms > 0);
 
         ms = ms * 1000 + m_uptime.Load();
         while (m_uptime.Load() < ms)

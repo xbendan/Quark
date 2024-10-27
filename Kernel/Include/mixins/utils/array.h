@@ -41,9 +41,9 @@ public:
 
     T const& operator[](usize index) const { return _data[index]; }
 
-    T const* data() const { return &_data; }
+    T const* Data() const { return &_data; }
 
-    usize size() const { return N; }
+    usize Length() const { return N; }
 
     constexpr T* begin() { return _data; }
 
@@ -117,9 +117,9 @@ public:
 
     T const& operator[](usize index) const { return _data[index]; }
 
-    T const* data() const { return _data; }
+    T const* Data() const { return _data; }
 
-    usize size() const { return _size; }
+    usize Length() const { return _size; }
 
     constexpr T* begin() { return _data; }
 
@@ -145,7 +145,8 @@ public:
 
     TSource& next() override
     {
-        assert(_index < _size, Error::IndexOutOfBounds("Index out of bounds"));
+        MakeAssertion(_index < _size,
+                      Error::IndexOutOfBounds("Index out of bounds"));
         return _data[_index++];
     }
 
@@ -319,14 +320,16 @@ class Arrays
     template <typename TSource>
     static TSource findFirst(Slice<TSource>& src)
     {
-        assert(src.Length() > 0, Error::IndexOutOfBounds("Array is empty"));
+        MakeAssertion(src.Length() > 0,
+                      Error::IndexOutOfBounds("Array is empty"));
         return src[0];
     }
 
     template <typename TSource>
     static TSource findLast(Slice<TSource>& src)
     {
-        assert(src.Length() > 0, Error::IndexOutOfBounds("Array is empty"));
+        MakeAssertion(src.Length() > 0,
+                      Error::IndexOutOfBounds("Array is empty"));
         return src[src.Length() - 1];
     }
 
@@ -339,8 +342,8 @@ class Arrays
         requires(Sliceable<TSlice<TSource>, TSource>)
     static TSlice<TSource> take(Slice<TSource>& src, usize n)
     {
-        assert(n <= src.Length(),
-               Error::IndexOutOfBounds("Array is too small"));
+        MakeAssertion(n <= src.Length(),
+                      Error::IndexOutOfBounds("Array is too small"));
 
         TSlice result{ new TSource[n], n };
         copyArray(result, src, n);
@@ -354,10 +357,10 @@ class Arrays
         usize start = range.get<0>();
         usize end   = range.get<1>();
 
-        assert(start <= src.Length(),
-               Error::IndexOutOfBounds("Array is too small"));
-        assert(end <= src.Length(),
-               Error::IndexOutOfBounds("Array is too small"));
+        MakeAssertion(start <= src.Length(),
+                      Error::IndexOutOfBounds("Array is too small"));
+        MakeAssertion(end <= src.Length(),
+                      Error::IndexOutOfBounds("Array is too small"));
 
         usize           count = end - start;
         TSlice<TSource> result{ new TSource[count], count };
@@ -369,8 +372,8 @@ class Arrays
         requires(Sliceable<TSlice<TSource>, TSource>)
     static TSlice<TSource> takeLast(Slice<TSource>& src, usize n)
     {
-        assert(n <= src.Length(),
-               Error::IndexOutOfBounds("Array is too small"));
+        MakeAssertion(n <= src.Length(),
+                      Error::IndexOutOfBounds("Array is too small"));
 
         TSlice<TSource> result{ new TSource[n], n };
         copyArray(result.data(), &(src[src.Length() - n]), n);
@@ -400,8 +403,8 @@ class Arrays
     template <typename TSource>
     static TSource& single(Slice<TSource>& src)
     {
-        assert(src.Length() == 1,
-               Error::InvalidOperation("Array is not single"));
+        MakeAssertion(src.Length() == 1,
+                      Error::InvalidOperation("Array is not single"));
         return src[0];
     }
 
@@ -412,15 +415,16 @@ class Arrays
         for (usize i = 0; i < src.Length(); i++) {
             if (predicate(src[i])) {
                 if (index != -1) {
-                    assert(false,
-                           Error::InvalidOperation(
-                               "Sequence contains more than one element"));
+                    MakeAssertion(
+                        false,
+                        Error::InvalidOperation(
+                            "Sequence contains more than one element"));
                 }
                 index = i;
             }
         }
-        assert(index != -1,
-               Error::InvalidOperation("Sequence contains no element"));
+        MakeAssertion(index != -1,
+                      Error::InvalidOperation("Sequence contains no element"));
         return src[index];
     }
 
@@ -428,7 +432,7 @@ class Arrays
     static TSource& singleOrDefault(Slice<TSource>& src,
                                     TSource const&  defaultValue)
     {
-        assert(
+        MakeAssertion(
             src.Length() <= 1,
             Error::InvalidOperation("Sequence contains more than one element"));
         return src.Length() ? src[0] : defaultValue;
@@ -452,8 +456,8 @@ class Arrays
         requires(Sliceable<TSlice<TSource>, TSource>)
     static TSlice<TSource> skip(Slice<TSource>& src, usize n)
     {
-        assert(n <= src.Length(),
-               Error::IndexOutOfBounds("Array is too small"));
+        MakeAssertion(n <= src.Length(),
+                      Error::IndexOutOfBounds("Array is too small"));
 
         usize           count = src.Length() - n;
         TSlice<TSource> result{ new TSource[count], count };
@@ -465,8 +469,8 @@ class Arrays
         requires(Sliceable<TSlice<TSource>, TSource>)
     static TSlice<TSource> skipLast(Slice<TSource>& src, usize n)
     {
-        assert(n <= src.Length(),
-               Error::IndexOutOfBounds("Array is too small"));
+        MakeAssertion(n <= src.Length(),
+                      Error::IndexOutOfBounds("Array is too small"));
 
         usize           count = src.Length() - n;
         TSlice<TSource> result{ new TSource[count], count };

@@ -46,7 +46,7 @@ namespace Quark::System {
                         })
                         .Take();
             }
-            assert(m_clocksource, "No clock source found");
+            MakeAssertion(m_clocksource, "No clock source found");
 
             return m_clocksource;
         }
@@ -61,7 +61,7 @@ namespace Quark::System {
                         })
                         .Take();
             }
-            assert(m_timersource, "No timer source found");
+            MakeAssertion(m_timersource, "No timer source found");
 
             return m_timersource;
         }

@@ -25,6 +25,7 @@ namespace Quark::System::Task {
         ~Process();
 
         bool    AddThread(Thread* thread);
+        u32     GetNextThreadId() { return m_nextThreadId++; }
         Thread* GetThread(u32 threadId)
         {
             return m_childrenThreadList[threadId];
@@ -106,8 +107,8 @@ namespace Quark::System::Task {
          * @param process
          * @return Thread*
          */
-        Thread*         createThread(Process* process);
-        Thread*         createThreadEx(Process*      process,
+        static Thread*  CreateThread(Process* process);
+        static Thread*  CreateThreadEx(Process*      process,
                                        u8            priority,
                                        const string& name,
                                        const string& description,
