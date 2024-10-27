@@ -430,6 +430,16 @@ public:
         }
         return len;
     }
+
+    template <typename T = char>
+    static constexpr void Copy(T const* src, T* dst)
+    {
+        usize i = 0;
+        while (src[i] != '\0') {
+            dst[i] = src[i];
+            i++;
+        }
+    }
 };
 
 static_assert(EncodingFormat<Utf8>);

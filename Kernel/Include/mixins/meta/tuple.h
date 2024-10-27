@@ -6,6 +6,12 @@
 template <typename... Ts>
 struct Tuple;
 
+template <>
+struct Tuple<>
+{
+    constexpr usize count() const { return 0; }
+};
+
 template <class T>
 struct Tuple<T>
 {

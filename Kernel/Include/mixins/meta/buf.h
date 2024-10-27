@@ -1,7 +1,8 @@
+#pragma once
+
 #include <mixins/meta/inert.h>
 #include <mixins/meta/slice.h>
 #include <mixins/std/math.h>
-#include <mixins/utils/array.h>
 
 template <typename T>
 struct Buf
@@ -155,7 +156,7 @@ struct Buf
 
     T* take()
     {
-        T* data = buf();
+        T* data = Data();
         _data   = nullptr;
         _len    = 0;
         _cap    = 0;
@@ -163,28 +164,33 @@ struct Buf
         return data;
     }
 
-    T* buf()
+    T* Data()
     {
         if (!_data)
             return nullptr;
         return &(_data->unwrap());
     }
 
-    T const* buf() const
+    T* begin() { return Data(); }
+
+    T* end() { return Data() + _len; }
+
+    T const* Data() const
     {
         if (!_data)
             return nullptr;
         return &(_data->unwrap());
     }
 
-    usize len() const { return _len; }
+    usize Length() const { return _len; }
 };
+static_assert(Sliceable<Buf<u8>>);
 
 template <typename T, usize N>
 struct Buf<T[N]>
 {
     using InnerType = T;
 
-    Array<Inert<T>[N]> _data;
-    usize              _len{};
+    Inert<T> _data[N];
+    usize    _len{};
 };
