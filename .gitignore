@@ -43,3 +43,4 @@ Thirdparty/*
 Kernel/Build/*
 Kernel/Dist/*
 Kernel/Decompile/*
+Kernel/mem.dmp
