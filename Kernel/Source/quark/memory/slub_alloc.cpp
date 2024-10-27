@@ -51,7 +51,7 @@ namespace Quark::System::Memory {
         }
         kmem_cache_t* cache = nullptr;
         for (usize i = 0; i < SLAB_CACHE_BLOCK_AMOUNT; i++)
-            if (amount < g_slabCaches[i]._size) {
+            if (amount <= g_slabCaches[i]._size) {
                 cache = &g_slabCaches[i];
                 break;
             }

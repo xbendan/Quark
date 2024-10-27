@@ -73,11 +73,18 @@ namespace Quark::System::Memory {
     Res<PageFrame*> AllocatePhysFrame4K(usize amount, Hal::PmmType allocType)
     {
         u8 t = static_cast<u8>(allocType);
+
         if (t > static_cast<u8>(Hal::PmmType::NORMAL)) {
             return Error::AllocateFailed("Invalid allocation type");
         }
-
-        return buddyZones[t].Allocate4KPages(amount);
+        while (t >= 1) {
+            Res<PageFrame*> res = buddyZones[t - 1].Allocate4KPages(amount);
+            if (res.IsOkay()) {
+                return Ok(res.Unwrap());
+            }
+            t--;
+        };
+        return Error::OutOfMemory("Failed to allocate memory");
     }
 
     Res<u64> AllocatePhysMemory4K(usize amount)

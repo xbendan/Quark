@@ -3,8 +3,11 @@
 #include <quark/memory/page_alloc.h>
 #include <quark/os/main.h>
 
+#include <quark/memory/slab.h>
+
 namespace Quark::System::Memory {
-    extern BuddyZone buddyZones[ZONE_TYPES];
+    extern BuddyZone    buddyZones[ZONE_TYPES];
+    extern kmem_cache_t g_slabCaches[SLAB_CACHE_BLOCK_AMOUNT];
 }
 
 namespace Quark::System {
@@ -80,6 +83,14 @@ namespace Quark::System {
                 num++;
                 i--;
             }
+        }
+
+        constexpr usize kmemCacheSize[] = {
+            8,   16,  24,  32,   48,   64,   96,   128,
+            256, 384, 512, 1024, 1536, 2048, 4096,
+        };
+        for (usize i = 0; i < SLAB_CACHE_BLOCK_AMOUNT; i++) {
+            new (&g_slabCaches[i]) kmem_cache_t(kmemCacheSize[i]);
         }
 
         return Ok();

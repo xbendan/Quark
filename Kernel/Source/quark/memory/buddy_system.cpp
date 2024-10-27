@@ -22,7 +22,7 @@ namespace Quark::System::Memory {
         /* If no page is found, return out of memory error */
         if (pageQueueLevel > BUDDY_LEVEL_UPPER_LIMIT ||
             !m_pageQueues[pageQueueLevel].Count()) {
-            return Error::OutOfMemory();
+            return Error::AllocateFailed();
         }
 
         PageFrame* page = m_pageQueues[pageQueueLevel].Dequeue();
