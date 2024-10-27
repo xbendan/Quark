@@ -44,3 +44,5 @@ Kernel/Build/*
 Kernel/Dist/*
 Kernel/Decompile/*
 Kernel/mem.dmp
+Kernel/Include/quark/os/version.h
+Kernel/Target/stivale2_root/boot/limine.cfg
