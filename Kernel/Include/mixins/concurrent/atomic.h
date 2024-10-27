@@ -29,12 +29,18 @@ template <typename TType>
 class Atomic
 {
 public:
-    Atomic(TType const& val)
+    constexpr Atomic()
+        requires Constructible<TType>
+        : m_value()
+    {
+    }
+
+    constexpr Atomic(TType const& val)
         : m_value(val)
     {
     }
 
-    Atomic(TType&& val)
+    constexpr Atomic(TType&& val)
         : m_value(val)
     {
     }
