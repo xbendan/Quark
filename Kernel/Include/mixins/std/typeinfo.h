@@ -1,4 +1,5 @@
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
+#include <mixins/utils/strings.h>
 
 namespace Std {
 
@@ -8,9 +9,9 @@ namespace Std {
 
 namespace Type {
     template <typename T>
-    static constexpr string GetName()
+    static constexpr StringView GetName()
     {
-        string name = __PRETTY_FUNCTION__;
-        return name.Substring(name.IndexOf("T = ") + 4);
+        StringView name = __PRETTY_FUNCTION__;
+        return Strings::Substring(name, Strings::IndexOf(name, "T = ") + 4);
     }
 }
