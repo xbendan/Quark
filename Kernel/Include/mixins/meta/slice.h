@@ -5,8 +5,8 @@
 template <typename T, typename U = typename T::InnerType>
 concept Sliceable = requires(T const& t) {
     typename T::InnerType;
-    { t.Length() } -> SameAs<usize>;
-    { t.Data() } -> SameAs<U const*>;
+    { t.len() } -> SameAs<usize>;
+    { t.buf() } -> SameAs<U const*>;
     requires SameAs<decltype(t[0uz]), U const&>;
 };
 
