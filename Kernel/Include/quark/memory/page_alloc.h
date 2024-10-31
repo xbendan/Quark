@@ -63,9 +63,7 @@ namespace Quark::System::Memory {
      * @param amount
      * @return Res<PhysMemFrame*>
      */
-    Res<PageFrame*> AllocatePhysFrame4K(
-        usize        amount,
-        Hal::PmmType allocType = Hal::PmmType::NORMAL);
+    Res<PageFrame*> AllocatePhysFrame4K(usize amount);
 
     /**
      * @brief
@@ -81,7 +79,7 @@ namespace Quark::System::Memory {
      * @param frame
      * @return Res<>
      */
-    Res<> FreePhysFrame4K(PageFrame* frame);
+    Res<> FreePhysFrame4K(PageFrame* frame, usize amount = 1);
 
     /**
      * @brief
@@ -90,7 +88,21 @@ namespace Quark::System::Memory {
      * @param amount
      * @return Res<>
      */
-    Res<> FreePhysMemory4K(u64 address, usize amount);
+    Res<usize> FreePhysMemory4K(u64 address);
+
+    /**
+     * @brief
+     *
+     * @param range
+     */
+    void MarkRegionAsUsed(AddressRange range);
+
+    /**
+     * @brief
+     *
+     * @param range
+     */
+    void MarkRegionAsFree(AddressRange range);
 
     /**
      * @brief

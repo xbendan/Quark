@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mixins/concurrent/spinlock.h>
 #include <quark/memory/page.h>
 
 namespace Quark::System::Memory {
@@ -15,5 +16,6 @@ namespace Quark::System::Memory {
     private:
         PageFrame *m_head, *m_tail;
         u32        m_count;
+        lock_t     m_lock;
     };
 }
