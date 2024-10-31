@@ -27,7 +27,7 @@ CXXFLAGS = \
 	-std=c++23 \
 	-mcmodel=kernel \
 	-mno-red-zone \
-	-O2 \
+	-O0 \
 	-g  
 LDFLAGS = \
  	-static -m elf_x86_64 -nostdlib -z max-page-size=0x1000  
