@@ -3,54 +3,675 @@
 #include <mixins/std/c++types.h>
 #include <mixins/std/utility.h>
 
+/**
+ * @brief
+ *
+ * @ref
+ * https://github.com/skift-org/skift/blob/3da938205742140d74d595da7fb4a84a3d4f1535/src/libs/karm-base/tuple.h
+ * @tparam Ts
+ */
+
 template <typename... Ts>
 struct Tuple;
 
 template <>
 struct Tuple<>
 {
-    constexpr usize count() const { return 0; }
+    constexpr static usize len() { return 0; }
+
+    constexpr auto visit(auto) { return true; }
+
+    constexpr auto visit(auto) const { return true; }
+
+    constexpr auto apply(auto) { return true; }
+
+    constexpr auto apply(auto) const { return true; }
+
+    template <typename U>
+    constexpr U into() const
+    {
+        return U{};
+    }
 };
 
-template <class T>
-struct Tuple<T>
+template <typename _T0>
+struct Tuple<_T0>
 {
-    T data;
+    using T0 = _T0;
 
-    template <usize I>
-    auto& get()
+    T0 v0;
+
+    constexpr static usize len() { return 1; }
+
+    constexpr auto visit(auto f) { return f(v0); }
+
+    constexpr auto visit(auto f) const { return f(v0); }
+
+    constexpr auto apply(auto f) { return f(v0); }
+
+    constexpr auto apply(auto f) const { return f(v0); }
+
+    template <typename U>
+    constexpr U into() const
     {
-        return data;
+        return U{ v0 };
     }
-
-    constexpr usize count() const { return 1; }
-
-    auto& operator[](usize i) { return data; }
 };
 
-template <class T, class... Ts>
-    requires(sizeof...(Ts) > 0)
-struct Tuple<T, Ts...>
+template <typename T0>
+Tuple(T0) -> Tuple<T0>;
+
+template <typename _T0, typename _T1>
+struct Tuple<_T0, _T1>
 {
-    T            data;
-    Tuple<Ts...> next;
+    using T0 = _T0;
+    using T1 = _T1;
 
-    template <usize I>
-    auto& get()
+    T0 v0;
+    T1 v1;
+
+    constexpr static usize len() { return 2; }
+
+    // constexpr static auto inspect(auto f)
+    // {
+    //     auto res = f(Meta::Type<T0>{});
+    //     if (not res)
+    //         return res;
+    //     return f(Meta::Type<T1>{});
+    // }
+
+    constexpr auto visit(auto f)
     {
-        if constexpr (I == 0)
-            return data;
-        else
-            return next.template get<I - 1>();
+        auto res = f(v0);
+        if (not res)
+            return res;
+        return f(v1);
     }
 
-    constexpr usize count() const { return 1 + next.count(); }
-
-    auto& operator[](usize i)
+    constexpr auto visit(auto f) const
     {
-        if (i == 0)
-            return data;
-        else
-            return next[i - 1];
+        auto res = f(v0);
+        if (not res)
+            return res;
+        return f(v1);
+    }
+
+    constexpr auto apply(auto f) { return f(v0, v1); }
+
+    constexpr auto apply(auto f) const { return f(v0, v1); }
+
+    template <typename U>
+    constexpr U into() const
+    {
+        return U{ v0, v1 };
     }
 };
+
+template <typename _T0, typename _T1>
+Tuple(_T0, _T1) -> Tuple<_T0, _T1>;
+
+template <typename _T0, typename _T1, typename _T2>
+struct Tuple<_T0, _T1, _T2>
+{
+    using T0 = _T0;
+    using T1 = _T1;
+    using T2 = _T2;
+
+    T0 v0;
+    T1 v1;
+    T2 v2;
+
+    constexpr static usize len() { return 3; }
+
+    // constexpr static auto inspect(auto f)
+    // {
+    //     auto res = f(Meta::Type<T0>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T1>{});
+    //     if (not res)
+    //         return res;
+    //     return f(Meta::Type<T2>{});
+    // }
+
+    constexpr auto visit(auto f)
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        return f(v2);
+    }
+
+    constexpr auto visit(auto f) const
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        return f(v2);
+    }
+
+    constexpr auto apply(auto f) { return f(v0, v1, v2); }
+
+    constexpr auto apply(auto f) const { return f(v0, v1, v2); }
+
+    template <typename U>
+    constexpr U into() const
+    {
+        return U{ v0, v1, v2 };
+    }
+};
+
+template <typename _T0, typename _T1, typename _T2>
+Tuple(_T0, _T1, _T2) -> Tuple<_T0, _T1, _T2>;
+
+template <typename _T0, typename _T1, typename _T2, typename _T3>
+struct Tuple<_T0, _T1, _T2, _T3>
+{
+    using T0 = _T0;
+    using T1 = _T1;
+    using T2 = _T2;
+    using T3 = _T3;
+
+    T0 v0;
+    T1 v1;
+    T2 v2;
+    T3 v3;
+
+    constexpr static usize len() { return 4; }
+
+    // constexpr static auto inspect(auto f)
+    // {
+    //     auto res = f(Meta::Type<T0>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T1>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T2>{});
+    //     if (not res)
+    //         return res;
+    //     return f(Meta::Type<T3>{});
+    // }
+
+    constexpr auto visit(auto f)
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        return f(v3);
+    }
+
+    constexpr auto visit(auto f) const
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        return f(v3);
+    }
+
+    constexpr auto apply(auto f) { return f(v0, v1, v2, v3); }
+
+    constexpr auto apply(auto f) const { return f(v0, v1, v2, v3); }
+
+    template <typename U>
+    constexpr U into() const
+    {
+        return U{ v0, v1, v2, v3 };
+    }
+};
+
+template <typename _T0, typename _T1, typename _T2, typename _T3>
+Tuple(_T0, _T1, _T2, _T3) -> Tuple<_T0, _T1, _T2, _T3>;
+
+template <typename _T0, typename _T1, typename _T2, typename _T3, typename _T4>
+struct Tuple<_T0, _T1, _T2, _T3, _T4>
+{
+    using T0 = _T0;
+    using T1 = _T1;
+    using T2 = _T2;
+    using T3 = _T3;
+    using T4 = _T4;
+
+    T0 v0;
+    T1 v1;
+    T2 v2;
+    T3 v3;
+    T4 v4;
+
+    constexpr static usize len() { return 5; }
+
+    // constexpr static auto inspect(auto f)
+    // {
+    //     auto res = f(Meta::Type<T0>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T1>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T2>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T3>{});
+    //     if (not res)
+    //         return res;
+    //     return f(Meta::Type<T4>{});
+    // }
+
+    constexpr auto visit(auto f)
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        res = f(v3);
+        if (not res)
+            return res;
+        return f(v4);
+    }
+
+    constexpr auto visit(auto f) const
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        res = f(v3);
+        if (not res)
+            return res;
+        return f(v4);
+    }
+
+    constexpr auto apply(auto f) { return f(v0, v1, v2, v3, v4); }
+
+    constexpr auto apply(auto f) const { return f(v0, v1, v2, v3, v4); }
+
+    template <typename U>
+    constexpr U into() const
+    {
+        return U{ v0, v1, v2, v3, v4 };
+    }
+};
+
+template <typename _T0, typename _T1, typename _T2, typename _T3, typename _T4>
+Tuple(_T0, _T1, _T2, _T3, _T4) -> Tuple<_T0, _T1, _T2, _T3, _T4>;
+
+template <typename _T0,
+          typename _T1,
+          typename _T2,
+          typename _T3,
+          typename _T4,
+          typename _T5>
+struct Tuple<_T0, _T1, _T2, _T3, _T4, _T5>
+{
+    using T0 = _T0;
+    using T1 = _T1;
+    using T2 = _T2;
+    using T3 = _T3;
+    using T4 = _T4;
+    using T5 = _T5;
+
+    T0 v0;
+    T1 v1;
+    T2 v2;
+    T3 v3;
+    T4 v4;
+    T5 v5;
+
+    constexpr static usize len() { return 6; }
+
+    // constexpr static auto inspect(auto f)
+    // {
+    //     auto res = f(Meta::Type<T0>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T1>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T2>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T3>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T4>{});
+    //     if (not res)
+    //         return res;
+    //     return f(Meta::Type<T5>{});
+    // }
+
+    constexpr auto visit(auto f)
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        res = f(v3);
+        if (not res)
+            return res;
+        res = f(v4);
+        if (not res)
+            return res;
+        return f(v5);
+    }
+
+    constexpr auto visit(auto f) const
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        res = f(v3);
+        if (not res)
+            return res;
+        res = f(v4);
+        if (not res)
+            return res;
+        return f(v5);
+    }
+
+    constexpr auto apply(auto f) { return f(v0, v1, v2, v3, v4, v5); }
+
+    constexpr auto apply(auto f) const { return f(v0, v1, v2, v3, v4, v5); }
+
+    template <typename U>
+    constexpr U into() const
+    {
+        return U{ v0, v1, v2, v3, v4, v5 };
+    }
+};
+
+template <typename _T0,
+          typename _T1,
+          typename _T2,
+          typename _T3,
+          typename _T4,
+          typename _T5>
+Tuple(_T0, _T1, _T2, _T3, _T4, _T5) -> Tuple<_T0, _T1, _T2, _T3, _T4, _T5>;
+
+template <typename _T0,
+          typename _T1,
+          typename _T2,
+          typename _T3,
+          typename _T4,
+          typename _T5,
+          typename _T6>
+struct Tuple<_T0, _T1, _T2, _T3, _T4, _T5, _T6>
+{
+    using T0 = _T0;
+    using T1 = _T1;
+    using T2 = _T2;
+    using T3 = _T3;
+    using T4 = _T4;
+    using T5 = _T5;
+    using T6 = _T6;
+
+    T0 v0;
+    T1 v1;
+    T2 v2;
+    T3 v3;
+    T4 v4;
+    T5 v5;
+    T6 v6;
+
+    constexpr static usize len() { return 7; }
+
+    // constexpr static auto inspect(auto f)
+    // {
+    //     auto res = f(Meta::Type<T0>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T1>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T2>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T3>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T4>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T5>{});
+    //     if (not res)
+    //         return res;
+    //     return f(Meta::Type<T6>{});
+    // }
+
+    constexpr auto visit(auto f)
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        res = f(v3);
+        if (not res)
+            return res;
+        res = f(v4);
+        if (not res)
+            return res;
+        res = f(v5);
+        if (not res)
+            return res;
+        return f(v6);
+    }
+
+    constexpr auto visit(auto f) const
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        res = f(v3);
+        if (not res)
+            return res;
+        res = f(v4);
+        if (not res)
+            return res;
+        res = f(v5);
+        if (not res)
+            return res;
+        return f(v6);
+    }
+
+    constexpr auto apply(auto f) { return f(v0, v1, v2, v3, v4, v5, v6); }
+
+    constexpr auto apply(auto f) const { return f(v0, v1, v2, v3, v4, v5, v6); }
+
+    template <typename U>
+    constexpr U into() const
+    {
+        return U{ v0, v1, v2, v3, v4, v5, v6 };
+    }
+};
+
+template <typename _T0,
+          typename _T1,
+          typename _T2,
+          typename _T3,
+          typename _T4,
+          typename _T5,
+          typename _T6>
+Tuple(_T0, _T1, _T2, _T3, _T4, _T5, _T6)
+    -> Tuple<_T0, _T1, _T2, _T3, _T4, _T5, _T6>;
+
+template <typename _T0,
+          typename _T1,
+          typename _T2,
+          typename _T3,
+          typename _T4,
+          typename _T5,
+          typename _T6,
+          typename _T7>
+struct Tuple<_T0, _T1, _T2, _T3, _T4, _T5, _T6, _T7>
+{
+    using T0 = _T0;
+    using T1 = _T1;
+    using T2 = _T2;
+    using T3 = _T3;
+    using T4 = _T4;
+    using T5 = _T5;
+    using T6 = _T6;
+    using T7 = _T7;
+
+    T0 v0;
+    T1 v1;
+    T2 v2;
+    T3 v3;
+    T4 v4;
+    T5 v5;
+    T6 v6;
+    T7 v7;
+
+    constexpr static usize len() { return 8; }
+
+    // constexpr static auto inspect(auto f)
+    // {
+    //     auto res = f(Meta::Type<T0>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T1>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T2>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T3>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T4>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T5>{});
+    //     if (not res)
+    //         return res;
+    //     res = f(Meta::Type<T6>{});
+    //     if (not res)
+    //         return res;
+    //     return f(Meta::Type<T7>{});
+    // }
+
+    constexpr auto visit(auto f)
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        res = f(v3);
+        if (not res)
+            return res;
+        res = f(v4);
+        if (not res)
+            return res;
+        res = f(v5);
+        if (not res)
+            return res;
+        res = f(v6);
+        if (not res)
+            return res;
+        return f(v7);
+    }
+
+    constexpr auto visit(auto f) const
+    {
+        auto res = f(v0);
+        if (not res)
+            return res;
+        res = f(v1);
+        if (not res)
+            return res;
+        res = f(v2);
+        if (not res)
+            return res;
+        res = f(v3);
+        if (not res)
+            return res;
+        res = f(v4);
+        if (not res)
+            return res;
+        res = f(v5);
+        if (not res)
+            return res;
+        res = f(v6);
+        if (not res)
+            return res;
+        return f(v7);
+    }
+
+    constexpr auto apply(auto f) { return f(v0, v1, v2, v3, v4, v5, v6, v7); }
+
+    constexpr auto apply(auto f) const
+    {
+        return f(v0, v1, v2, v3, v4, v5, v6, v7);
+    }
+
+    template <typename U>
+    constexpr U into() const
+    {
+        return U{ v0, v1, v2, v3, v4, v5, v6, v7 };
+    }
+};
+
+template <typename _T0,
+          typename _T1,
+          typename _T2,
+          typename _T3,
+          typename _T4,
+          typename _T5,
+          typename _T6,
+          typename _T7>
+Tuple(_T0, _T1, _T2, _T3, _T4, _T5, _T6, _T7)
+    -> Tuple<_T0, _T1, _T2, _T3, _T4, _T5, _T6, _T7>;
