@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/array_list.h>
 #include <mixins/utils/date.h>
 #include <mixins/utils/uuid.h>
@@ -31,7 +31,7 @@ namespace Quark::System::Privilege {
     {
     public:
         UserAccount() = default;
-        UserAccount(string name, UserGroup* group)
+        UserAccount(StringView name, UserGroup* group)
             : _name(name)
             , _group(group)
             , _id(UUID())
@@ -41,12 +41,13 @@ namespace Quark::System::Privilege {
         {
         }
 
-        constexpr UserAccount& operator=(const UserAccount& other) = default;
-
-        constexpr bool operator==(const UserAccount& other) const = default;
+        constexpr bool operator==(UserAccount const& other) const
+        {
+            return _name == other._name && _group == other._group;
+        }
 
     private:
-        string        _name;
+        StringView    _name;
         UserGroup*    _group;
         UUID          _id;
         Date          _whenCreated;
@@ -58,15 +59,20 @@ namespace Quark::System::Privilege {
     {
     public:
         UserGroup() = default;
-        UserGroup(string name, Level level)
+        UserGroup(StringView name, Level level)
             : m_name(name)
             , m_level(level)
             , m_users(ArrayList<UserAccount>())
         {
         }
 
+        constexpr bool operator==(UserGroup const& other) const
+        {
+            return m_name == other.m_name && m_level == other.m_level;
+        }
+
     private:
-        string                 m_name;
+        StringView             m_name;
         Level                  m_level;
         ArrayList<UserAccount> m_users{};
     };

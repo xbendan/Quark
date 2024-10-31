@@ -1,7 +1,7 @@
 #pragma once
 
 #include <mixins/std/c++types.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 
 union UUID
 {
@@ -25,10 +25,10 @@ union UUID
         return _qwords[0] == 0 && _qwords[1] == 0;
     }
 
-    static UUID FromName(string name)
+    static UUID FromName(StringView name)
     {
         UUID uuid;
-        for (usize i = 0; i < name.Length(); i++) {
+        for (usize i = 0; i < name.len(); i++) {
             uuid._bytes[i % 16] ^= name[i];
         }
         return uuid;

@@ -1,5 +1,5 @@
 #include <mixins/concurrent/spinlock.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/linked_list.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/memory/page.h>
@@ -42,7 +42,7 @@ namespace Quark::System::Memory {
         u64  Take(kmem_alloc_node_t* node);
         // void InitPageAsCached(PageFrame* page, u64 address);
 
-        string                      _name;
+        StringView                  _name;
         // struct Node
         // {
         //     Spinlock  _spinlock;

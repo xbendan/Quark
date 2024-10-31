@@ -1,6 +1,6 @@
 #include <mixins/meta/result.h>
 #include <mixins/std/c++types.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/array.h>
 #include <mixins/utils/flags.h>
 #include <mixins/utils/uuid.h>
@@ -59,7 +59,7 @@ namespace Quark::System::Io::FileSystem {
     class FileNode
     {
     public:
-        FileNode(FileSource source, FileType type, string name, string parent)
+        FileNode(FileSource source, FileType type, String name, String parent)
             : m_source(source)
             , m_type(type)
             , m_name(name)
@@ -72,34 +72,34 @@ namespace Quark::System::Io::FileSystem {
     protected:
         FileSource m_source;
         FileType   m_type;
-        string     m_name;
-        string     m_parent;
+        String     m_name;
+        String     m_parent;
     };
 
     class Folder : public FileNode
     {
     public:
         Folder() = default;
-        Folder(string fullpath);
+        Folder(String fullpath);
         virtual ~Folder();
 
-        virtual Res<Array<FileNode*>> listFiles() = 0;
+        // virtual Res<Array<FileNode*>> listFiles() = 0;
     };
 
     class File : public FileNode
     {
     public:
         File() = default;
-        File(string fullpath);
+        File(String fullpath);
         virtual ~File();
 
         virtual Res<i64> read(u64 offset, u64 size, u8* buffer)  = 0;
         virtual Res<i64> write(u64 offset, u64 size, u8* buffer) = 0;
         virtual void     close()                                 = 0;
 
-        static Res<File*> Open(string fullpath, FileMode mode);
-        static Res<File*> Create(string fullpath, FileMode mode);
-        static Res<>      Delete(string fullpath);
+        static Res<File*> Open(String fullpath, FileMode mode);
+        static Res<File*> Create(String fullpath, FileMode mode);
+        static Res<>      Delete(String fullpath);
 
     protected:
         UUID m_uniqueId;

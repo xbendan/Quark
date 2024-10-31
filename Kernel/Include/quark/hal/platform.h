@@ -2,14 +2,14 @@
 
 #include <mixins/meta/func.h>
 #include <mixins/std/c++types.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/flags.h>
 
 namespace Quark::System::Hal {
     struct Platform
     {
-        string _name;
-        string _version;
+        StringView _name;
+        StringView _version;
         enum class Type : u8
         {
             Unknown,

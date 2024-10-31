@@ -2,7 +2,7 @@
 
 #include <mixins/meta/func.h>
 #include <mixins/meta/result.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/array.h>
 #include <mixins/utils/uuid.h>
 
@@ -40,19 +40,19 @@ namespace Quark::System::Io {
             Unknown
         };
 
-        Device(string name)
+        Device(StringView name)
             : Device(name, UUID::FromName(name), Type::Unknown)
         {
             // _uuid = UUID::generate();
         }
 
-        Device(string name, Type deviceType)
+        Device(StringView name, Type deviceType)
             : Device(name, UUID::FromName(name), deviceType)
         {
             // _uuid = UUID::generate();
         }
 
-        Device(string name, UUID uuid, Type deviceType)
+        Device(StringView name, UUID uuid, Type deviceType)
             : m_name(name)
             , m_uniqueId(uuid)
             , m_deviceType(deviceType)
@@ -94,17 +94,17 @@ namespace Quark::System::Io {
          */
         virtual Res<> OnShutdown() { return Ok(); }
 
-        string GetName() const { return m_name; }
+        StringView GetName() const { return m_name; }
 
         UUID GetUniqueId() const { return m_uniqueId; }
 
         Type GetType() const { return m_deviceType; }
 
-        static Optional<Device*> FindByName(string name);
+        static Optional<Device*> FindByName(StringView name);
 
         template <typename T>
             requires Std::isDerived<Device, T>
-        static Optional<T*> FindByName(string name)
+        static Optional<T*> FindByName(StringView name)
         {
             auto device = FindByName(name);
             if (device.IsPresent()) {
@@ -122,10 +122,10 @@ namespace Quark::System::Io {
         static Res<>             Rescan();
 
     protected:
-        string m_name;
-        UUID   m_uniqueId;
-        Type   m_deviceType;
-        bool   m_isStarted;
+        StringView m_name;
+        UUID       m_uniqueId;
+        Type       m_deviceType;
+        bool       m_isStarted;
 
         static inline LinkedList<Device*> Devices;
     };
@@ -133,7 +133,7 @@ namespace Quark::System::Io {
     class EnumerationDevice : public Device
     {
     public:
-        EnumerationDevice(string name)
+        EnumerationDevice(StringView name)
             : Device(name, Type::SystemDevices)
         {
         }

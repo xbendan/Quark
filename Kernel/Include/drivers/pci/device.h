@@ -1,8 +1,8 @@
 #include <drivers/pci/info.h>
 #include <drivers/pci/spec.h>
 #include <mixins/std/c++types.h>
-#include <mixins/std/string.h>
 #include <mixins/std/type_traits.h>
+#include <mixins/str/string.h>
 #include <quark/dev/device.h>
 #include <quark/hal/ports.h>
 
@@ -18,7 +18,7 @@ namespace PCI {
         PCIDevice(u8 bus, u8 slot, u8 func, u16 vendorID, u16 deviceID);
         PCIDevice(PCIInfo& info);
 
-        PCIDevice(PCIInfo& info, string name, Type type)
+        PCIDevice(PCIInfo& info, String name, Type type)
             : PCIInfo(info)
             , Io::Device(name, type)
         {

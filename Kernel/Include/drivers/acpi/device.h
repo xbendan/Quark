@@ -11,12 +11,12 @@ namespace ACPI {
         ControllerDevice();
         ~ControllerDevice() = default;
 
-        Optional<ACPI::TableHeader*> FindTableBase(string   name,
+        Optional<ACPI::TableHeader*> FindTableBase(String   name,
                                                    unsigned index = 0);
 
         template <typename T>
             requires(Std::isDerived<ACPI::TableHeader, T>)
-        inline Optional<T*> FindTable(string name, unsigned index = 0)
+        inline Optional<T*> FindTable(String name, unsigned index = 0)
         {
             auto opt = FindTableBase(name, index);
             if (opt.IsPresent()) {

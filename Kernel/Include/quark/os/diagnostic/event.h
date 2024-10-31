@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/date.h>
 
 namespace Quark::System::Diagnostics {
@@ -51,7 +51,7 @@ namespace Quark::System::Diagnostics {
 
     struct EventSource
     {
-        string          Name;
+        StringView      Name;
         RetentionPolicy Policy;
     };
 

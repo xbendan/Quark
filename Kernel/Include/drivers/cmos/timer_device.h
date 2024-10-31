@@ -15,7 +15,7 @@ namespace CMOS {
     public:
         RealTimeClockDevice()
             : Timer(TimerType::RTC)
-            , Device(u8"Real Time Clock", Device::Type::TimerOrClock)
+            , Device("Real Time Clock", Device::Type::TimerOrClock)
         {
         }
 

@@ -2,7 +2,7 @@
 
 #include <mixins/meta/ref.h>
 #include <mixins/std/c++types.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/array_list.h>
 #include <mixins/utils/linked_list.h>
 #include <quark/fs/file.h>
@@ -17,7 +17,7 @@ namespace Quark::System::Task {
     {
     public:
         Process(u32           processId,
-                string        name,
+                StringView    name,
                 AddressSpace* addressSpace,
                 u64           entryPoint = 0,
                 u64           memHeap    = 0,
@@ -32,27 +32,27 @@ namespace Quark::System::Task {
         }
 
         u32 const           _processId;
-        string              _name;
+        StringView          _name;
         AddressSpace* const _addressSpace;
         Thread* const       _mainThread;
 
         static Process*         GetKernelProcess();
         static IList<Process*>* GetProcessList();
 
-        static Res<RefPtr<Process>> CreateProcess(string name);
+        static Res<RefPtr<Process>> CreateProcess(StringView name);
         static Res<RefPtr<Process>> CreateIdleProcess();
         static Res<Process*> CreateKernelProcess(AddressSpace* addressSpace);
         static Res<RefPtr<Process>> CreateProcessEx( //
-            string  name,
-            File*   file,
-            Folder* workingDirectory,
-            string  launchArgs);
-        template <typename... Args>
+            StringView name,
+            File*      file,
+            Folder*    workingDirectory,
+            String     launchArgs);
+        template <typename... TArgs>
         static Res<RefPtr<Process>> CreateProcessEx( //
-            string  name,
-            File*   file,
-            Folder* workingDirectory,
-            Args&&... launchArgs);
+            StringView name,
+            File*      file,
+            Folder*    workingDirectory,
+            TArgs&&... launchArgs);
         static void                 DestroyProcess(Process* process);
         static void                 DestroyProcess(u16 id);
         static RefPtr<Process>      GetProcessById(u16 id);
@@ -80,7 +80,7 @@ namespace Quark::System::Task {
          * @param name
          * @return Process* pointer to the created process
          */
-        RefPtr<Process> createProcess(string name);
+        RefPtr<Process> createProcess(StringView name);
         /**
          * @brief Create an idle process
          * The idle process will be started immediately after it is created,
@@ -95,12 +95,12 @@ namespace Quark::System::Task {
          * @param name
          * @return Process*
          */
-        template <typename... Args>
+        template <typename... TArgs>
         RefPtr<Process> createProcessEx( //
-            string  name,
-            File*   file,
-            Folder* workingDirectory,
-            Args&&... launchArgs);
+            StringView name,
+            File*      file,
+            Folder*    workingDirectory,
+            TArgs&&... launchArgs);
         /**
          * @brief Create a thread with specified parent process
          *
@@ -108,11 +108,11 @@ namespace Quark::System::Task {
          * @return Thread*
          */
         static Thread*  CreateThread(Process* process);
-        static Thread*  CreateThreadEx(Process*      process,
-                                       u8            priority,
-                                       const string& name,
-                                       const string& description,
-                                       const string& command,
-                                       const string& arguments);
+        static Thread*  CreateThreadEx(Process*   process,
+                                       u8         priority,
+                                       StringView name,
+                                       StringView description,
+                                       StringView command,
+                                       StringView arguments);
     };
 } // namespace Quark::System::Task

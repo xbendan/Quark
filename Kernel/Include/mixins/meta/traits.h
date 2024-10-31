@@ -1,5 +1,5 @@
 #include <mixins/std/c++types.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 
 template <typename T>
 class Traits;
@@ -16,7 +16,7 @@ public:
     static constexpr usize bufferSize = 3;
 
     static u64    hashCode(Type const& value);
-    static string toString(Type const& value);
+    static String toString(Type const& value);
 };
 
 template <>
@@ -31,7 +31,7 @@ public:
     static constexpr usize bufferSize = 5;
 
     static u64    hashCode(Type const& value);
-    static string toString(Type const& value);
+    static String toString(Type const& value);
 };
 
 template <>
@@ -46,7 +46,7 @@ public:
     static constexpr usize bufferSize = 10;
 
     static u64    hashCode(Type const& value);
-    static string toString(Type const& value);
+    static String toString(Type const& value);
 };
 
 template <>
@@ -61,5 +61,5 @@ public:
     static constexpr usize bufferSize = 20;
 
     static u64    hashCode(Type const& value);
-    static string toString(Type const& value);
+    static String toString(Type const& value);
 };

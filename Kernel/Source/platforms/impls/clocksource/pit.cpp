@@ -6,14 +6,14 @@
 namespace PIT {
     using namespace Quark::System::Hal;
 
-    void PITimerDevice::Tick(InterruptStackFrame* frame)
+    void PITimerDevice::Tick(Registers* frame)
     {
         m_instance->m_uptime.Inc(MemoryOrder::MemoryOrderRelaxed);
     }
 
     PITimerDevice::PITimerDevice(u32 frequency)
         : Timer(TimerType::PIT)
-        , Device(u8"Programmable Interval Timer", Device::Type::TimerOrClock)
+        , Device("Programmable Interval Timer", Device::Type::TimerOrClock)
         , m_frequency(frequency)
     {
         m_instance = this;

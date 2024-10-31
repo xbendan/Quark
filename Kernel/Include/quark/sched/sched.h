@@ -2,7 +2,6 @@
 
 #include <mixins/meta/ref.h>
 #include <mixins/std/c++types.h>
-#include <mixins/std/string.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/sched/pid_namespace.h>
 #include <quark/sched/process.h>

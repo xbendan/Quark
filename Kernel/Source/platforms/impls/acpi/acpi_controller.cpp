@@ -76,14 +76,15 @@ namespace ACPI {
         return Ok();
     }
 
-    Optional<ACPI::TableHeader*> ControllerDevice::FindTableBase(string name, //
-                                                                 unsigned index)
+    Optional<ACPI::TableHeader*> ControllerDevice::FindTableBase(
+        StringView name, //
+        unsigned   index)
     {
         if (!_rsdp) {
             return Empty();
         }
 
-        if (name == "DSDT") {
+        if (name == u8"DSDT") {
             return (ACPI::TableHeader*)Memory::CopyAsIOAddress(_fadt->_dsdt);
         }
 

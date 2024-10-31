@@ -88,8 +88,8 @@ namespace APIC {
                         static_cast<
                             ACPI::MultiApicDescTable::NonMaskableInterrupt*>(
                             entry);
-                    info(u8"[APIC] NMI Source: %d, Global System Interrupt: "
-                         u8"%d\n",
+                    info(u8"[APIC] NMI Source: {}, Global System Interrupt: "
+                         u8"{}\n",
                          nmi->_processorId,
                          nmi->_type);
                     break;
