@@ -1,9 +1,9 @@
 #include <mixins/std/c++types.h>
 
 namespace VmWare {
-    def$(u32, MAGIC, 0x564D5868);
-    def$(u32, PORT, 0x5658);
-    def$(u32, PORTHB, 0x5659);
+    static constexpr u32 MAGIC  = 0x564D5868;
+    static constexpr u32 PORT   = 0x5658;
+    static constexpr u32 PORTHB = 0x5659;
 
     struct Command
     {
