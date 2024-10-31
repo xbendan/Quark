@@ -55,10 +55,12 @@ kload_multiboot2(multiboot_info* _mbInfo)
                 break;
             }
             case MULTIBOOT_TAG_TYPE_BOOT_LOADER_NAME: {
-                auto* mbBootLoaderName =
-                    reinterpret_cast<multiboot_tag_string*>(tag);
-                string::Copy(mbBootLoaderName->string,
-                             BootInfo::BootloaderName);
+                // auto* mbBootLoaderName =
+                //     reinterpret_cast<multiboot_tag_string*>(tag);
+
+                // Strings::Copy(mbBootLoaderName->string,
+                //               BootInfo::BootloaderName);
+                // TODO: Write bootloader name copy
                 break;
             }
             case MULTIBOOT_TAG_TYPE_MODULE: {
