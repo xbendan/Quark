@@ -3,6 +3,7 @@
 #include <mixins/meta/inert.h>
 #include <mixins/meta/slice.h>
 #include <mixins/std/math.h>
+#include <mixins/std/panic.h>
 
 template <typename T>
 struct Buf
@@ -156,7 +157,7 @@ struct Buf
 
     T* take()
     {
-        T* data = Data();
+        T* data = buf();
         _data   = nullptr;
         _len    = 0;
         _cap    = 0;
@@ -164,25 +165,25 @@ struct Buf
         return data;
     }
 
-    T* Data()
+    T* buf()
     {
         if (!_data)
             return nullptr;
         return &(_data->unwrap());
     }
 
-    T* begin() { return Data(); }
+    T* begin() { return buf(); }
 
-    T* end() { return Data() + _len; }
+    T* end() { return buf() + _len; }
 
-    T const* Data() const
+    T const* buf() const
     {
         if (!_data)
             return nullptr;
         return &(_data->unwrap());
     }
 
-    usize Length() const { return _len; }
+    usize len() const { return _len; }
 };
 static_assert(Sliceable<Buf<u8>>);
 
@@ -193,4 +194,119 @@ struct Buf<T[N]>
 
     Inert<T> _data[N];
     usize    _len{};
+
+    constexpr Buf() = default;
+
+    constexpr Buf(usize cap)
+    {
+        if (cap > N) [[unlikely]]
+            Std::panic("Buffer capacity exceeds array size");
+    }
+
+    constexpr Buf(T const* buf, usize len)
+    {
+        if (len > N) [[unlikely]]
+            Std::panic("Buffer capacity exceeds array size");
+
+        _len = len;
+        for (usize i = 0; i < len; i++)
+            _data[i].ctor(buf[i]);
+    }
+
+    constexpr Buf(Sliceable<T> auto const& other)
+        : Buf(other.buf(), other.len())
+    {
+    }
+
+    constexpr Buf(Buf const& other)
+        : Buf(other.buf(), other.len())
+    {
+    }
+
+    constexpr Buf(Buf&& other)
+    {
+        for (usize i = 0; i < other.len(); i++)
+            _data[i] = Std::move(other._data[i]);
+        _len = other.len();
+    }
+
+    ~Buf()
+    {
+        for (usize i = 0; i < _len; i++)
+            _data[i].dtor();
+        _len = 0;
+    }
+
+    Buf& operator=(Buf const& other)
+    {
+        for (usize i = 0; i < other.len(); i++)
+            _data[i] = other._data[i];
+        _len = other.len();
+
+        return *this;
+    }
+
+    Buf& operator=(Buf&& other)
+    {
+        for (usize i = 0; i < min(other.len(), _len); i++)
+            _data[i] = Std::move(other._data[i]);
+        _len = other.len();
+
+        return *this;
+    }
+
+    constexpr T& operator[](usize i) { return _data[i].unwrap(); }
+
+    constexpr T const& operator[](usize i) const { return _data[i].unwrap(); }
+
+    void ensure(usize len)
+    {
+        if (len > N) [[unlikely]]
+            Std::panic("Buffer capacity exceeds array size");
+    }
+
+    template <typename... TArgs>
+    void emplace(usize i, TArgs&&... args)
+    {
+        if (i >= N) [[unlikely]]
+            Std::panic("Buffer index out of bounds");
+
+        _data[i].ctor(Std::forward<TArgs>(args)...);
+        _len = max(_len, i + 1);
+    }
+
+    void insert(usize i, T&& val)
+    {
+        if (i >= N) [[unlikely]]
+            Std::panic("Buffer index out of bounds");
+
+        _data[i].ctor(Std::move(val));
+        _len = max(_len, i + 1);
+    }
+
+    T removeAt(usize index)
+    {
+        if (index >= _len) [[unlikely]]
+            Std::panic("Buffer index out of bounds");
+
+        T val = Std::move(_data[index].unwrap());
+        for (usize i = index; i < _len - 1; i++)
+            _data[i] = Std::move(_data[i + 1]);
+        _data[_len - 1].dtor();
+        _len--;
+
+        return val;
+    }
+
+    T* buf() { return &(_data->unwrap()); }
+
+    T const* buf() const { return &(_data->unwrap()); }
+
+    usize len() const { return _len; }
+
+    T* begin() { return buf(); }
+
+    T* end() { return buf() + _len; }
+
+    usize cap() const { return N; }
 };

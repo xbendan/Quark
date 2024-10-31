@@ -12,29 +12,36 @@ concept InputStream = requires(TSource& t, U& u, usize len, Buf<U> const& buf) {
     { t.operator++() } -> SameAs<void>;
     { t += len } -> SameAs<void>;
 
-    { t.Dispose() };
+    { t.next() } -> SameAs<U>;
+    { t.rem() } -> SameAs<usize>;
+
+    { t.dispose() };
 };
 
 template <typename TSource, class U = u8>
-concept OutputStream = requires(TSource& t, U u, U* up, Buf<U> const& buf) {
+concept OutputStream = requires(TSource& t, U u, Buf<U> const& buf) {
     { t << u } -> SameAs<void>;
     { t << buf } -> SameAs<void>;
-    { t << up } -> SameAs<void>;
 
-    { t.Dispose() };
+    { t.out(u) } -> SameAs<void>;
+
+    { t.dispose() };
 };
 
 template <class U = u8>
 class IInputStream
 {
 public:
-    virtual void Dispose() = 0;
+    virtual void dispose() = 0;
 
     virtual U    operator()()                  = 0;
     virtual void operator>>(U& u)              = 0;
     virtual void operator>>(Buf<U> const& buf) = 0;
     virtual void operator++()                  = 0;
     virtual void operator+=(usize len)         = 0;
+
+    virtual U     next() = 0;
+    virtual usize rem()  = 0;
 };
 static_assert(InputStream<IInputStream<>>);
 
@@ -42,11 +49,12 @@ template <class U = u8>
 class IOutputStream
 {
 public:
-    virtual void Dispose() = 0;
+    virtual void dispose() = 0;
 
     virtual void operator<<(U u)               = 0;
-    virtual void operator<<(U* up)             = 0;
     virtual void operator<<(Buf<U> const& buf) = 0;
+
+    virtual void out(U u) = 0;
 };
 static_assert(OutputStream<IOutputStream<>>);
 
@@ -67,7 +75,7 @@ public:
     void operator>>(Buf<u8> const& buf) override
     {
         Buf<u8>& _buf = const_cast<Buf<u8>&>(buf);
-        for (usize i = 0; i < buf.Length(); i++) {
+        for (usize i = 0; i < buf.len(); i++) {
             _buf[i] = m_buffer[m_index++];
         }
     }
@@ -76,7 +84,7 @@ public:
 
     void operator+=(usize len) override { m_index += len; }
 
-    void Dispose() override {}
+    void dispose() override {}
 
 private:
     u8*   m_buffer;
@@ -96,21 +104,14 @@ public:
 
     void operator<<(u8 u) override { m_buffer[m_index++] = u; }
 
-    void operator<<(u8* up) override
-    {
-        while (*up && m_index < m_size) {
-            m_buffer[m_index++] = *up++;
-        }
-    }
-
     void operator<<(Buf<u8> const& buf) override
     {
-        for (usize i = 0; i < buf.Length(); i++) {
-            m_buffer[m_index++] = buf.Data()[i];
+        for (usize i = 0; i < buf.len(); i++) {
+            m_buffer[m_index++] = buf.buf()[i];
         }
     }
 
-    void Dispose() override {}
+    void dispose() override {}
 
 private:
     u8*   m_buffer;
