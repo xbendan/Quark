@@ -1,10 +1,8 @@
 #pragma once
 
-#include <mixins/fmt/args.h>
-#include <mixins/fmt/translator.h>
 #include <mixins/io/text.h>
 #include <mixins/std/panic.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/flags.h>
 
 namespace Quark::System::Diagnostic {
@@ -22,24 +20,29 @@ namespace Quark::System::Diagnostic {
         (LogLevel::Debug | LogLevel::Info | LogLevel::Warn | LogLevel::Error |
          LogLevel::Fatal);
 
+    struct LoggingListener
+    {
+        Flags<LogLevel> Levels;
+        TextWriter*     Output;
+    };
+
     class Logger
     {
     public:
-        static inline void AddListener(Flags<LogLevel> levels,
-                                       TextWriter*     textOutput);
+        static void AddListener(Flags<LogLevel> levels, TextWriter* textOutput);
     };
 
-    void log(LogLevel level, string msg);
-    void log(LogLevel level, string msg, fmt::_Args& args);
+    void log(LogLevel level, String msg);
+    void log(LogLevel level, String msg, fmt::_Args& args);
 
-    inline void log(string msg, LogLevel level = LogLevel::Info)
+    inline void log(String msg, LogLevel level = LogLevel::Info)
     {
         log(level, msg);
     }
 
     template <typename... TArgs>
         requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void log(LogLevel level, string msg, TArgs... args)
+    inline void log(LogLevel level, String msg, TArgs... args)
     {
         fmt::Args<TArgs...> fmtArgs(Std::forward<TArgs>(args)...);
         log(level, msg, fmtArgs);
@@ -47,40 +50,40 @@ namespace Quark::System::Diagnostic {
 
     template <typename... TArgs>
         requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void debug(string msg, TArgs... args)
+    inline void debug(String msg, TArgs... args)
     {
         log(LogLevel::Debug, msg, args...);
     }
 
     template <typename... TArgs>
         requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void info(string msg, TArgs... args)
+    inline void info(String msg, TArgs... args)
     {
         log(LogLevel::Info, msg, args...);
     }
 
     template <typename... TArgs>
         requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void warn(string msg, TArgs... args)
+    inline void warn(String msg, TArgs... args)
     {
         log(LogLevel::Warn, msg, args...);
     }
 
     template <typename... TArgs>
         requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void error(string msg, TArgs... args)
+    inline void error(String msg, TArgs... args)
     {
         log(LogLevel::Error, msg, args...);
     }
 
     template <typename... TArgs>
         requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void fatal(string msg, TArgs... args)
+    inline void fatal(String msg, TArgs... args)
     {
         fmt::Args<TArgs...> fmtArgs(Std::forward<TArgs>(args)...);
         log(LogLevel::Fatal, msg, fmtArgs);
 
-        Std::SystemPanic(msg);
+        Std::panic(msg);
     }
 }
 
