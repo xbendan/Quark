@@ -10,7 +10,7 @@ namespace Quark::System::Memory {
     PageFrame** g_pageFrames;
     // PhysMemFrame**               g_pageFrames;
 
-    BuddyZone buddyZones[ZONE_TYPES];
+    // BuddyZone buddyZones[ZONE_TYPES];
 
     // General Memory Allocation and Free
 
@@ -46,7 +46,8 @@ namespace Quark::System::Memory {
         Res<u64> phys = addressSpace->GetPhysAddress(address);
 
         if (phys.IsOkay()) {
-            FreePhysMemory4K(phys.Unwrap(), amount);
+            while (amount)
+                amount -= FreePhysMemory4K(phys.Unwrap()).Unwrap();
         }
 
         FreeVirtMemory4K(address, amount, addressSpace);
@@ -70,48 +71,49 @@ namespace Quark::System::Memory {
 
     // Physical Memory Management
 
-    Res<PageFrame*> AllocatePhysFrame4K(usize amount, Hal::PmmType allocType)
-    {
-        u8 t = static_cast<u8>(allocType);
+    // Res<PageFrame*> AllocatePhysFrame4K(usize amount, Hal::PmmType allocType)
+    // {
+    //     u8 t = static_cast<u8>(allocType);
 
-        if (t > static_cast<u8>(Hal::PmmType::NORMAL)) {
-            return Error::AllocateFailed("Invalid allocation type");
-        }
-        while (t >= 1) {
-            Res<PageFrame*> res = buddyZones[t - 1].Allocate4KPages(amount);
-            if (res.IsOkay()) {
-                return Ok(res.Unwrap());
-            }
-            t--;
-        };
-        return Error::OutOfMemory("Failed to allocate memory");
-    }
+    //     if (t > static_cast<u8>(Hal::PmmType::NORMAL)) {
+    //         return Error::AllocateFailed("Invalid allocation type");
+    //     }
+    //     while (t >= 1) {
+    //         Res<PageFrame*> res = buddyZones[t - 1].Allocate4KPages(amount);
+    //         if (res.IsOkay()) {
+    //             return Ok(res.Unwrap());
+    //         }
+    //         t--;
+    //     };
+    //     return Error::OutOfMemory("Failed to allocate memory");
+    // }
 
-    Res<u64> AllocatePhysMemory4K(usize amount)
-    {
-        auto res = AllocatePhysFrame4K(amount);
-        if (res.IsError()) {
-            return res.Err();
-        }
-        return Ok(res.Unwrap()->_address);
+    // Res<u64> AllocatePhysMemory4K(usize amount)
+    // {
+    //     auto res = AllocatePhysFrame4K(amount);
+    //     if (res.IsError()) {
+    //         return res.Err();
+    //     }
+    //     return Ok(res.Unwrap()->_address);
 
-        // return AllocatePhysFrame4K(amount).Select<u64>(
-        //     [](PhysMemFrame* frame) { return frame->_address; });
-    }
+    //     // return AllocatePhysFrame4K(amount).Select<u64>(
+    //     //     [](PhysMemFrame* frame) { return frame->_address; });
+    // }
 
-    Res<> FreePhysFrame4K(PageFrame* page)
-    {
-        return FreePhysMemory4K(page->_address, page->_chainLength);
-    }
+    // Res<> FreePhysFrame4K(PageFrame* page)
+    // {
+    //     return FreePhysMemory4K(page->_address, page->_chainLength);
+    // }
 
-    Res<> FreePhysMemory4K(u64 address, usize amount)
-    {
-        for (int i = 0; i < ZONE_TYPES; i++) {
-            if (buddyZones[i].GetRange().WithinRange(address))
-                return buddyZones[i].Free4KPages(address);
-        }
-        return Error::PageNotExist();
-    }
+    // Res<> FreePhysMemory4K(u64 address, usize amount)
+    // {
+    //     for (int i = 0; i < ZONE_TYPES; i++) {
+    //         if (buddyZones[i].GetRange().WithinRange(address))
+    //             return buddyZones[i].Free4KPages(address);
+    //     }
+    //     return Error::PageNotExist();
+    // }
+
     // Virtual Memory Management
 
     Res<u64> AllocateVirtMemory4K(usize                amount,

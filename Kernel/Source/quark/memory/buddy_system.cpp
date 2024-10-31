@@ -1,8 +1,19 @@
 #include <mixins/std/assert.h>
 #include <quark/memory/buddy_system.h>
+#include <quark/memory/page_alloc.h>
+
+#include <quark/os/diagnostic/logging.h>
 
 namespace Quark::System::Memory {
-    Res<PageFrame*> BuddyZone::Allocate4KPages(usize amount)
+    using namespace Quark::System::Diagnostic;
+
+    static u64          SpannedPages;
+    static u64          PresentPages;
+    static Atomic<long> ManagedPages;
+    static PageQueue    PageQueues[BUDDY_LEVEL_UPPER_LIMIT + 1];
+    static lock_t       m_lock = 0;
+
+    Res<PageFrame*> AllocatePhysFrame4K(usize amount)
     {
         if (amount == 0 || amount > PAGE_CHAIN_AMOUNT) {
             return Error::AllocateFailed("Invalid allocation size");
@@ -14,41 +25,48 @@ namespace Quark::System::Memory {
         u8 pageQueueLevel = 0;
         while (pageQueueLevel < BUDDY_LEVEL_UPPER_LIMIT) {
             if ((1 << pageQueueLevel) >= amount &&
-                m_pageQueues[pageQueueLevel].Count())
+                PageQueues[pageQueueLevel].Count())
                 break;
             pageQueueLevel++;
         }
 
         /* If no page is found, return out of memory error */
         if (pageQueueLevel > BUDDY_LEVEL_UPPER_LIMIT ||
-            !m_pageQueues[pageQueueLevel].Count()) {
+            !PageQueues[pageQueueLevel].Count()) {
             return Error::AllocateFailed();
         }
 
-        PageFrame* page = m_pageQueues[pageQueueLevel].Dequeue();
+        PageFrame* page = PageQueues[pageQueueLevel].Dequeue();
         while ((1 << pageQueueLevel) > amount && pageQueueLevel) {
             pageQueueLevel--;
             auto rest = page->Divide();
             if (!rest.IsPresent()) {
-                Std::SystemPanic("Failed to divide page, it's not free");
+                Std::panic("Failed to divide page, it's not free");
             }
 
-            m_pageQueues[pageQueueLevel].Enqueue(rest.Take());
+            PageQueues[pageQueueLevel].Enqueue(rest.Take());
         }
 
         page->_flags.Unset(Hal::PmmFlags::FREE);
-        m_managedPages.FetchSub(amount);
+        ManagedPages.FetchSub(amount);
 
         return Ok(page);
-    };
+    }
 
-    Res<> BuddyZone::Free4KPages(PageFrame* page)
+    Res<u64> AllocatePhysMemory4K(usize amount)
     {
-        if (!page) {
-            return Error::NullReference();
+        auto res = AllocatePhysFrame4K(amount);
+        if (res.IsError()) {
+            return res.Err();
         }
-        if (m_range.WithinRange(page->_address)) {
-            return Error::PageNotExist();
+
+        return Ok(res.Unwrap()->_address);
+    }
+
+    Res<> FreePhysFrame4K(PageFrame* page, usize amount)
+    {
+        if (!page || amount == 0) {
+            return Error::NullReference();
         }
 
         /* Ensure the page is okay to be free */
@@ -57,6 +75,8 @@ namespace Quark::System::Memory {
                             Hal::PmmFlags::SWAPPED)) {
             return Error::PageNotFree();
         }
+
+        ScopedLock lock(m_lock);
 
         /* Mark the page as free */
         page->_flags |= Hal::PmmFlags::FREE;
@@ -74,7 +94,7 @@ namespace Quark::System::Memory {
 
             if (newPage->_flags.has(Hal::PmmFlags::FREE)) {
                 if (newPage->_previous || newPage->_next) {
-                    m_pageQueues[newPage->_level].Dequeue(newPage);
+                    PageQueues[newPage->_level].Dequeue(newPage);
                 }
 
                 PageFrame* result = page->Combine(newPage).Take();
@@ -85,23 +105,119 @@ namespace Quark::System::Memory {
             } else
                 break;
         }
-        m_pageQueues[page->_level].Enqueue(page);
+        PageQueues[page->_level].Enqueue(page);
 
         return Ok();
     }
 
-    Res<> BuddyZone::Free4KPages(u64 address)
+    Res<usize> FreePhysMemory4K(u64 address)
     {
-        PageFrame* page = PageFrame::ByAddress(address);
-        return Free4KPages(page);
+        auto* page = PageFrame::ByAddress(address);
+
+        if (FreePhysFrame4K(page).IsOkay())
+            return Ok((usize)page->_chainLength);
+
+        return Error::PageNotExist();
     }
 
-    void BuddyZone::MarkRegionAsUsed(AddressRange range)
+    // Res<PageFrame*> BuddyZone::Allocate4KPages(usize amount)
+    // {
+    //     if (amount == 0 || amount > PAGE_CHAIN_AMOUNT) {
+    //         return Error::AllocateFailed("Invalid allocation size");
+    //     }
+
+    //     ScopedLock lock(m_lock);
+    //     Math::AlignTwoExponent(amount);
+
+    //     u8 pageQueueLevel = 0;
+    //     while (pageQueueLevel < BUDDY_LEVEL_UPPER_LIMIT) {
+    //         if ((1 << pageQueueLevel) >= amount &&
+    //             m_pageQueues[pageQueueLevel].Count())
+    //             break;
+    //         pageQueueLevel++;
+    //     }
+
+    //     /* If no page is found, return out of memory error */
+    //     if (pageQueueLevel > BUDDY_LEVEL_UPPER_LIMIT ||
+    //         !m_pageQueues[pageQueueLevel].Count()) {
+    //         return Error::AllocateFailed();
+    //     }
+
+    //     PageFrame* page = m_pageQueues[pageQueueLevel].Dequeue();
+    //     while ((1 << pageQueueLevel) > amount && pageQueueLevel) {
+    //         pageQueueLevel--;
+    //         auto rest = page->Divide();
+    //         if (!rest.IsPresent()) {
+    //             Std::panic("Failed to divide page, it's not free");
+    //         }
+
+    //         m_pageQueues[pageQueueLevel].Enqueue(rest.Take());
+    //     }
+
+    //     page->_flags.Unset(Hal::PmmFlags::FREE);
+    //     m_managedPages.FetchSub(amount);
+
+    //     return Ok(page);
+    // };
+
+    // Res<> BuddyZone::Free4KPages(PageFrame* page)
+    // {
+    //     if (!page) {
+    //         return Error::NullReference();
+    //     }
+    //     if (m_range.WithinRange(page->_address)) {
+    //         return Error::PageNotExist();
+    //     }
+
+    //     /* Ensure the page is okay to be free */
+    //     if (page->_flags & (Hal::PmmFlags::FREE |   //
+    //                         Hal::PmmFlags::KERNEL | //
+    //                         Hal::PmmFlags::SWAPPED)) {
+    //         return Error::PageNotFree();
+    //     }
+
+    //     /* Mark the page as free */
+    //     page->_flags |= Hal::PmmFlags::FREE;
+    //     while (page->_level < BUDDY_LEVEL_UPPER_LIMIT) {
+    //         /*
+    //             Merge the page until it reaches the upper bound
+    //             or the another page needed is not free, then jump
+    //             out of the loop
+    //          */
+    //         u64        offset  = GetLevelAsOffset(page->_level);
+    //         u64        newAddr = (page->_address % (1 << (offset * 2)))
+    //                                  ? page->_address + offset
+    //                                  : page->_address - offset;
+    //         PageFrame* newPage = PageFrame::ByAddress(newAddr);
+
+    //         if (newPage->_flags.has(Hal::PmmFlags::FREE)) {
+    //             if (newPage->_previous || newPage->_next) {
+    //                 m_pageQueues[newPage->_level].Dequeue(newPage);
+    //             }
+
+    //             PageFrame* result = page->Combine(newPage).Take();
+    //             if (result != nullptr) {
+    //                 page = result;
+    //                 continue;
+    //             }
+    //         } else
+    //             break;
+    //     }
+    //     m_pageQueues[page->_level].Enqueue(page);
+
+    //     return Ok();
+    // }
+
+    // Res<> BuddyZone::Free4KPages(u64 address)
+    // {
+    //     PageFrame* page = PageFrame::ByAddress(address);
+    //     return Free4KPages(page);
+    // }
+
+    void MarkRegionAsUsed(AddressRange range)
     {
         MakeAssertion(range.From() && range.To(), "Invalid address range");
-        auto& pageRange = range
-                              .InnerAlign(PAGE_SIZE_4K) //
-                              .ConstraintsTo(m_range);
+        auto& pageRange = range.InnerAlign(PAGE_SIZE_4K);
         while (pageRange.From() < PAGE_BIOS_RESERVED) {
             /* To avoid potential issues, don't mark memory below 0x100000 */
             pageRange._min += PAGE_SIZE_4K;
@@ -118,33 +234,33 @@ namespace Quark::System::Memory {
 
             pageFrame->_flags.Unset(Hal::PmmFlags::FREE);
             if (pageFrame->_previous || pageFrame->_next) {
-                m_pageQueues[pageFrame->_level].Dequeue(pageFrame);
-                m_managedPages.Dec();
+                PageQueues[pageFrame->_level].Dequeue(pageFrame);
+                ManagedPages.Dec();
             }
 
             address += PAGE_SIZE_4K;
         }
     }
 
-    void BuddyZone::MarkRegionAsFree(AddressRange range)
+    void MarkRegionAsFree(AddressRange range)
     {
         MakeAssertion(range.From() && range.To(), "Invalid address range");
-        auto& pageRange = range
-                              .InnerAlign(PAGE_SIZE_4K) //
-                              .ConstraintsTo(m_range);
+        auto& pageRange = range.InnerAlign(PAGE_SIZE_4K);
         while (pageRange.From() < PAGE_BIOS_RESERVED)
             /* To avoid potential issues, don't mark memory below 0x100000
              */
             pageRange._min += PAGE_SIZE_4K;
         ScopedLock lock(m_lock);
 
+        info(u8"Marking region as free: {} - {}\r\n", range.From(), range.To());
+
         usize      pageLevelAssumption = BUDDY_LEVEL_UPPER_LIMIT;
         PageFrame* pageFrame           = nullptr;
 
         usize amount = pageRange.Length() / PAGE_SIZE_4K;
 
-        m_presentPages += amount;
-        m_managedPages.FetchAdd(amount);
+        PresentPages += amount;
+        ManagedPages.FetchAdd(amount);
 
         u64 address = range.From();
         u64 offset  = 0;
@@ -171,9 +287,10 @@ namespace Quark::System::Memory {
                         ._address  = address + (i * PAGE_SIZE_4K),
                     };
             }
-            pageFrame->_level = pageLevelAssumption;
+            pageFrame->_level       = pageLevelAssumption;
+            pageFrame->_chainLength = (1 << pageLevelAssumption);
 
-            m_pageQueues[pageLevelAssumption].Enqueue(pageFrame);
+            PageQueues[pageLevelAssumption].Enqueue(pageFrame);
 
             address += offset;
         }

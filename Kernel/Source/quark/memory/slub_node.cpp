@@ -12,12 +12,8 @@ namespace Quark::System::Memory {
 
         auto* addressSpace = BootInfo::MemoryInfo._addressSpace;
 
-        auto pageRes = AllocatePhysFrame4K(1);
-        if (pageRes.IsError()) {
-            return;
-        }
-
-        auto* page = pageRes.Unwrap();
+        auto  pageRes = AllocatePhysFrame4K(1);
+        auto* page    = pageRes.Unwrap();
 
         u64 address = addressSpace->AllocateVirtPages4K(1).Unwrap();
 

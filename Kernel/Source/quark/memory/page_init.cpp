@@ -6,7 +6,7 @@
 #include <quark/memory/slab.h>
 
 namespace Quark::System::Memory {
-    extern BuddyZone    buddyZones[ZONE_TYPES];
+    // extern BuddyZone    buddyZones[ZONE_TYPES];
     extern kmem_cache_t g_slabCaches[SLAB_CACHE_BLOCK_AMOUNT];
 }
 
@@ -61,28 +61,22 @@ namespace Quark::System {
         }
 
         // clang-format off
-        new (&buddyZones[ZONE_DMA]) BuddyZone(0x0, 0xFFFFFF);           // DMA, 16 MiB
-        new (&buddyZones[ZONE_DMA32]) BuddyZone(0x1000000, 0xFFFFFFFF); // DMA32, 4 GiB
-        new (&buddyZones[ZONE_NORMAL]) BuddyZone(0x100000000, -1);      // Normal, Unlimited
+        // new (&buddyZones[ZONE_DMA]) BuddyZone(0x0, 0xFFFFFF);           // DMA, 16 MiB
+        // new (&buddyZones[ZONE_DMA32]) BuddyZone(0x1000000, 0xFFFFFFFF); // DMA32, 4 GiB
+        // new (&buddyZones[ZONE_NORMAL]) BuddyZone(0x100000000, -1);      // Normal, Unlimited
         // clang-format on
 
         int num = ZONE_DMA;
         for (int i = 0;                                       //
-             (i < addressRanges.Length())                     //
+             (i < addressRanges.len())                        //
              && (addressRanges[i].Type != MemmapEntry::Unset) //
              && (num < ZONE_TYPES);
              i++) {
-
             if (addressRanges[i].Type != MemmapEntry::Free) {
                 continue;
             }
 
-            BuddyZone& zone = buddyZones[num];
-            zone.MarkRegionAsFree(addressRanges[i].Range);
-            if (addressRanges[i].Range.To() >= zone.GetRange().To()) {
-                num++;
-                i--;
-            }
+            MarkRegionAsFree(addressRanges[i].Range);
         }
 
         constexpr usize kmemCacheSize[] = {
