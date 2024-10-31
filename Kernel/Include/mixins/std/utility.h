@@ -27,4 +27,12 @@ namespace Std {
     {
         return static_cast<typename Std::RemoveRef<T>&&>(p);
     }
+
+    template <typename TOld, typename TNew = TOld>
+    constexpr inline TOld exchange(TOld& obj, TNew&& new_value)
+    {
+        TOld old_value = Std::move(obj);
+        obj            = Std::forward<TNew>(new_value);
+        return old_value;
+    }
 }
