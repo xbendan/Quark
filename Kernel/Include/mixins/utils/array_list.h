@@ -488,8 +488,8 @@ public:
 
     IList<TSource>& Take(Tuple<usize, usize> range) override
     {
-        auto newList = new ArrayList<TSource>(range.get<1>() - range.get<0>());
-        for (usize i = range.get<0>(); i < range.get<1>() && i < m_count; i++) {
+        auto newList = new ArrayList<TSource>(range.v1 - range.v0);
+        for (usize i = range.v0; i < range.v1 && i < m_count; i++) {
             newList->Add(m_data[i]);
         }
         return *newList;

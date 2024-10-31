@@ -552,12 +552,12 @@ public:
     IList<TSource>& Take(Tuple<usize, usize> range) override
     {
         auto newList = new LinkedList<TSource>();
-        if (range.get<0>() > 0) {
+        if (range.v0 > 0) {
             Node* node = _head;
-            while (range.get<0>()-- && node) {
+            while (range.v0-- && node) {
                 node = node->_next;
             }
-            while (range.get<1>()-- && node) {
+            while (range.v1-- && node) {
                 newList->Add(node->_data);
                 node = node->_next;
             }
@@ -580,7 +580,7 @@ public:
     Optional<TSource> TakeFirst(Predicate<TSource const&> predicate)
     {
         if (_size == 0) {
-            Std::SystemPanic("Sequence contains no elements");
+            Std::panic("Sequence contains no elements");
         }
 
         Node* node = _head;
@@ -640,7 +640,7 @@ public:
     TSource& Single() override
     {
         if (_size != 1) {
-            Std::SystemPanic("Sequence contains more than one element");
+            Std::panic("Sequence contains more than one element");
         }
         return _head->_data;
     }
@@ -650,7 +650,7 @@ public:
     TSource& SingleOrDefault(TSource const& defaultValue) override
     {
         if (_size > 1) {
-            Std::SystemPanic("Sequence contains more than one element");
+            Std::panic("Sequence contains more than one element");
         }
         if (_size == 0) {
             return const_cast<TSource&>(defaultValue);
@@ -807,7 +807,7 @@ public:
     TSource& operator[](usize const& index) override
     {
         if (index >= _size)
-            Std::ThrowError(Error::IndexOutOfBounds("Index out of bounds"));
+            Std::panic(Error::IndexOutOfBounds("Index out of bounds"));
 
         usize i    = index;
         Node* node = _head;
@@ -820,7 +820,7 @@ public:
     TSource const& operator[](usize const& index) const override
     {
         if (index >= _size)
-            Std::ThrowError(Error::IndexOutOfBounds("Index out of bounds"));
+            Std::panic(Error::IndexOutOfBounds("Index out of bounds"));
 
         usize i    = index;
         Node* node = _head;

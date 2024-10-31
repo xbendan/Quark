@@ -41,7 +41,7 @@ namespace Quark::System::Memory {
         u64 _kVirtOffset{ KERNEL_VIRTUAL_BASE };
 
         AddressSpace*           _addressSpace;
-        Array<MemmapEntry[256]> _addressRanges{};
+        Array<MemmapEntry, 256> _addressRanges{};
     };
 
     struct MemoryAllocationStatus
@@ -87,7 +87,7 @@ struct OsMemoryConfig
     u64 _limit;
     u64 _committed;
 
-    Array<OsMemRangeInfo[256]> _addressRanges;
+    Array<OsMemRangeInfo, 256> _addressRanges;
     // OsMemRangeInfo _addressRanges[256];
 };
 
