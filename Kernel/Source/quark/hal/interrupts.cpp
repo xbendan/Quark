@@ -6,9 +6,8 @@ namespace Quark::System::Hal {
     {
     }
 
-    Res<> InterruptsControllerDevice::AddHandler(
-        int intno,
-        void (*handler)(InterruptStackFrame*))
+    Res<> InterruptsControllerDevice::AddHandler(int intno,
+                                                 void (*handler)(Registers*))
     {
         if (intno >= 256) {
             return Error::IndexOutOfBounds("Invalid interrupt number");
@@ -18,9 +17,8 @@ namespace Quark::System::Hal {
         return Ok();
     }
 
-    Res<> InterruptsControllerDevice::RemoveHandler(
-        int intno,
-        void (*handler)(InterruptStackFrame*))
+    Res<> InterruptsControllerDevice::RemoveHandler(int intno,
+                                                    void (*handler)(Registers*))
     {
         if (intno >= 256) {
             return Error::IndexOutOfBounds("Invalid interrupt number");
@@ -31,8 +29,8 @@ namespace Quark::System::Hal {
     }
 
     void InterruptsControllerDevice::CallEvent( //
-        int                  intno,
-        InterruptStackFrame* frame)
+        int        intno,
+        Registers* frame)
     {
         if (intno >= m_interruptList.Count()) {
             return;

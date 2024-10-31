@@ -2,7 +2,7 @@
 
 #include <mixins/meta/func.h>
 #include <mixins/std/c++types.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 #include <mixins/utils/flags.h>
 #include <platforms/x86_64/hwregs.h>
 
@@ -48,15 +48,9 @@
 #define IRQ_ATA_HARD_DISK_2 47
 
 namespace Quark::System::Platform::X64 {
-    struct InterruptStackFrame : public Registers
-    {
-        u64 intno, err;
-        u64 rip, cs, rflags, rsp, ss;
-    } __attribute__((packed));
-
     struct InterruptVector
     {
-        // string _name;
+        // String _name;
         const char* _name;
 
         enum Traits : u8
@@ -70,36 +64,36 @@ namespace Quark::System::Platform::X64 {
 
         Flags<Traits> _traits;
         bool          _hasErrorCode;
-        // Func<void(InterruptStackFrame*)> _handler;
-        void (*_handler)(InterruptStackFrame*);
+        // Func<void(Registers*)> _handler;
+        void (*_handler)(int, Registers*);
     };
 
     MakeFlags$(InterruptVector::Traits);
 
-    void UnhandledException(InterruptStackFrame* context);
+    void UnhandledException(int num, Registers* registers);
 
-    void DivisionError(InterruptStackFrame* context);
-    void Debug(InterruptStackFrame* context);
-    void NonMaskableInterrupt(InterruptStackFrame* context);
-    void Breakpoint(InterruptStackFrame* context);
-    void Overflow(InterruptStackFrame* context);
-    void BoundRangeExceeded(InterruptStackFrame* context);
-    void InvalidOpcode(InterruptStackFrame* context);
-    void DeviceNotAvailable(InterruptStackFrame* context);
-    void DoubleFault(InterruptStackFrame* context);
-    void CoprocessorSegmentOverrun(InterruptStackFrame* context);
-    void InvalidTaskStateSegment(InterruptStackFrame* context);
-    void SegmentNotPresent(InterruptStackFrame* context);
-    void StackSegmentFault(InterruptStackFrame* context);
-    void GeneralProtectionFault(InterruptStackFrame* context);
-    void PageFault(InterruptStackFrame* context);
-    void x87FloatingPointException(InterruptStackFrame* context);
-    void AlignmentCheck(InterruptStackFrame* context);
-    void MachineCheck(InterruptStackFrame* context);
-    void SIMDFloatingPointException(InterruptStackFrame* context);
-    void VirtualizationException(InterruptStackFrame* context);
-    void ControlProtectionException(InterruptStackFrame* context);
-    void HypervisorInjectionException(InterruptStackFrame* context);
-    void VMMCommunicationException(InterruptStackFrame* context);
-    void SecurityException(InterruptStackFrame* context);
+    void DivisionError(int num, Registers* registers);
+    void Debug(int num, Registers* registers);
+    void NonMaskableInterrupt(int num, Registers* registers);
+    void Breakpoint(int num, Registers* registers);
+    void Overflow(int num, Registers* registers);
+    void BoundRangeExceeded(int num, Registers* registers);
+    void InvalidOpcode(int num, Registers* registers);
+    void DeviceNotAvailable(int num, Registers* registers);
+    void DoubleFault(int num, Registers* registers);
+    void CoprocessorSegmentOverrun(int num, Registers* registers);
+    void InvalidTaskStateSegment(int num, Registers* registers);
+    void SegmentNotPresent(int num, Registers* registers);
+    void StackSegmentFault(int num, Registers* registers);
+    void GeneralProtectionFault(int num, Registers* registers);
+    void PageFault(int num, Registers* registers);
+    void x87FloatingPointException(int num, Registers* registers);
+    void AlignmentCheck(int num, Registers* registers);
+    void MachineCheck(int num, Registers* registers);
+    void SIMDFloatingPointException(int num, Registers* registers);
+    void VirtualizationException(int num, Registers* registers);
+    void ControlProtectionException(int num, Registers* registers);
+    void HypervisorInjectionException(int num, Registers* registers);
+    void VMMCommunicationException(int num, Registers* registers);
+    void SecurityException(int num, Registers* registers);
 } // namespace Quark::System::Platform::X64

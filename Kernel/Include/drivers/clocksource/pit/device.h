@@ -17,7 +17,7 @@ namespace PIT {
     public:
         PITimerDevice(u32 frequency);
 
-        static void Tick(InterruptStackFrame* frame);
+        static void Tick(Registers* frame);
 
         virtual Res<> OnStartup() override final;
         virtual Res<> OnShutdown() override final;

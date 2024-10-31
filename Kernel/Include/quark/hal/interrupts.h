@@ -16,19 +16,19 @@
 
 namespace Quark::System::Hal {
     using Quark::System::Io::Device;
-    using InterruptStackFrame = Platform::__ARCH_NAMESPACE::InterruptStackFrame;
+    using Registers = Platform::__ARCH_NAMESPACE::Registers;
 
     class InterruptsControllerDevice : public Device
     {
     public:
         InterruptsControllerDevice();
 
-        Res<> AddHandler(int intno, void (*handler)(InterruptStackFrame*));
-        Res<> RemoveHandler(int intno, void (*handler)(InterruptStackFrame*));
+        Res<> AddHandler(int intno, void (*handler)(Registers*));
+        Res<> RemoveHandler(int intno, void (*handler)(Registers*));
 
-        void CallEvent(int intno, InterruptStackFrame* frame);
+        void CallEvent(int intno, Registers* frame);
 
     private:
-        LinkedList<Event<InterruptStackFrame*>> m_interruptList;
+        LinkedList<Event<Registers*>> m_interruptList;
     };
 }

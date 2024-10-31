@@ -203,68 +203,71 @@ namespace Quark::System::Platform::X64 {
     };
     // clang-format on
 
-    void UnhandledException(InterruptStackFrame* context)
+    void UnhandledException(int num, Registers* registers)
     {
-        warn(u8"Unhandled exception %d\n", context->intno);
+        warn(u8"Unhandled exception %d\n", num);
     }
 
-    void DivisionError(InterruptStackFrame* context)
+    void DivisionError(int num, Registers* registers)
     {
         log(u8"Division Error\n");
     }
 
-    void Debug(InterruptStackFrame* context) {}
+    void Debug(int num, Registers* registers) {}
 
-    void NonMaskableInterrupt(InterruptStackFrame* context) {}
+    void NonMaskableInterrupt(int num, Registers* registers) {}
 
-    void Breakpoint(InterruptStackFrame* context) {}
+    void Breakpoint(int num, Registers* registers) {}
 
-    void Overflow(InterruptStackFrame* context) {}
+    void Overflow(int num, Registers* registers) {}
 
-    void BoundRangeExceeded(InterruptStackFrame* context) {}
+    void BoundRangeExceeded(int num, Registers* registers) {}
 
-    void InvalidOpcode(InterruptStackFrame* context) {}
+    void InvalidOpcode(int num, Registers* registers) {}
 
-    void DeviceNotAvailable(InterruptStackFrame* context) {}
+    void DeviceNotAvailable(int num, Registers* registers) {}
 
-    void DoubleFault(InterruptStackFrame* context) {}
+    void DoubleFault(int num, Registers* registers) {}
 
-    void CoprocessorSegmentOverrun(InterruptStackFrame* context) {}
+    void CoprocessorSegmentOverrun(int num, Registers* registers) {}
 
-    void InvalidTaskStateSegment(InterruptStackFrame* context) {}
+    void InvalidTaskStateSegment(int num, Registers* registers) {}
 
-    void SegmentNotPresent(InterruptStackFrame* context) {}
+    void SegmentNotPresent(int num, Registers* registers) {}
 
-    void StackSegmentFault(InterruptStackFrame* context) {}
+    void StackSegmentFault(int num, Registers* registers) {}
 
-    void GeneralProtectionFault(InterruptStackFrame* context) {}
+    void GeneralProtectionFault(int num, Registers* registers) {}
 
-    void PageFault(InterruptStackFrame* context) {}
+    void PageFault(int num, Registers* registers) {}
 
-    void x87FloatingPointException(InterruptStackFrame* context) {}
+    void x87FloatingPointException(int num, Registers* registers) {}
 
-    void AlignmentCheck(InterruptStackFrame* context) {}
+    void AlignmentCheck(int num, Registers* registers) {}
 
-    void MachineCheck(InterruptStackFrame* context) {}
+    void MachineCheck(int num, Registers* registers) {}
 
-    void SIMDFloatingPointException(InterruptStackFrame* context) {}
+    void SIMDFloatingPointException(int num, Registers* registers) {}
 
-    void VirtualizationException(InterruptStackFrame* context) {}
+    void VirtualizationException(int num, Registers* registers) {}
 
-    void ControlProtectionException(InterruptStackFrame* context) {}
+    void ControlProtectionException(int num, Registers* registers) {}
 
-    void HypervisorInjectionException(InterruptStackFrame* context) {}
+    void HypervisorInjectionException(int num, Registers* registers) {}
 
-    void VMMCommunicationException(InterruptStackFrame* context) {}
+    void VMMCommunicationException(int num, Registers* registers) {}
 
-    void SecurityException(InterruptStackFrame* context) {}
+    void SecurityException(int num, Registers* registers) {}
 
 } // namespace Quark::System::Platform::X64
 
-extern "C" void
-dispatchInterrupts(Quark::System::Platform::X64::InterruptStackFrame* frame)
-{
-    using namespace Quark::System::Platform::X64;
+using Quark::System::Platform::X64::Registers;
 
-    controller.CallEvent(frame->intno, frame);
+extern "C"
+{
+    void isr_handler(int num, Registers* registers) {}
+
+    void irq_handler(int num, Registers* registers) {}
+
+    void ipi_handler(int num, Registers* registers) {}
 }
