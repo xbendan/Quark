@@ -1,5 +1,6 @@
 #pragma once
 
+#include <platforms/x86_64/fpu.h>
 #include <platforms/x86_64/hwregs.h>
 #include <platforms/x86_64/tables.h>
 
@@ -35,13 +36,13 @@ namespace Quark::System::Platform::X64 {
     public:
         ThreadEx(Task::Process*);
 
-        void* _stackUser;
         void* _stackUserBase;
-        void* _stackKernel;
+        void* _stackUser;
         void* _stackKernelBase;
+        void* _stackKernel;
 
-        u64   _fsBase;
-        void* _fxState;
+        u64      _fsBase;
+        FxState* _fxState;
 
         Registers _registers;
         Registers _syscall;

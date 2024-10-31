@@ -6,10 +6,17 @@
 namespace Quark::System::Platform::X64 {
     ThreadEx::ThreadEx(Task::Process* process)
         : Task::Thread(process, process->GetNextThreadId())
+        , _stackKernelBase(new u8[65536])
+        , _stackKernel((void*)((u64)_stackKernelBase + 65536))
+        , _fxState(new FxState())
     {
-        _stackKernel = new u8[4096];
-        _fxState     = new u8[512];
-        _fsBase      = reinterpret_cast<u64>(process->_addressSpace);
+        _registers.rflags = 0x202;
+        _registers.cs     = 0x8;
+        _registers.ss     = 0x10;
+
+        _fxState->_fcontrol  = 0x33f;
+        _fxState->_mxcsr     = 0x1f80;
+        _fxState->_mxcsrMask = 0xffbf;
     }
 }
 
