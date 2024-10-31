@@ -8,7 +8,7 @@ namespace Quark::System::Io {
     // RbTree<string, Device*> devices;
     // LinkedList<Device*> Devices;
 
-    Optional<Device*> Device::FindByName(string name)
+    Optional<Device*> Device::FindByName(StringView name)
     {
         // 实现查找设备的方法
         // 按名称查找设备的最佳方法是使用红黑树实现的表
@@ -34,7 +34,7 @@ namespace Quark::System::Io {
 
     Res<> Device::Load(Device* device)
     {
-        if (device->m_name.IsEmpty() || device->m_uniqueId.IsNull())
+        if (!device || device->m_name.isEmpty() || device->m_uniqueId.IsNull())
             return Error::InvalidArgument("Device name or UUID is invalid");
 
         // devices.PutIfAbsent(device->GetName(), device);
