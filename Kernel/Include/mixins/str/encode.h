@@ -262,7 +262,7 @@ struct Utf16
 
 struct Ascii
 {
-    using Unit = u8;
+    using Unit = char;
     using Code = _Single<Unit>;
 
     static constexpr u8 getUnitLength(Unit) { return 1; }
