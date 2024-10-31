@@ -103,9 +103,9 @@ struct _StringView
 
     always_inline bool isEmpty() const { return _len == 0; }
 
-    always_inline Unit* begin() const { return _buf; }
+    always_inline Unit* begin() const { return const_cast<Unit*>(_buf); }
 
-    always_inline Unit* end() const { return _buf + _len; }
+    always_inline Unit* end() const { return const_cast<Unit*>(_buf) + _len; }
 
     always_inline Unit const* buf() const { return _buf; }
 
