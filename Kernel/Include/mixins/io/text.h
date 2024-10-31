@@ -1,20 +1,19 @@
 #pragma once
 
 #include <mixins/io/stream.h>
-#include <mixins/std/string.h>
+#include <mixins/str/string.h>
 
-class TextReader : public IInputStream<string::Unit>
+class TextReader : public IInputStream<String::Unit>
 {};
 
-class TextWriter : public IOutputStream<string::Unit>
+class TextWriter : public IOutputStream<String::Unit>
 {
 public:
-    virtual void Write(char c)     = 0;
-    virtual void Write(string str) = 0;
-    virtual void WriteNewline()    = 0;
+    virtual void dispose() = 0;
 
-    virtual void operator<<(string str)         = 0;
-    virtual void operator<<(u8 c)               = 0;
-    virtual void operator<<(u8* str)            = 0;
-    virtual void operator<<(Buf<u8> const& buf) = 0;
+    virtual usize Write(StringView::Unit c);
+    virtual usize Write(StringView str);
+    virtual usize Write(StringView::Unit* str);
+    virtual usize Write(Buf<StringView::Unit> const& buf);
+    virtual void  WriteNewline() = 0;
 };

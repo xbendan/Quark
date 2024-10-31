@@ -13,20 +13,22 @@ namespace Serial {
         : public Device
         , public TextWriter
     {
+        using U = StringView::Unit;
+
     public:
         SerialPortDevice();
         ~SerialPortDevice() = default;
 
-        void Write(char c) override { m_portAccess << c; }
-        void Write(string str) override { *this << str; }
-        void WriteNewline() override { m_portAccess << '\n'; }
+        usize Write(U c) override;
+        usize Write(StringView str) override;
+        usize Write(U* str) override;
+        usize Write(Buf<U> const& buf) override;
+        void  WriteNewline() override;
 
-        void operator<<(string str) override;
-        void operator<<(string::Unit c) override;
-        void operator<<(string::Unit* str) override;
-        void operator<<(Buf<string::Unit> const& buf) override;
+        void operator<<(U u) override;
+        void operator<<(Buf<U> const& buf) override;
 
-        void Dispose() override {}
+        void dispose() override {}
 
     private:
         // Spinlock                                             m_lock;

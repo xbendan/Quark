@@ -1,4 +1,5 @@
 #include <drivers/gfx/vesa/device_vga.h>
+#include <mixins/meta/result.h>
 #include <quark/memory/address_range.h>
 
 namespace VESA {
@@ -13,12 +14,11 @@ namespace VESA {
         ClearScreen();
     }
 
-    void VGATextOutputDevice::Write(char c)
+    usize VGATextOutputDevice::Write(U c)
     {
         ScopedLock lock(m_lock);
         if (c == '\n') {
             WriteNewline();
-            return;
         }
 
         m_buffer[m_cursor.y * VGA_TEXT_WIDTH + m_cursor.x] =
@@ -26,11 +26,14 @@ namespace VESA {
         m_cursor.x++;
         if (m_cursor.x >= VGA_TEXT_WIDTH)
             WriteNewline();
+
+        return 1;
     }
 
-    void VGATextOutputDevice::Write(string str)
+    usize VGATextOutputDevice::Write(StringView str)
     {
         ScopedLock lock(m_lock);
+        usize      len = 0;
         for (char c : str) {
             if (c == '\n') {
                 WriteNewline();
@@ -42,12 +45,26 @@ namespace VESA {
             m_cursor.x++;
             if (m_cursor.x >= VGA_TEXT_WIDTH)
                 WriteNewline();
+
+            len++;
         }
+
+        return len;
     }
 
-    void VGATextOutputDevice::WriteAscii(String<Ascii> str)
+    usize VGATextOutputDevice::Write(U* up)
     {
-        Write((string)str);
+        return Write(StringView(up));
+    }
+
+    usize VGATextOutputDevice::Write(Buf<U> const& buf)
+    {
+        return Write(StringView(buf.buf(), buf.len()));
+    }
+
+    void VGATextOutputDevice::WriteAscii(_StringView<Ascii> str)
+    {
+        Write(StringView(str.buf()));
     }
 
     void VGATextOutputDevice::WriteNewline()
@@ -79,25 +96,5 @@ namespace VESA {
         ScopedLock lock(m_lock);
         for (u32 i = 0; i < VGA_TEXT_WIDTH * VGA_TEXT_HEIGHT; i++)
             m_buffer[i] = 0;
-    }
-
-    void VGATextOutputDevice::operator<<(string str)
-    {
-        Write(str);
-    }
-
-    void VGATextOutputDevice::operator<<(u8 c)
-    {
-        Write((char)c);
-    }
-
-    void VGATextOutputDevice::operator<<(u8* str)
-    {
-        Write(string(str));
-    }
-
-    void VGATextOutputDevice::operator<<(Buf<u8> const& buf)
-    {
-        Write(string(buf.Data(), buf.Length()));
     }
 }

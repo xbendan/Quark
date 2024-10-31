@@ -17,40 +17,46 @@ namespace Serial {
         PortAccess<>::Out<u8>(Port::COM1 + PortOffset::ModemControl, 0x0B);
     }
 
-    void SerialPortDevice::operator<<(string str)
+    usize SerialPortDevice::Write(U c)
     {
-        ScopedLock<true> lock(m_lock);
-        for (auto c : str) {
-            while (!(m_lineStatus.In<u8>() & 0x20))
-                ;
-            m_portAccess << c;
-        }
-    }
-
-    void SerialPortDevice::operator<<(string::Unit c)
-    {
+        ScopedLock lock(m_lock);
         while (!(m_lineStatus.In<u8>() & 0x20))
             ;
         m_portAccess << c;
+
+        return 1;
     }
 
-    void SerialPortDevice::operator<<(string::Unit* str)
+    usize SerialPortDevice::Write(StringView str)
     {
-        ScopedLock<true> lock(m_lock);
+        ScopedLock lock(m_lock);
+        usize      len = 0;
+        for (char c : str) {
+            while (!(m_lineStatus.In<u8>() & 0x20))
+                ;
+            m_portAccess << c;
+            len++;
+        }
+
+        return len;
+    }
+
+    usize SerialPortDevice::Write(U* str)
+    {
+        ScopedLock lock(m_lock);
+        usize      len = 0;
         while (*str) {
             while (!(m_lineStatus.In<u8>() & 0x20))
                 ;
             m_portAccess << *str++;
+            len++;
         }
+
+        return len;
     }
 
-    void SerialPortDevice::operator<<(Buf<string::Unit> const& buf)
+    usize SerialPortDevice::Write(Buf<U> const& buf)
     {
-        ScopedLock<true> lock(m_lock);
-        for (int i = 0; i < buf.Length(); i++) {
-            while (!(m_lineStatus.In<u8>() & 0x20))
-                ;
-            m_portAccess << buf[i];
-        }
+        return Write(buf.buf());
     }
 }

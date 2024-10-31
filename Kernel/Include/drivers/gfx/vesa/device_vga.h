@@ -40,20 +40,19 @@ namespace VESA {
         : public IVideoOutputDevice
         , public TextWriter
     {
+        using U = StringView::Unit;
+
     public:
         VGATextOutputDevice();
         ~VGATextOutputDevice();
 
-        void Write(char c) override;
-        void Write(string str) override;
-        void WriteAscii(String<Ascii> str);
-        void WriteNewline() override;
-        void ClearScreen();
-
-        void operator<<(string str) override;
-        void operator<<(u8 c) override;
-        void operator<<(u8* str) override;
-        void operator<<(Buf<u8> const& buf) override;
+        usize Write(U c) override;
+        usize Write(StringView str) override;
+        usize Write(StringView::Unit* str) override;
+        usize Write(Buf<StringView::Unit> const& buf) override;
+        void  WriteAscii(_StringView<Ascii> str);
+        void  WriteNewline() override;
+        void  ClearScreen();
 
     private:
         lock_t        m_lock;
