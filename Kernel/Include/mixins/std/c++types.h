@@ -1,6 +1,6 @@
 #pragma once
 
-#define def$(type, name, value) static constexpr type name = value;
+#define always_inline __attribute__((always_inline))
 
 using u8  = unsigned char;
 using u16 = unsigned short;
@@ -36,4 +36,7 @@ using le32 = u32;
 using le64 = u64;
 
 struct Empty
+{};
+
+struct Move
 {};

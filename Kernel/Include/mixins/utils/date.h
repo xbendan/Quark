@@ -31,8 +31,7 @@ public:
     Date(u64 timestamp) {}
     ~Date() = default;
 
-    [[gnu::always_inline]]
-    constexpr bool operator==(Date const& other) const = default;
+    always_inline constexpr bool operator==(Date const& other) const = default;
 
     u32 GetYear() const { return m_year; }
     u8  GetMonth() const { return m_month; }

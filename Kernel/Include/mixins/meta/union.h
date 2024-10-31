@@ -10,27 +10,23 @@ template <typename... Ts>
 class Union
 {
 public:
-    [[gnu::always_inline]]
-    Union() = delete;
+    always_inline Union() = delete;
 
     template <Any<Ts...> TAnyType>
-    [[gnu::always_inline]]
-    Union(const TAnyType& value)
+    always_inline Union(const TAnyType& value)
         : _index(indexOf<TAnyType, Ts...>())
     {
         new (_data) TAnyType(value);
     }
 
     template <Any<Ts...> TAnyType>
-    [[gnu::always_inline]]
-    Union(TAnyType&& value)
+    always_inline Union(TAnyType&& value)
         : _index(indexOf<TAnyType, Ts...>())
     {
         new (_data) TAnyType(Std::move(value));
     }
 
-    [[gnu::always_inline]]
-    Union(const Union& other)
+    always_inline Union(const Union& other)
         : _index(other._index)
     {
         indexCast<Ts...>(
@@ -39,8 +35,7 @@ public:
             });
     }
 
-    [[gnu::always_inline]]
-    Union(Union&& other)
+    always_inline Union(Union&& other)
         : _index(other._index)
     {
         indexCast<Ts...>(_index, _data, [this]<typename T>(T& value) {
@@ -48,16 +43,14 @@ public:
         });
     }
 
-    [[gnu::always_inline]]
-    ~Union()
+    always_inline ~Union()
     {
         indexCast<Ts...>(
             _index, _data, []<typename T>(T& value) { value.~T(); });
     }
 
     template <Any<Ts...> TAnyType>
-    [[gnu::always_inline]]
-    Union& operator=(const TAnyType& value)
+    always_inline Union& operator=(const TAnyType& value)
     {
         indexCast<Ts...>(_index, _data, [this]<typename U>(U& value) {
             value.T();
@@ -67,8 +60,7 @@ public:
     }
 
     template <Any<Ts...> TAnyType>
-    [[gnu::always_inline]]
-    Union& operator=(TAnyType&& value)
+    always_inline Union& operator=(TAnyType&& value)
     {
         indexCast<Ts...>(_index, _data, [this]<typename U>(U& value) {
             value.T();
@@ -81,8 +73,7 @@ public:
     }
 
     template <Any<Ts...> TAnyType>
-    [[gnu::always_inline]]
-    TAnyType& unwrap()
+    always_inline TAnyType& unwrap()
     {
         if (_index != indexOf<TAnyType, Ts...>()) [[unlikely]] {
             // panic
@@ -92,8 +83,7 @@ public:
     }
 
     template <Any<Ts...> TAnyType>
-    [[gnu::always_inline]]
-    const TAnyType& unwrap() const
+    always_inline const TAnyType& unwrap() const
     {
         if (_index != indexOf<TAnyType, Ts...>()) [[unlikely]] {
             // panic
@@ -103,26 +93,20 @@ public:
     }
 
     template <Any<Ts...> TAnyType>
-    [[gnu::always_inline]]
-    const TAnyType* is() const
+    always_inline const TAnyType* is() const
     {
         return _index == indexOf<TAnyType, Ts...>() ? (TAnyType*)_data
                                                     : nullptr;
     }
 
     template <Any<Ts...> TAnyType>
-    [[gnu::always_inline]]
-    TAnyType* is()
+    always_inline TAnyType* is()
     {
         return _index == indexOf<TAnyType, Ts...>() ? (TAnyType*)_data
                                                     : nullptr;
     }
 
-    [[gnu::always_inline]]
-    usize index() const
-    {
-        return _index;
-    }
+    always_inline usize index() const { return _index; }
 
 private:
     alignas(max(alignof(Ts)...)) char _data[max(sizeof(Ts)...)];

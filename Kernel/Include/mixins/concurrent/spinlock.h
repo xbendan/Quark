@@ -54,7 +54,7 @@ template <bool DisableInterrupts = false>
 class ScopedLock final
 {
 public:
-    __attribute__((always_inline)) inline ScopedLock(lock_t& lock)
+    always_inline inline ScopedLock(lock_t& lock)
         : m_lock(lock)
     {
         if constexpr (DisableInterrupts) {
@@ -69,7 +69,7 @@ public:
         }
     }
 
-    __attribute__((always_inline)) inline ~ScopedLock()
+    always_inline inline ~ScopedLock()
     {
         releaseLock(m_lock);
 

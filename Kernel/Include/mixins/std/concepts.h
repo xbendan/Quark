@@ -200,8 +200,7 @@ struct _indexCast;
 template <typename Data, typename T>
 struct _indexCast<Data, T>
 {
-    [[gnu::always_inline]]
-    static auto eval(usize, Data* p, auto func)
+    always_inline static auto eval(usize, Data* p, auto func)
     {
         using U = Std::Conditional<Std::isConst<Data>, Data, T>;
         return func(*reinterpret_cast<U*>(p));
@@ -211,8 +210,7 @@ struct _indexCast<Data, T>
 template <typename Data, typename T, typename... Ts>
 struct _indexCast<Data, T, Ts...>
 {
-    [[gnu::always_inline]]
-    static auto eval(usize index, Data* p, auto func)
+    always_inline static auto eval(usize index, Data* p, auto func)
     {
         if (index == 0) {
             using U = Std::Conditional<Std::isConst<Data>, Data, T>;
@@ -223,8 +221,7 @@ struct _indexCast<Data, T, Ts...>
 };
 
 template <typename... Ts>
-[[gnu::always_inline]]
-static inline auto
+always_inline static inline auto
 indexCast(usize index, auto* p, auto func)
 {
     return _indexCast<typename Std::RemoveRef<decltype(*p)>, Ts...>::eval(

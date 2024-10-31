@@ -13,7 +13,7 @@ struct Ok
     T inner;
 
     template <typename... Args>
-    [[gnu::always_inline]] constexpr Ok(Args&&... args)
+    always_inline constexpr Ok(Args&&... args)
         : inner(Std::forward<Args>(args)...)
     {
     }
@@ -35,26 +35,22 @@ struct Res
 
     /* --- Constructors and Destructors --- */
 
-    [[gnu::always_inline]]
-    constexpr Res(const Ok<V>& ok)
+    always_inline constexpr Res(const Ok<V>& ok)
         : _inner(ok)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Res(Ok<V>&& ok)
+    always_inline constexpr Res(Ok<V>&& ok)
         : _inner(Std::move(ok))
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Res(E err)
+    always_inline constexpr Res(E err)
         : _inner(err)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Res(Res<V, E>&& other)
+    always_inline constexpr Res(Res<V, E>&& other)
         : _inner(Std::move(other._inner))
     {
     }
@@ -63,58 +59,51 @@ struct Res
 
     /* --- Operators --- */
 
-    [[gnu::always_inline]]
-    constexpr explicit operator bool() const
+    always_inline constexpr explicit operator bool() const
     {
         return _inner.template is<Ok<V>>();
     }
 
     /* --- Methods --- */
 
-    [[gnu::always_inline]]
-    constexpr bool IsError() const
+    always_inline constexpr bool IsError() const
     {
         return _inner.template is<E>();
     }
 
-    [[gnu::always_inline]]
-    constexpr bool IsOkay() const
+    always_inline constexpr bool IsOkay() const
     {
         return _inner.template is<Ok<V>>();
     }
 
-    [[gnu::always_inline]]
-    constexpr V& Unwrap(
+    always_inline constexpr V& Unwrap(
         const char* msg = "called `Result::unwrap()` on an error")
     {
         if (!_inner.template is<Ok<V>>()) {
-            Std::SystemPanic(msg);
+            Std::panic(msg);
         }
         return _inner.template unwrap<Ok<V>>().inner;
     }
 
-    [[gnu::always_inline]]
-    constexpr const V& Unwrap(
+    always_inline constexpr const V& Unwrap(
         const char* msg = "called `Result::unwrap()` on an error") const
     {
         if (!_inner.template is<Ok<V>>()) {
-            Std::SystemPanic(msg);
+            Std::panic(msg);
         }
         return _inner.template unwrap<Ok<V>>().inner;
     }
 
-    [[gnu::always_inline]]
-    constexpr const E& Err() const
+    always_inline constexpr const E& Err() const
     {
         if (!_inner.template is<E>()) {
-            Std::SystemPanic("called `Result::error()` on an ok value");
+            Std::panic("called `Result::error()` on an ok value");
         }
         return _inner.template unwrap<E>();
     }
 
     template <typename T>
-    [[gnu::always_inline]]
-    constexpr Res<T, E> Select(Func<T(V)> mapper)
+    always_inline constexpr Res<T, E> Select(Func<T(V)> mapper)
     {
         if (_inner.template is<Ok<V>>()) {
             return Ok(mapper(_inner.template unwrap<Ok<V>>().inner));

@@ -23,65 +23,53 @@ struct [[nodiscard]] Optional<T>
     };
     bool _present;
 
-    [[gnu::always_inline]]
-    constexpr Optional()
+    always_inline constexpr Optional()
         : _empty()
         , _present(false)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(Empty)
+    always_inline constexpr Optional(Empty)
         : _empty()
         , _present(false)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(TInnerType value)
+    always_inline constexpr Optional(TInnerType value)
         : _value(value)
         , _present(true)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(T value)
+    always_inline constexpr Optional(T value)
         : _value(&value)
         , _present(true)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(Optional const& other)
+    always_inline constexpr Optional(Optional const& other)
         : _present(other._present)
     {
         if (_present)
             _value = other._value;
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(Optional&& other)
+    always_inline constexpr Optional(Optional&& other)
         : _present(other._present)
     {
         if (_present)
             _value = other._value;
     }
 
-    [[gnu::always_inline]]
-    constexpr ~Optional()
-    {
-        Clear();
-    }
+    always_inline constexpr ~Optional() { Clear(); }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(Empty)
+    always_inline constexpr Optional& operator=(Empty)
     {
         Clear();
         return *this;
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(TInnerType value)
+    always_inline constexpr Optional& operator=(TInnerType value)
     {
         Clear();
 
@@ -90,8 +78,7 @@ struct [[nodiscard]] Optional<T>
         return *this;
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(T value)
+    always_inline constexpr Optional& operator=(T value)
     {
         Clear();
 
@@ -100,9 +87,10 @@ struct [[nodiscard]] Optional<T>
         return *this;
     }
 
-    [[gnu::always_inline]]
+    always_inline
 
-    constexpr Optional& operator=(Optional const& other)
+        constexpr Optional&
+        operator=(Optional const& other)
     {
         if (this != &other) {
             Clear();
@@ -114,8 +102,7 @@ struct [[nodiscard]] Optional<T>
         return *this;
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(Optional&& other)
+    always_inline constexpr Optional& operator=(Optional&& other)
     {
         if (this != &other) {
             Clear();
@@ -127,8 +114,7 @@ struct [[nodiscard]] Optional<T>
         return *this;
     }
 
-    [[gnu::always_inline]]
-    void Clear()
+    always_inline void Clear()
     {
         if (_present) {
             _value   = nullptr;
@@ -136,63 +122,49 @@ struct [[nodiscard]] Optional<T>
         }
     }
 
-    [[gnu::always_inline]]
-    constexpr explicit operator bool() const
-    {
-        return _present;
-    }
+    always_inline constexpr explicit operator bool() const { return _present; }
 
-    [[gnu::always_inline]]
-    constexpr bool IsPresent() const
-    {
-        return _present;
-    }
+    always_inline constexpr bool IsPresent() const { return _present; }
 
-    [[gnu::always_inline]]
-    constexpr void IfPresent(Action<T> f)
+    always_inline constexpr void IfPresent(Action<T> f)
     {
         if (_present)
             f(*_value);
     }
 
-    [[gnu::always_inline]]
-    constexpr T operator*()
+    always_inline constexpr T operator*()
     {
         if (!_present)
-            Std::SystemPanic("No value present");
+            Std::panic("No value present");
 
         return *_value;
     }
 
-    [[gnu::always_inline]]
-    constexpr T const& operator*() const
+    always_inline constexpr T const& operator*() const
     {
         if (!_present)
-            Std::SystemPanic("No value present");
+            Std::panic("No value present");
 
         return *_value;
     }
 
-    [[gnu::always_inline]]
-    constexpr T Get(const char* msg = "No value present")
+    always_inline constexpr T Get(const char* msg = "No value present")
     {
         if (!_present)
-            Std::SystemPanic(msg);
+            Std::panic(msg);
 
         return *_value;
     }
 
-    [[gnu::always_inline]]
-    constexpr T OrElse(T other) const
+    always_inline constexpr T OrElse(T other) const
     {
         return _present ? *_value : other;
     }
 
-    [[gnu::always_inline]]
-    constexpr T Take(const char* msg = "No value present")
+    always_inline constexpr T Take(const char* msg = "No value present")
     {
         if (!_present)
-            Std::SystemPanic(msg);
+            Std::panic(msg);
 
         T v = *_value;
         Clear();
@@ -200,16 +172,14 @@ struct [[nodiscard]] Optional<T>
     }
 
     template <typename To>
-    [[gnu::always_inline]]
-    constexpr Optional<To> Select(Func<To(T)> f) const
+    always_inline constexpr Optional<To> Select(Func<To(T)> f) const
     {
         if (_present)
             return f(*_value);
         return Optional<To>();
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional<Std::RemoveRef<T>> Extract() const
+    always_inline constexpr Optional<Std::RemoveRef<T>> Extract() const
     {
         if (_present)
             return *_value;
@@ -217,8 +187,7 @@ struct [[nodiscard]] Optional<T>
     }
 
     template <typename... Args>
-    [[gnu::always_inline]]
-    constexpr auto operator()(Args&&... args) const
+    always_inline constexpr auto operator()(Args&&... args) const
     {
         using OptRet = Optional<InvokeResult<T, Args...>>;
 
@@ -247,30 +216,26 @@ struct [[nodiscard]] Optional
     };
     bool _present;
 
-    [[gnu::always_inline]]
-    constexpr Optional()
+    always_inline constexpr Optional()
         : _empty()
         , _present(false)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(Empty)
+    always_inline constexpr Optional(Empty)
         : _empty()
         , _present(false)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(T const& value)
+    always_inline constexpr Optional(T const& value)
         : _value(value)
         , _present(true)
     {
     }
 
     template <typename U = T>
-    [[gnu::always_inline]]
-    constexpr Optional(U&& value)
+    always_inline constexpr Optional(U&& value)
         requires(!SameAs<Std::RemoveCvRef<U>, Optional<T>> &&
                  MoveConstructible<T, U>)
         : _value(Std::forward<U>(value))
@@ -278,8 +243,7 @@ struct [[nodiscard]] Optional
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(Optional const& other)
+    always_inline constexpr Optional(Optional const& other)
         requires CopyConstructible<T>
         : _present(other._present)
     {
@@ -287,8 +251,7 @@ struct [[nodiscard]] Optional
             new (&_value) T(other._value);
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional(Optional&& other)
+    always_inline constexpr Optional(Optional&& other)
         requires MoveConstructible<T>
         : _present(other._present)
     {
@@ -297,27 +260,21 @@ struct [[nodiscard]] Optional
     }
 
     template <typename... Args>
-    [[gnu::always_inline]] constexpr Optional(Args&&... args)
+    always_inline constexpr Optional(Args&&... args)
         : _value(Std::forward<Args>(args)...)
         , _present(true)
     {
     }
 
-    [[gnu::always_inline]]
-    constexpr ~Optional()
-    {
-        Clear();
-    }
+    always_inline constexpr ~Optional() { Clear(); }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(Empty)
+    always_inline constexpr Optional& operator=(Empty)
     {
         Clear();
         return *this;
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(T const& value)
+    always_inline constexpr Optional& operator=(T const& value)
     {
         Clear();
 
@@ -326,8 +283,7 @@ struct [[nodiscard]] Optional
         return *this;
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(T&& value)
+    always_inline constexpr Optional& operator=(T&& value)
     {
         Clear();
 
@@ -336,8 +292,7 @@ struct [[nodiscard]] Optional
         return *this;
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(Optional const& other)
+    always_inline constexpr Optional& operator=(Optional const& other)
         requires CopyConstructible<T>
     {
         if (this != &other) {
@@ -350,8 +305,7 @@ struct [[nodiscard]] Optional
         return *this;
     }
 
-    [[gnu::always_inline]]
-    constexpr Optional& operator=(Optional&& other)
+    always_inline constexpr Optional& operator=(Optional&& other)
         requires MoveConstructible<T>
     {
         if (this != &other) {
@@ -364,8 +318,7 @@ struct [[nodiscard]] Optional
         return *this;
     }
 
-    [[gnu::always_inline]]
-    void Clear()
+    always_inline void Clear()
     {
         if (_present) {
             _value.~T();
@@ -373,35 +326,25 @@ struct [[nodiscard]] Optional
         }
     }
 
-    [[gnu::always_inline]]
-    constexpr explicit operator bool() const
-    {
-        return _present;
-    }
+    always_inline constexpr explicit operator bool() const { return _present; }
 
-    [[gnu::always_inline]]
-    constexpr bool IsPresent() const
-    {
-        return _present;
-    }
+    always_inline constexpr bool IsPresent() const { return _present; }
 
-    [[gnu::always_inline]]
-    constexpr void IfPresent(Action<T&> f)
+    always_inline constexpr void IfPresent(Action<T&> f)
     {
         if (_present)
             f(_value);
     }
 
-    [[gnu::always_inline]]
-    constexpr T& operator*()
+    always_inline constexpr T& operator*()
     {
         if (!_present)
-            Std::SystemPanic("No value present");
+            Std::panic("No value present");
 
         return _value;
     }
 
-    // [[gnu::always_inline]]
+    // always_inline
     // constexpr T* operator->()
     // {
     //     if (!_present)
@@ -410,7 +353,7 @@ struct [[nodiscard]] Optional
     //     return &_value;
     // }
 
-    // [[gnu::always_inline]]
+    // always_inline
     // constexpr T const* operator->() const
     // {
     //     if (!_present)
@@ -419,18 +362,16 @@ struct [[nodiscard]] Optional
     //     return &_value;
     // }
 
-    [[gnu::always_inline]]
-    constexpr T const& operator*() const
+    always_inline constexpr T const& operator*() const
     {
         if (!_present)
-            Std::SystemPanic("No value present");
+            Std::panic("No value present");
 
         return _value;
     }
 
     template <typename... Args>
-    [[gnu::always_inline]]
-    T& Emplace(Args&&... args)
+    always_inline T& Emplace(Args&&... args)
     {
         Clear();
 
@@ -439,35 +380,32 @@ struct [[nodiscard]] Optional
         return _value;
     }
 
-    [[gnu::always_inline]]
-    constexpr T& Get(const char* msg = "No value present")
+    always_inline constexpr T& Get(const char* msg = "No value present")
     {
         if (!_present)
-            Std::SystemPanic(msg);
+            Std::panic(msg);
 
         return _value;
     }
 
-    [[gnu::always_inline]]
-    constexpr T const& Get(const char* msg = "No value present") const
+    always_inline constexpr T const& Get(
+        const char* msg = "No value present") const
     {
         if (!_present)
-            Std::SystemPanic(msg);
+            Std::panic(msg);
 
         return _value;
     }
 
-    [[gnu::always_inline]]
-    constexpr T OrElse(T other) const
+    always_inline constexpr T OrElse(T other) const
     {
         return _present ? Std::move(_value) : other;
     }
 
-    [[gnu::always_inline]]
-    constexpr T Take(const char* msg = "No value present")
+    always_inline constexpr T Take(const char* msg = "No value present")
     {
         if (!_present)
-            Std::SystemPanic(msg);
+            Std::panic(msg);
 
         T v = Std::move(_value);
         Clear();
@@ -475,8 +413,7 @@ struct [[nodiscard]] Optional
     }
 
     template <typename To>
-    [[gnu::always_inline]]
-    constexpr Optional<To> Select(Func<To(T)> f) const
+    always_inline constexpr Optional<To> Select(Func<To(T)> f) const
     {
         if (_present)
             return f(_value);
@@ -484,8 +421,7 @@ struct [[nodiscard]] Optional
     }
 
     template <typename... Args>
-    [[gnu::always_inline]]
-    constexpr auto operator()(Args&&... args) const
+    always_inline constexpr auto operator()(Args&&... args) const
     {
         using OptRet = Optional<InvokeResult<T, Args...>>;
 

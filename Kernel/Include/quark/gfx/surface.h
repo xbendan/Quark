@@ -15,8 +15,7 @@ namespace Quark::System::Graphics {
         Size          _size;
         TColorFormat* _buffer;
 
-        [[gnu::always_inline]]
-        constexpr Surface(Size size, TColorFormat* buffer)
+        always_inline constexpr Surface(Size size, TColorFormat* buffer)
             : _size(size)
             , _buffer(buffer)
         {
