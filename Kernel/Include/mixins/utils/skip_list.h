@@ -1,6 +1,6 @@
 #include <mixins/std/c++types.h>
 
-template <typename TSource, usize N = 2, usize K = 8>
+template <typename TSource, usize TLen = 2, usize K = 8>
 class SkipList
 {
 public:

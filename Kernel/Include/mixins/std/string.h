@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/std/c++types.h>
 
 extern "C"
@@ -11,4 +13,7 @@ extern "C"
         __attribute__((__nonnull__(1, 2)));
 
     usize strlen(const char* str) __attribute__((__nonnull__(1)));
+
+    usize strnlen(const char* str, usize max = 512)
+        __attribute__((__nonnull__(1)));
 }
