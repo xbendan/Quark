@@ -59,30 +59,29 @@ namespace Quark::System::Task {
     TResult Wait(CompletableTask<TResult> task);
 
     template <typename TResult>
-    Optional<TResult> Wait(CompletableTask<TResult> task, u32 timeout);
+    Opt<TResult> Wait(CompletableTask<TResult> task, u32 timeout);
 
     template <typename TResult>
-    Optional<TResult> Wait(CompletableTask<TResult> task, TimeSpan timeout);
+    Opt<TResult> Wait(CompletableTask<TResult> task, TimeSpan timeout);
 
     template <typename... TResult>
     Tuple<TResult...> Wait(CompletableTask<TResult>... tasks);
 
     template <typename... TResult>
-    Optional<Tuple<TResult...>> Wait(CompletableTask<TResult>... tasks,
-                                     u32 timeout);
+    Opt<Tuple<TResult...>> Wait(CompletableTask<TResult>... tasks, u32 timeout);
 
     template <typename... TResult>
-    Optional<Tuple<TResult...>> Wait(CompletableTask<TResult>... tasks,
-                                     TimeSpan timeout);
+    Opt<Tuple<TResult...>> Wait(CompletableTask<TResult>... tasks,
+                                TimeSpan timeout);
 
     template <typename... TResult>
     Union<TResult...> WaitAny(CompletableTask<TResult>... tasks);
 
     template <typename... TResult>
-    Optional<Union<TResult...>> WaitAny(CompletableTask<TResult>... tasks,
-                                        u32 timeout);
+    Opt<Union<TResult...>> WaitAny(CompletableTask<TResult>... tasks,
+                                   u32 timeout);
 
     template <typename... TResult>
-    Optional<Union<TResult...>> WaitAny(CompletableTask<TResult>... tasks,
-                                        TimeSpan timeout);
+    Opt<Union<TResult...>> WaitAny(CompletableTask<TResult>... tasks,
+                                   TimeSpan timeout);
 }

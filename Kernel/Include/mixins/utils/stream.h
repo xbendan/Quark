@@ -147,16 +147,16 @@ public:
         return *this;
     }
 
-    Optional<TSource> reduce(BinaryOperator<TSource> op)
+    Opt<TSource> reduce(BinaryOperator<TSource> op)
     {
         if (_size == 0) {
-            return Optional<TSource>();
+            return Opt<TSource>();
         }
         TSource result = _data[_p];
         for (usize i = _p + 1; i < _size; ++i) {
             result = op(result, _data[i]);
         }
-        return Optional<TSource>(result);
+        return Opt<TSource>(result);
     }
 
     TSource reduce(TSource identity, BinaryOperator<TSource> op)
@@ -207,26 +207,26 @@ public:
         return true;
     }
 
-    Optional<TSource> findFirst()
+    Opt<TSource> findFirst()
     {
         if (_size == 0) {
-            return Optional<TSource>();
+            return Opt<TSource>();
         }
-        return Optional<TSource>(_data[_p]);
+        return Opt<TSource>(_data[_p]);
     }
 
-    Optional<TSource> findAny() {}
+    Opt<TSource> findAny() {}
 
     usize count() { return _size - _p; }
 
-    template <Collection<TSource> TKey>
-    TKey collect(TKey& container)
-    {
-        for (usize i = _p; i < _size; ++i) {
-            container.add(_data[i]);
-        }
-        return container;
-    }
+    // template <ICollection<TSource> TKey>
+    // TKey collect(TKey& container)
+    // {
+    //     for (usize i = _p; i < _size; ++i) {
+    //         container.add(_data[i]);
+    //     }
+    //     return container;
+    // }
 
 private:
     TSource* _data;

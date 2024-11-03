@@ -487,7 +487,7 @@ public:
     {
     }
 
-    Optional<TSource&> FindFirst() override
+    Opt<TSource&> FindFirst() override
     {
         if (_head) {
             return _head->_data;
@@ -496,7 +496,7 @@ public:
         return Empty();
     }
 
-    Optional<TSource&> FindFirst(Predicate<TSource const&> predicate) override
+    Opt<TSource&> FindFirst(Predicate<TSource const&> predicate) override
     {
         Node* node = _head;
         while (node) {
@@ -508,9 +508,9 @@ public:
         return Empty();
     }
 
-    Optional<TSource&> FindLast() override { return _tail->_data; }
+    Opt<TSource&> FindLast() override { return _tail->_data; }
 
-    Optional<TSource&> FindLast(Predicate<TSource const&> predicate) override
+    Opt<TSource&> FindLast(Predicate<TSource const&> predicate) override
     {
         Node* node = _tail;
         while (node) {
@@ -522,9 +522,9 @@ public:
         return Empty();
     }
 
-    Optional<TSource&> FindAny() override { return _head->_data; }
+    Opt<TSource&> FindAny() override { return _head->_data; }
 
-    Optional<TSource&> FindAny(Predicate<TSource const&> predicate) override
+    Opt<TSource&> FindAny(Predicate<TSource const&> predicate) override
     {
         Node* node = _head;
         while (node) {
@@ -565,7 +565,7 @@ public:
         return *newList;
     }
 
-    Optional<TSource> TakeFirst()
+    Opt<TSource> TakeFirst()
     {
         if (_size == 0) {
             return Empty();
@@ -577,7 +577,7 @@ public:
         return data;
     }
 
-    Optional<TSource> TakeFirst(Predicate<TSource const&> predicate)
+    Opt<TSource> TakeFirst(Predicate<TSource const&> predicate)
     {
         if (_size == 0) {
             Std::panic("Sequence contains no elements");
@@ -612,7 +612,7 @@ public:
         return *newList;
     }
 
-    Optional<TSource> TakeLast()
+    Opt<TSource> TakeLast()
     {
         if (_size == 0) {
             return Empty();

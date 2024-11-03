@@ -19,14 +19,15 @@ namespace APIC {
 
     Res<> GenericControllerDevice::OnInitialize()
     {
-        ACPI::MADT* madt;
+        ACPI::MADT* madt = nullptr;
 
-        Device::FindByName<ACPI::ControllerDevice>("ACPI Management Device")
-            .IfPresent([&madt](ACPI::ControllerDevice* acpi) {
-                Optional<ACPI::MADT*> opt = acpi->FindTable<ACPI::MADT>("APIC");
-                if (opt.IsPresent())
-                    madt = opt.Take("MADT table not found.");
-            });
+        auto devRes = Device::FindByName<ACPI::ControllerDevice>(
+            "ACPI Management Device");
+        devRes.IfPresent([&madt](ACPI::ControllerDevice* acpi) {
+            Opt<ACPI::MADT*> opt = acpi->FindTable<ACPI::MADT>("APIC");
+            if (opt.IsPresent())
+                madt = opt.Take("MADT table not found.");
+        });
         if (madt == nullptr)
             return Error::DeviceFault("MADT table not found.");
 
@@ -48,12 +49,12 @@ namespace APIC {
 
                         m_units->pushBack(
                             new Local(apicLocal->_apicId, this, device));
-                        info(u8"[APIC] Local APIC, Processor ID: %d, APIC ID: "
-                             u8"%d, "
-                             "Flags: %d\n",
-                             apicLocal->_processorId,
-                             apicLocal->_apicId,
-                             apicLocal->_flags);
+                        info$(
+                            "[APIC] Local APIC, Processor ID: {}, APIC ID: {}, "
+                            "Flags: {}",
+                            apicLocal->_processorId,
+                            apicLocal->_apicId,
+                            apicLocal->_flags);
                     }
                     break;
                 }
@@ -62,11 +63,11 @@ namespace APIC {
                         static_cast<ACPI::MultiApicDescTable::IoApic*>(entry);
                     if (!apicIo->_gSiB) {
                         m_ioBasePhys = apicIo->_address;
-                        info(u8"[APIC] I/O APIC, ID: %d, Address: %x, Global "
-                             "System Interrupt Base: %d\n",
-                             apicIo->_apicId,
-                             apicIo->_address,
-                             apicIo->_gSiB);
+                        info$("[APIC] I/O APIC, ID: {}, Address: {#x}, Global "
+                              "System Interrupt Base: {}",
+                              apicIo->_apicId,
+                              apicIo->_address,
+                              apicIo->_gSiB);
                     }
                     break;
                 }
@@ -75,11 +76,11 @@ namespace APIC {
                         static_cast<ACPI::MultiApicDescTable::
                                         InterruptServiceOverride*>(entry);
                     m_overrides->pushBack(iso);
-                    info(u8"[APIC] Interrupt Service Override, Bus Source: %d, "
-                         "IRQ Source: %d, Global System Interrupt: %d\n",
-                         iso->_busSource,
-                         iso->_irqSource,
-                         iso->_gSi);
+                    info$("[APIC] Interrupt Service Override, Bus={}, "
+                          "IRQ={}, gSI={}",
+                          iso->_busSource,
+                          iso->_irqSource,
+                          iso->_gSi);
 
                     break;
                 }
@@ -88,10 +89,9 @@ namespace APIC {
                         static_cast<
                             ACPI::MultiApicDescTable::NonMaskableInterrupt*>(
                             entry);
-                    info(u8"[APIC] NMI Source: {}, Global System Interrupt: "
-                         u8"{}\n",
-                         nmi->_processorId,
-                         nmi->_type);
+                    info$("[APIC] NMI Source: {}, Global System Interrupt: {}",
+                          nmi->_processorId,
+                          nmi->_type);
                     break;
                 }
                 case 0x04: /* Local APIC Non-maskable Interrupt */ {
@@ -107,35 +107,32 @@ namespace APIC {
                     ACPI::MultiApicDescTable::LocalApic* apicLocal =
                         static_cast<ACPI::MultiApicDescTable::LocalApic*>(
                             entry);
-                    info(u8"[APIC] Local APIC Address Override, Processor ID: "
-                         u8"%d, "
-                         "APIC ID: %d, Flags: %d\n",
-                         apicLocal->_processorId,
-                         apicLocal->_apicId,
-                         apicLocal->_flags);
+                    info$("[APIC] Local APIC Address Override, Processor ID: "
+                          "{}, APIC ID: {}, Flags: {}",
+                          apicLocal->_processorId,
+                          apicLocal->_apicId,
+                          apicLocal->_flags);
                     break;
                 }
                 case 0x09: /* Processor Local x2APIC */ {
                     ACPI::MultiApicDescTable::Localx2Apic* x2apicLocal =
                         static_cast<ACPI::MultiApicDescTable::Localx2Apic*>(
                             entry);
-                    info(
-                        u8"[APIC] Local x2APIC, x2APIC ID: %d, Flags: %d, UID: "
-                        "%d\n",
-                        x2apicLocal->_x2apicId,
-                        x2apicLocal->_flags,
-                        x2apicLocal->_uid);
+                    info$("[APIC] Local x2APIC, x2APIC ID: {}, Flags: {}, UID: "
+                          "{}",
+                          x2apicLocal->_x2apicId,
+                          x2apicLocal->_flags,
+                          x2apicLocal->_uid);
                     break;
                 }
                 case 0xa: /* Local x2APIC Non-maskable Interrupt */ {
                     ACPI::MultiApicDescTable::Nmix2Apic* nmi =
                         static_cast<ACPI::MultiApicDescTable::Nmix2Apic*>(
                             entry);
-                    info(u8"[APIC] NMI Source: %d, UID: %d, Local APIC LINT: "
-                         u8"%d\n",
-                         nmi->_flags,
-                         nmi->_uid,
-                         nmi->_lInt);
+                    info$("[APIC] NMI Source: {}, UID: {}, Local APIC LINT: {}",
+                          nmi->_flags,
+                          nmi->_uid,
+                          nmi->_lInt);
                     break;
                 }
             }

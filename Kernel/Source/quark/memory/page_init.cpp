@@ -28,10 +28,10 @@ namespace Quark::System {
                     continue;
                 }
 
-                Optional<u64> addr = addressRanges[i]              //
-                                         .Range                    //
-                                         .InnerAlign(PAGE_SIZE_4K) //
-                                         .TakeFront(amount);
+                Opt<u64> addr = addressRanges[i]              //
+                                    .Range                    //
+                                    .InnerAlign(PAGE_SIZE_4K) //
+                                    .TakeFront(amount);
                 if (addr.IsPresent()) {
                     address = addr.Take();
                     break;

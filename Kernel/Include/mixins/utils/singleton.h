@@ -11,7 +11,7 @@ public:
     Singleton()  = default;
     ~Singleton() = default;
 
-    Optional<TSource> Select(TSource* selected)
+    Opt<TSource> Select(TSource* selected)
     {
         if (TImpl<TSource>::Contains(selected)) {
             return m_selected = selected;
@@ -20,7 +20,7 @@ public:
         }
     }
 
-    Optional<TSource> GetOrFirst()
+    Opt<TSource> GetOrFirst()
     {
         if (!m_selected) {
             m_selected = TImpl<TSource>::FindFirst();
@@ -32,5 +32,5 @@ public:
     TSource* operator()() const { return GetOrFirst(); }
 
 private:
-    Optional<TSource&> m_selected = Empty();
+    Opt<TSource&> m_selected = Empty();
 };

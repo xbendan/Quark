@@ -1,5 +1,6 @@
 #include <mixins/std/utility.h>
 #include <mixins/utils/rbtree.h>
+#include <mixins/utils/strings.h>
 #include <quark/dev/device.h>
 
 #include <mixins/utils/linked_list.h>
@@ -8,19 +9,21 @@ namespace Quark::System::Io {
     // RbTree<string, Device*> devices;
     // LinkedList<Device*> Devices;
 
-    Optional<Device*> Device::FindByName(StringView name)
+    Opt<Device*> Device::FindByName(Qk::StringView name)
     {
         // 实现查找设备的方法
         // 按名称查找设备的最佳方法是使用红黑树实现的表
         // 将传入的 @name 进行哈希处理，这样我们就可以
         // 利用红黑树的特性，对设备进行二分查找
         return Devices
-            .FindFirst(
-                [&name](Device* device) { return device->GetName() == name; })
-            .Select<Device*>([](Device*& device) { return device; });
+            .FindFirst([&name](Device* device) {
+                Qk::StringView deviceName = device->GetName();
+                return Qk::Strings::Equals(deviceName, name);
+            })
+            .Extract();
     }
 
-    Optional<Device*> Device::FindByUniqueId(UUID uuid)
+    Opt<Device*> Device::FindByUniqueId(UUID uuid)
     {
         // 实现查找设备的方法
         // 和 FindByName 方法类似，将传入的 @uuid 进行
@@ -29,7 +32,7 @@ namespace Quark::System::Io {
             .FindFirst([&uuid](Device* device) {
                 return device->GetUniqueId() == uuid;
             })
-            .Select<Device*>([](Device*& device) { return device; });
+            .Extract();
     }
 
     Res<> Device::Load(Device* device)
@@ -40,6 +43,7 @@ namespace Quark::System::Io {
         // devices.PutIfAbsent(device->GetName(), device);
         // 实现加载设备的方法
         // 将设备添加到设备表中
+        Devices.Add(device);
         return Ok();
     }
 

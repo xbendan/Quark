@@ -43,13 +43,7 @@ public:
 
     TSource& Enqueue(TSource const& e) override { return Add(e); }
 
-    Optional<TSource> Dequeue() override
-    {
-        return LinkedList<TSource>::TakeFirst();
-    }
+    Opt<TSource> Dequeue() override { return LinkedList<TSource>::TakeFirst(); }
 
-    Optional<TSource&> Peek() override
-    {
-        return LinkedList<TSource>::FindFirst();
-    }
+    Opt<TSource&> Peek() override { return LinkedList<TSource>::FindFirst(); }
 };

@@ -8,7 +8,7 @@
 
 namespace Quark::System::Memory {
 
-    Optional<PageFrame*> PageFrame::Divide()
+    Opt<PageFrame*> PageFrame::Divide()
     {
         if (_level == 0 || not _flags.has(Hal::PmmFlags::FREE)) {
             return Empty();
@@ -32,7 +32,7 @@ namespace Quark::System::Memory {
         };
     }
 
-    Optional<PageFrame*> PageFrame::Combine(PageFrame* page)
+    Opt<PageFrame*> PageFrame::Combine(PageFrame* page)
     {
         if (/* Ensure both pages are free and can be merged */
             !(_flags.has(Hal::PmmFlags::FREE) &&
@@ -51,7 +51,7 @@ namespace Quark::System::Memory {
         return result;
     }
 
-    Optional<PageFrame*> PageFrame::Combine()
+    Opt<PageFrame*> PageFrame::Combine()
     {
         u64 offset = GetLevelAsOffset(_level);
         if (!IsPageAligned(_address, _level + 1)) {
