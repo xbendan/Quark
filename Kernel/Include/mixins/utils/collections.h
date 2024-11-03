@@ -151,17 +151,15 @@ template <typename TSource>
 class IEnumerable
 {
 public:
-    virtual Optional<TSource&> FindFirst() = 0;
-    virtual Optional<TSource&> FindFirst(
-        Predicate<TSource const&> predicate) = 0;
-    virtual Optional<TSource&> FindLast()    = 0;
-    virtual Optional<TSource&> FindLast(
-        Predicate<TSource const&> predicate)                                = 0;
-    virtual Optional<TSource&> FindAny()                                    = 0;
-    virtual Optional<TSource&> FindAny(Predicate<TSource const&> predicate) = 0;
-    virtual IEnumerable<TSource>& Take(usize n)                             = 0;
-    virtual IEnumerable<TSource>& Take(Tuple<usize, usize> r)               = 0;
-    virtual IEnumerable<TSource>& TakeLast(usize n)                         = 0;
+    virtual Opt<TSource&> FindFirst()                                    = 0;
+    virtual Opt<TSource&> FindFirst(Predicate<TSource const&> predicate) = 0;
+    virtual Opt<TSource&> FindLast()                                     = 0;
+    virtual Opt<TSource&> FindLast(Predicate<TSource const&> predicate)  = 0;
+    virtual Opt<TSource&> FindAny()                                      = 0;
+    virtual Opt<TSource&> FindAny(Predicate<TSource const&> predicate)   = 0;
+    virtual IEnumerable<TSource>& Take(usize n)                          = 0;
+    virtual IEnumerable<TSource>& Take(Tuple<usize, usize> r)            = 0;
+    virtual IEnumerable<TSource>& TakeLast(usize n)                      = 0;
     virtual IEnumerable<TSource>& TakeWhile(
         Func<bool(TSource const&)> predicate)       = 0;
     virtual IEnumerable<TSource>& Skip(usize n)     = 0;
@@ -190,17 +188,15 @@ public:
     virtual TSource               Min()                        = 0;
     virtual IEnumerable<TSource>& Order(bool ascending = true) = 0;
 
-    virtual Optional<TSource&> FindFirst() = 0;
-    virtual Optional<TSource&> FindFirst(
-        Predicate<TSource const&> predicate) = 0;
-    virtual Optional<TSource&> FindLast()    = 0;
-    virtual Optional<TSource&> FindLast(
-        Predicate<TSource const&> predicate)                                = 0;
-    virtual Optional<TSource&> FindAny()                                    = 0;
-    virtual Optional<TSource&> FindAny(Predicate<TSource const&> predicate) = 0;
-    virtual IEnumerable<TSource>& Take(usize n)                             = 0;
-    virtual IEnumerable<TSource>& Take(Tuple<usize, usize> r)               = 0;
-    virtual IEnumerable<TSource>& TakeLast(usize n)                         = 0;
+    virtual Opt<TSource&> FindFirst()                                    = 0;
+    virtual Opt<TSource&> FindFirst(Predicate<TSource const&> predicate) = 0;
+    virtual Opt<TSource&> FindLast()                                     = 0;
+    virtual Opt<TSource&> FindLast(Predicate<TSource const&> predicate)  = 0;
+    virtual Opt<TSource&> FindAny()                                      = 0;
+    virtual Opt<TSource&> FindAny(Predicate<TSource const&> predicate)   = 0;
+    virtual IEnumerable<TSource>& Take(usize n)                          = 0;
+    virtual IEnumerable<TSource>& Take(Tuple<usize, usize> r)            = 0;
+    virtual IEnumerable<TSource>& TakeLast(usize n)                      = 0;
     virtual IEnumerable<TSource>& TakeWhile(
         Func<bool(TSource const&)> predicate)       = 0;
     virtual IEnumerable<TSource>& Skip(usize n)     = 0;
@@ -282,9 +278,9 @@ public:
 template <typename TSource>
 class IQueue
 {
-    virtual TSource&           Enqueue(TSource const& e) = 0;
-    virtual Optional<TSource>  Dequeue()                 = 0;
-    virtual Optional<TSource&> Peek()                    = 0;
+    virtual TSource&      Enqueue(TSource const& e) = 0;
+    virtual Opt<TSource>  Dequeue()                 = 0;
+    virtual Opt<TSource&> Peek()                    = 0;
 };
 
 // template <typename TSource, typename E>
