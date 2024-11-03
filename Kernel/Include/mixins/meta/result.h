@@ -35,7 +35,7 @@ struct Res
 
     /* --- Constructors and Destructors --- */
 
-    always_inline constexpr Res(const Ok<V>& ok)
+    always_inline constexpr Res(Ok<V> const& ok)
         : _inner(ok)
     {
     }
@@ -50,8 +50,9 @@ struct Res
     {
     }
 
-    always_inline constexpr Res(Res<V, E>&& other)
-        : _inner(Std::move(other._inner))
+    template <typename U>
+    always_inline constexpr Res(Res<U, E> other)
+        : _inner(other._inner)
     {
     }
 

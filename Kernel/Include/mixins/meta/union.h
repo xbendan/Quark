@@ -26,7 +26,7 @@ public:
         new (_data) TAnyType(Std::move(value));
     }
 
-    always_inline Union(const Union& other)
+    always_inline Union(Union<Ts...> const& other)
         : _index(other._index)
     {
         indexCast<Ts...>(
@@ -68,6 +68,31 @@ public:
         });
         _index = indexOf<TAnyType, Ts...>();
         new (_data) TAnyType{ Std::move(value) };
+
+        return *this;
+    }
+
+    always_inline Union& operator=(Union const& other)
+    {
+        indexCast<Ts...>(
+            _index, _data, []<typename T>(T& value) { value.~T(); });
+        _index = other._index;
+
+        indexCast<Ts...>(_index, other._data, [this]<typename T>(T& value) {
+            new (_data) T(value);
+        });
+
+        return *this;
+    }
+
+    always_inline Union& operator=(Union&& other)
+    {
+        indexCast<Ts...>(_index, _data, []<typename T>(T& ptr) { ptr.~T(); });
+        _index = other._index;
+
+        indexCast<Ts...>(_index, other._data, [this]<typename T>(T& ptr) {
+            new (_data) T(Std::move(ptr));
+        });
 
         return *this;
     }

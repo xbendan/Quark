@@ -167,8 +167,8 @@ concept Computable = requires(T const& a, T const& b) {
     { a / b } -> SameAs<T>;
 };
 
-template <typename T>
-concept Equatable = requires(T const& a, T const& b) {
+template <typename T, typename U = T>
+concept Equatable = requires(T const& a, U const& b) {
     { a == b } -> SameAs<bool>;
     { a != b } -> SameAs<bool>;
 };

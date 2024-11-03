@@ -8,7 +8,7 @@ class RefPtr
 public:
     RefPtr()
         : _ptr(nullptr)
-        , _refCount(new usize(1))
+        , _refCount(nullptr)
     {
     }
     RefPtr(T* ptr)
