@@ -3,7 +3,7 @@
 #include <quark/sched/sched.h>
 
 namespace Quark::System::Task {
-    Res<RefPtr<Process>> Process::CreateProcess(StringView name)
+    Res<RefPtr<Process>> Process::CreateProcess(Qk::StringView name)
     {
         auto* p = new Process(Scheduler::GetDefaultPidNamespace().NextPid(),
                               name,
@@ -36,10 +36,10 @@ namespace Quark::System::Task {
     }
 
     Res<RefPtr<Process>> Process::CreateProcessEx( //
-        StringView name,
-        File*      file,
-        Folder*    workingDirectory,
-        StringView launchArgs)
+        Qk::StringView name,
+        File*          file,
+        Folder*        workingDirectory,
+        Qk::StringView launchArgs)
     {
         if (!file) {
             return Error::InvalidArgument();
