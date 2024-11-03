@@ -17,12 +17,12 @@
 #ifndef LIMINE_H
 #define LIMINE_H 1
 
+#include <mixins/std/c++types.h>
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#include <mixins/std/c++types.h>
 
     /* Misc */
 

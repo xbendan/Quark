@@ -18,6 +18,7 @@ using dword = unsigned int;
 using qword = unsigned long long;
 
 using usize = long unsigned int;
+using isize = long int;
 
 using f32  = float;
 using f64  = double;
@@ -36,6 +37,24 @@ using le32 = u32;
 using le64 = u64;
 
 struct Empty
+{
+    constexpr Empty() = default;
+
+    explicit constexpr operator bool() const { return false; }
+
+    constexpr bool operator==(Empty const&) const = default;
+
+    constexpr bool operator!=(Empty const&) const = default;
+};
+
+template <typename T>
+bool
+operator==(Empty, T* ptr)
+{
+    return ptr == nullptr;
+}
+
+struct Copy
 {};
 
 struct Move
