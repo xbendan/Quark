@@ -1,4 +1,5 @@
 #include <quark/hal/multiprocessing.h>
+#include <quark/init/boot_info.h>
 #include <quark/memory/address_space.h>
 #include <quark/memory/slab.h>
 #include <quark/os/main.h>
@@ -47,7 +48,10 @@ namespace Quark::System::Memory {
     Res<u64> Allocate(usize amount)
     {
         if (amount > PAGE_SIZE_4K) {
-            return AllocatePhysMemory4K(DivCeil(amount, PAGE_SIZE_4K));
+            return AllocateMemory4K(DivCeil(amount, PAGE_SIZE_4K),
+                                    BootInfo::MemoryInfo._addressSpace,
+                                    Hal::VmmFlags::WRITABLE);
+            // return AllocatePhysMemory4K(DivCeil(amount, PAGE_SIZE_4K));
         }
         kmem_cache_t* cache = nullptr;
         for (usize i = 0; i < SLAB_CACHE_BLOCK_AMOUNT; i++)
