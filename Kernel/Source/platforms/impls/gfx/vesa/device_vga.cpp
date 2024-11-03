@@ -11,32 +11,37 @@ namespace VESA {
         , m_cursor(0, 0)
         , m_buffer(VGA_TEXT_BUFFER)
     {
-        ClearScreen();
+        erase();
     }
 
-    usize VGATextOutputDevice::Write(U c)
+    usize VGATextOutputDevice::write(byte b)
     {
         ScopedLock lock(m_lock);
-        if (c == '\n') {
-            WriteNewline();
-        }
+        if (b == '\n')
+            newline();
 
         m_buffer[m_cursor.y * VGA_TEXT_WIDTH + m_cursor.x] =
-            (u16)(TextColor::TEXT_COLOR_WHITE << 8) | c;
+            (u16)(TextColor::TEXT_COLOR_WHITE << 8) | b;
         m_cursor.x++;
         if (m_cursor.x >= VGA_TEXT_WIDTH)
-            WriteNewline();
+            newline();
 
         return 1;
     }
 
-    usize VGATextOutputDevice::Write(StringView str)
+    usize VGATextOutputDevice::write(Bytes bytes)
+    {
+        Qk::StringView str{ (const char*)bytes.buf(), bytes.len() };
+        return writeStr(str);
+    }
+
+    usize VGATextOutputDevice::writeStr(Qk::StringView str)
     {
         ScopedLock lock(m_lock);
         usize      len = 0;
         for (char c : str) {
             if (c == '\n') {
-                WriteNewline();
+                newline();
                 continue;
             }
 
@@ -44,7 +49,7 @@ namespace VESA {
                 (u16)(TextColor::TEXT_COLOR_WHITE << 8) | c;
             m_cursor.x++;
             if (m_cursor.x >= VGA_TEXT_WIDTH)
-                WriteNewline();
+                newline();
 
             len++;
         }
@@ -52,22 +57,17 @@ namespace VESA {
         return len;
     }
 
-    usize VGATextOutputDevice::Write(U* up)
+    usize VGATextOutputDevice::writeRune(Qk::Rune r)
     {
-        return Write(StringView(up));
+        return write((byte)r);
     }
 
-    usize VGATextOutputDevice::Write(Buf<U> const& buf)
+    usize VGATextOutputDevice::flush()
     {
-        return Write(StringView(buf.buf(), buf.len()));
+        return 0;
     }
 
-    void VGATextOutputDevice::WriteAscii(_StringView<Ascii> str)
-    {
-        Write(StringView(str.buf()));
-    }
-
-    void VGATextOutputDevice::WriteNewline()
+    void VGATextOutputDevice::newline()
     {
         m_cursor.x = 0;
         m_cursor.y++;
@@ -86,15 +86,14 @@ namespace VESA {
                 }
             } else {
                 m_cursor.y = 0;
-                ClearScreen();
+                erase();
             }
         }
     }
 
-    void VGATextOutputDevice::ClearScreen()
+    void VGATextOutputDevice::erase()
     {
-        ScopedLock lock(m_lock);
-        for (u32 i = 0; i < VGA_TEXT_WIDTH * VGA_TEXT_HEIGHT; i++)
-            m_buffer[i] = 0;
+        memset(
+            (void*)m_buffer, 0, VGA_TEXT_WIDTH * VGA_TEXT_HEIGHT * sizeof(u16));
     }
 }

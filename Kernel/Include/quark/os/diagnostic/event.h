@@ -2,8 +2,9 @@
 
 #include <mixins/str/string.h>
 #include <mixins/utils/date.h>
+#include <quark/os/diagnostic/level.h>
 
-namespace Quark::System::Diagnostics {
+namespace Quark::System::Diagnostic {
     enum class RetentionPolicy
     {
         /*
@@ -40,25 +41,16 @@ namespace Quark::System::Diagnostics {
         AlwaysKeepOldest,
     };
 
-    enum class EventType
-    {
-        Success,
-        Info,
-        Warning,
-        Error,
-        Critical,
-    };
-
     struct EventSource
     {
-        StringView      Name;
+        Qk::StringView  Name;
         RetentionPolicy Policy;
     };
 
     struct EventTrace
     {
         EventSource* Source;
-        EventType    Type;
+        Level        Type;
         Date         Time;
     };
 }

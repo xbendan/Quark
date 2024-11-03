@@ -250,9 +250,12 @@ namespace Quark::System::Memory {
             /* To avoid potential issues, don't mark memory below 0x100000
              */
             pageRange._min += PAGE_SIZE_4K;
+        if (pageRange.Length() == 0) {
+            return;
+        }
         ScopedLock lock(m_lock);
 
-        info(u8"Marking region as free: {} - {}\r\n", range.From(), range.To());
+        info$("Marking region as free: {#X} - {#X}", range.From(), range.To());
 
         usize      pageLevelAssumption = BUDDY_LEVEL_UPPER_LIMIT;
         PageFrame* pageFrame           = nullptr;

@@ -205,12 +205,12 @@ namespace Quark::System::Platform::X64 {
 
     void UnhandledException(int num, Registers* registers)
     {
-        warn(u8"Unhandled exception %d\n", num);
+        // warn(u8"Unhandled exception %d\n", num);
     }
 
     void DivisionError(int num, Registers* registers)
     {
-        log(u8"Division Error\n");
+        // log(u8"Division Error\n");
     }
 
     void Debug(int num, Registers* registers) {}

@@ -1,90 +1,113 @@
 #pragma once
 
-#include <mixins/io/text.h>
+#include <mixins/io/traits.h>
+#include <mixins/meta/result.h>
+#include <mixins/meta/vec.h>
 #include <mixins/std/panic.h>
+#include <mixins/str/format.h>
 #include <mixins/str/string.h>
+#include <mixins/str/string_builder.h>
 #include <mixins/utils/flags.h>
+#include <mixins/utils/strings.h>
+#include <quark/os/diagnostic/level.h>
 
 namespace Quark::System::Diagnostic {
-    enum class LogLevel
-    {
-        Debug = (1 << 0),
-        Info  = (1 << 1),
-        Warn  = (1 << 2),
-        Error = (1 << 3),
-        Fatal = (1 << 4),
-    };
-    MakeFlags$(LogLevel);
 
-    static constexpr Flags<LogLevel> AllLevels =
-        (LogLevel::Debug | LogLevel::Info | LogLevel::Warn | LogLevel::Error |
-         LogLevel::Fatal);
-
-    struct LoggingListener
+    struct Logger
     {
-        Flags<LogLevel> Levels;
-        TextWriter*     Output;
+        Level       Lv;
+        const char* Name;
     };
 
-    class Logger
+    struct LoggerTextWriter : Qk::TextWriter
     {
-    public:
-        static void AddListener(Flags<LogLevel> levels, TextWriter* textOutput);
+        LoggerTextWriter() = default;
+        LoggerTextWriter(Qk::TextWriter* _default);
+
+        usize write(byte b) override;
+        usize write(Bytes bytes) override;
+        usize writeStr(Qk::StringView str) override;
+        usize writeRune(Qk::Rune r) override;
+        usize flush() override;
+
+        usize writeLine(Logger log, Qk::StringView str)
+        {
+            Qk::format(*this,
+                       "[ {} ] {}"s,
+                       Qk::align(log.Name, Qk::Align::LEFT, 6),
+                       str);
+            if (not Qk::Strings::EndsWith(str, '\n'))
+                writeStr("\r\n"s);
+
+            return flush();
+        }
+
+        template <typename... TArgs>
+        usize writeLine(Logger log, Qk::StringView format, TArgs&&... args)
+        {
+            Qk::format(
+                *this, "[ {} ] "s, Qk::align(log.Name, Qk::Align::LEFT, 6));
+            Qk::format(*this, format, args...);
+            if (not Qk::Strings::EndsWith(format, '\n'))
+                writeStr("\r\n"s);
+
+            return flush();
+        }
+
+        void add(Qk::TextWriter* listener) { m_listeners.pushBack(listener); }
+
+    private:
+        Qk::StackVec<Qk::TextWriter*, 16> m_listeners;
+        Qk::StringBuilder<512>            m_builder;
     };
 
-    void log(LogLevel level, String msg);
-    void log(LogLevel level, String msg, fmt::_Args& args);
+    extern LoggerTextWriter _LoggerWriter;
 
-    inline void log(String msg, LogLevel level = LogLevel::Info)
+    static constexpr Logger _Info{ Level::Info, "INFO" };
+    static constexpr Logger _Warn{ Level::Warning, "WARN" };
+    static constexpr Logger _Error{ Level::Error, "ERROR" };
+    static constexpr Logger _Critical{ Level::Critical, "FATAL" };
+
+    template <typename... TArgs>
+    void log$(Qk::StringView format, TArgs... args)
     {
-        log(level, msg);
+        _LoggerWriter.writeLine(_Info, format, args...);
     }
 
     template <typename... TArgs>
-        requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void log(LogLevel level, String msg, TArgs... args)
+    void info$(Qk::StringView format, TArgs... args)
     {
-        fmt::Args<TArgs...> fmtArgs(Std::forward<TArgs>(args)...);
-        log(level, msg, fmtArgs);
+        _LoggerWriter.writeLine(_Info, format, args...);
     }
 
     template <typename... TArgs>
-        requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void debug(String msg, TArgs... args)
+    void warn$(Qk::StringView format, TArgs... args)
     {
-        log(LogLevel::Debug, msg, args...);
+        _LoggerWriter.writeLine(_Warn, format, args...);
     }
 
     template <typename... TArgs>
-        requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void info(String msg, TArgs... args)
+    void error$(Qk::StringView format, TArgs... args)
     {
-        log(LogLevel::Info, msg, args...);
+        _LoggerWriter.writeLine(_Error, format, args...);
     }
 
     template <typename... TArgs>
-        requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void warn(String msg, TArgs... args)
+    void crit$(Qk::StringView format, TArgs... args)
     {
-        log(LogLevel::Warn, msg, args...);
+        _LoggerWriter.writeLine(_Critical, format, args...);
     }
 
-    template <typename... TArgs>
-        requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void error(String msg, TArgs... args)
-    {
-        log(LogLevel::Error, msg, args...);
-    }
+#define log(message) _LoggerWriter.writeLine(_Info, message)
+#define info(message) _LoggerWriter.writeLine(_Info, message)
+#define warn(message) _LoggerWriter.writeLine(_Warn, message)
+#define error(message) _LoggerWriter.writeLine(_Error, message)
+#define crit(message) _LoggerWriter.writeLine(_Critical, message)
 
-    template <typename... TArgs>
-        requires(fmt::Translatable<Std::RemoveRef<TArgs>> && ...)
-    inline void fatal(String msg, TArgs... args)
-    {
-        fmt::Args<TArgs...> fmtArgs(Std::forward<TArgs>(args)...);
-        log(LogLevel::Fatal, msg, fmtArgs);
+    // void Log$(Qk::StringView message);
 
-        Std::panic(msg);
-    }
+    // template <typename... TArgs>
+    // void Log$(Qk::StringView format, TArgs... args);
 }
 
 #if defined(DEBUG_MODE)
