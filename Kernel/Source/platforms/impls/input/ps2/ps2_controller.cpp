@@ -7,7 +7,7 @@ namespace PS2 {
     using namespace Quark::System::Hal;
 
     LegacyControllerDevice::LegacyControllerDevice()
-        : Io::Device("PS/2 Legacy Controller")
+        : Io::Device("PS/2 Legacy Controller"s, Type::SystemDevices)
     {
     }
 
@@ -17,11 +17,9 @@ namespace PS2 {
         /* PS2 Controller is not supported while the bit 1 of
            'IA PC Boot Architecture Flags' is clear (0). */
         ACPI::FixedAcpiDescTable* fadt;
-        Device::FindByName<ACPI::ControllerDevice>(
-            "Advanced Configuration & Power Interface Controller")
+        Device::FindByName<ACPI::ControllerDevice>("ACPI Management Device")
             .IfPresent([&](ACPI::ControllerDevice* device) {
-                fadt =
-                    device->FindTable<ACPI::FixedAcpiDescTable>("FACP").Take();
+                fadt = device->FindTable<ACPI::FixedAcpiDescTable>("FACP");
             });
         if (fadt == nullptr) {
             return Error::DeviceFault("FADT table not found.");

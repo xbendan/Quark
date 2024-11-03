@@ -5,7 +5,7 @@
 
 namespace Quark::System::Task {
     ICollection<Hal::ICPULocalDevice*>* _cpus;
-    Array<IQueue<Thread*>*>             _threadQueues;
+    Qk::Array<IQueue<Thread*>*>         _threadQueues;
 
     Res<> Scheduler::InitTasks()
     {

@@ -17,13 +17,12 @@ namespace PCI {
             return Error::DeviceNotFound();
         }
 
-        auto table = acpi.Take()->FindTable<ACPI::PCIExpressSpecTable>("MCFG");
+        m_pciExpressTable =
+            acpi.Take()->FindTable<ACPI::PCIExpressSpecTable>("MCFG");
 
-        if (table.IsPresent()) {
-            m_pciExpressTable = table.Take();
-            m_accessMode      = ConfigAccessMode::Enhanced;
-        } else
-            m_accessMode = ConfigAccessMode::Legacy;
+        m_accessMode = (m_pciExpressTable != nullptr)
+                           ? ConfigAccessMode::Enhanced
+                           : ConfigAccessMode::Legacy;
 
         m_devices = EnumerateDevices();
         return Ok();
@@ -80,8 +79,7 @@ namespace PCI {
         });
     }
 
-    Optional<Io::Device*> PCIEnumerationDevice::GetDevice(u16 deviceID,
-                                                          u16 vendorID)
+    Opt<Io::Device*> PCIEnumerationDevice::GetDevice(u16 deviceID, u16 vendorID)
     {
         return m_devices
             ->FindFirst([&](Io::Device* dev) {
@@ -92,8 +90,7 @@ namespace PCI {
             .Extract();
     }
 
-    Optional<Io::Device*> PCIEnumerationDevice::GetDevice(u8 classCode,
-                                                          u8 subclass)
+    Opt<Io::Device*> PCIEnumerationDevice::GetDevice(u8 classCode, u8 subclass)
     {
         return m_devices
             ->FindFirst([&](Io::Device* dev) {
