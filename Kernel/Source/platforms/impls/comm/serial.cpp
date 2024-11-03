@@ -17,17 +17,31 @@ namespace Serial {
         PortAccess<>::Out<u8>(Port::COM1 + PortOffset::ModemControl, 0x0B);
     }
 
-    usize SerialPortDevice::Write(U c)
+    usize SerialPortDevice::write(byte b)
     {
         ScopedLock lock(m_lock);
         while (!(m_lineStatus.In<u8>() & 0x20))
             ;
-        m_portAccess << c;
+        m_portAccess << b;
 
         return 1;
     }
 
-    usize SerialPortDevice::Write(StringView str)
+    usize SerialPortDevice::write(Bytes bytes)
+    {
+        ScopedLock lock(m_lock);
+        usize      len = 0;
+        for (auto b : bytes) {
+            while (!(m_lineStatus.In<u8>() & 0x20))
+                ;
+            m_portAccess << b;
+            len++;
+        }
+
+        return len;
+    }
+
+    usize SerialPortDevice::writeStr(Qk::StringView str)
     {
         ScopedLock lock(m_lock);
         usize      len = 0;
@@ -41,22 +55,18 @@ namespace Serial {
         return len;
     }
 
-    usize SerialPortDevice::Write(U* str)
+    usize SerialPortDevice::writeRune(Qk::Rune r)
     {
         ScopedLock lock(m_lock);
-        usize      len = 0;
-        while (*str) {
-            while (!(m_lineStatus.In<u8>() & 0x20))
-                ;
-            m_portAccess << *str++;
-            len++;
-        }
+        while (!(m_lineStatus.In<u8>() & 0x20))
+            ;
+        m_portAccess << r;
 
-        return len;
+        return 1;
     }
 
-    usize SerialPortDevice::Write(Buf<U> const& buf)
+    usize SerialPortDevice::flush()
     {
-        return Write(buf.buf());
+        return 0;
     }
 }

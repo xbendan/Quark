@@ -1,5 +1,5 @@
 #include <mixins/concurrent/spinlock.h>
-#include <mixins/io/text.h>
+#include <mixins/io/traits.h>
 
 #include <drivers/comm/spec.h>
 #include <quark/dev/device.h>
@@ -11,24 +11,19 @@ namespace Serial {
 
     class SerialPortDevice final
         : public Device
-        , public TextWriter
+        , public Qk::TextWriter
     {
-        using U = StringView::Unit;
+        using U = Qk::StringView::Unit;
 
     public:
         SerialPortDevice();
         ~SerialPortDevice() = default;
 
-        usize Write(U c) override;
-        usize Write(StringView str) override;
-        usize Write(U* str) override;
-        usize Write(Buf<U> const& buf) override;
-        void  WriteNewline() override;
-
-        void operator<<(U u) override;
-        void operator<<(Buf<U> const& buf) override;
-
-        void dispose() override {}
+        usize write(byte b) override;
+        usize write(Bytes bytes) override;
+        usize writeRune(Qk::Rune r) override;
+        usize writeStr(Qk::StringView str) override;
+        usize flush() override;
 
     private:
         // Spinlock                                             m_lock;

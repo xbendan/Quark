@@ -1,5 +1,5 @@
 #include <mixins/concurrent/spinlock.h>
-#include <mixins/io/text.h>
+#include <mixins/io/traits.h>
 #include <mixins/meta/buf.h>
 #include <quark/gfx/display.h>
 
@@ -38,21 +38,21 @@ namespace VESA {
 
     class VGATextOutputDevice
         : public IVideoOutputDevice
-        , public TextWriter
+        , public Qk::TextWriter
     {
-        using U = StringView::Unit;
+        using U = Qk::StringView::Unit;
 
     public:
         VGATextOutputDevice();
-        ~VGATextOutputDevice();
+        ~VGATextOutputDevice() = default;
 
-        usize Write(U c) override;
-        usize Write(StringView str) override;
-        usize Write(StringView::Unit* str) override;
-        usize Write(Buf<StringView::Unit> const& buf) override;
-        void  WriteAscii(_StringView<Ascii> str);
-        void  WriteNewline() override;
-        void  ClearScreen();
+        usize write(byte b) override;
+        usize write(Bytes bytes) override;
+        usize writeRune(Qk::Rune r) override;
+        usize writeStr(Qk::StringView str) override;
+        usize flush() override;
+        void  newline();
+        void  erase();
 
     private:
         lock_t        m_lock;
