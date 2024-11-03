@@ -1,6 +1,7 @@
 #include <mixins/meta/opt.h>
 #include <mixins/meta/ref.h>
 #include <mixins/meta/result.h>
+#include <mixins/utils/array.h>
 #include <mixins/utils/uuid.h>
 
 #include <quark/dev/device.h>
@@ -20,13 +21,13 @@ namespace Quark::System {
     void  SetupKernel();
     Res<> SetupArch();
 
-    Res<>                    InitPhysMemory();
-    Res<AddressSpace*>       InitVirtMemory();
-    Res<IList<Io::Device*>*> EnumerateInitialDevices();
-    Res<IList<Io::Device*>*> SetupDevices();
-    Res<>                    InitKernelMemory();
-    Res<>                    SetupInterrupts();
-    Res<>                    InitTasks();
-    Res<>                    InitFileSystems();
+    Res<>                        InitPhysMemory();
+    Res<AddressSpace*>           InitVirtMemory();
+    Res<Qk::Array<Io::Device*>*> EnumerateInitialDevices();
+    Res<IList<Io::Device*>*>     SetupDevices();
+    Res<>                        InitKernelMemory();
+    Res<>                        SetupInterrupts();
+    Res<>                        InitTasks();
+    Res<>                        InitFileSystems();
 
 } // namespace Quark::System

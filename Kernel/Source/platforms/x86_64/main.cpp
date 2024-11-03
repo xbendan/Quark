@@ -32,22 +32,23 @@ namespace Quark::System {
     using namespace Quark::System::Memory;
     using namespace Quark::System::Platform::X64;
     using namespace Quark::System::Diagnostic;
+    using Qk::Array;
 
-    InterruptDescTbl                kIdt = {};
-    Inert<CPULocalDevice>           kCPULocal;
-    Buf<char[3 * 8 * PAGE_SIZE_4K]> kTssEntryBuf;
+    InterruptDescTbl                    kIdt = {};
+    Inert<CPULocalDevice>               kCPULocal;
+    Qk::Buf<char, 3 * 8 * PAGE_SIZE_4K> kTssEntryBuf;
 
-    Res<IList<Io::Device*>*> EnumerateInitialDevices()
+    Res<Array<Io::Device*>*> EnumerateInitialDevices()
     {
-        log(u8"Setting up devices...");
-        auto* devices = new ArrayList<Io::Device*>({
+        log("Setting up devices...");
+        auto* devices = new Array<Io::Device*>({
             new ACPI::ControllerDevice(),
             new APIC::GenericControllerDevice(),
             new PCI::PCIEnumerationDevice(),
             new PS2::LegacyControllerDevice(),
         });
 
-        return Ok((IList<Io::Device*>*)devices);
+        return Ok(devices);
     }
 
     Res<> SetupArch()
