@@ -2,6 +2,7 @@
 
 #include <mixins/meta/buf.h>
 #include <mixins/std/panic.h>
+#include <mixins/utils/arrays.h>
 #include <quark/os/diagnostic/logging.h>
 
 #include <drivers/comm/device.h>
@@ -23,34 +24,45 @@ namespace Quark::System {
         Hal::Platform& platform = BootInfo::Platform;
 
         new (&serial) Serial::SerialPortDevice();
-        log(u8"Setting up kernel...");
+        new (&_LoggerWriter) LoggerTextWriter(&serial);
 
-        log(u8"Initializing architecture-specific features...");
+        log("Setting up kernel..."s);
+
+        log("Initializing architecture-specific features..."s);
         SetupArch();
-        log(u8"OK.");
+        log("OK."s);
 
-        log(u8"Initializing address space isolation (Virtual memory):\n");
+        log("Initializing virtual memory management:");
         AddressSpace* kernelAddressSpace = nullptr;
         if (platform._features.hasNot(Hal::Platform::AddressSpaceIsolation)) {
-            log(u8"VMM is not supported on this platform.\n");
-        } else
+            log("VMM is not supported on this platform.");
+        } else {
             kernelAddressSpace = BootInfo::MemoryInfo._addressSpace =
                 InitVirtMemory().Unwrap();
+            log("OK."s);
+        }
 
-        log(u8"Initializing memory management...\n");
+        log("Initializing physical memory management...");
         InitPhysMemory().Unwrap();
+        log("OK."s);
 
-        log(u8"Creating kernel process...\n");
+        log("Creating kernel process...");
         Process::CreateKernelProcess(kernelAddressSpace).Unwrap();
 
-        log(u8"Initializing device connectivity...\n");
-        EnumerateInitialDevices().Unwrap()->ForEach(
-            [](Io::Device* device) { device->OnInitialize().Unwrap(); });
+        log("Initializing device connectivity...");
+        auto devList = EnumerateInitialDevices().Unwrap();
 
-        log(u8"Initializing task scheduler...\n");
+        for (auto& dev : *devList) {
+            log$("Found device: {}", dev->GetName());
+            dev->OnInitialize();
+
+            Io::Device::Load(dev);
+        }
+
+        log("Initializing task scheduler...");
         InitTasks().Unwrap();
 
-        log(u8"Done!");
+        log("Done!");
 
         while (true)
             asm volatile("hlt; pause;");
@@ -60,22 +72,22 @@ namespace Quark::System {
 namespace Std {
     using namespace Quark::System::Diagnostic;
 
-    [[noreturn]] void ThrowError(Error err)
+    [[noreturn]] void panic(Error err)
     {
         while (true)
             asm volatile("hlt; pause;");
     }
 
-    [[noreturn]] void SystemPanic(string msg)
+    [[noreturn]] void panic(const char* msg)
     {
         // TODO: Implement panic
-        error(u8"---- QUARK KERNEL PANIC ----");
-        log(LogLevel::Error, u8"Time:        {}", 0);
-        log(LogLevel::Error, u8"Description: {}", msg);
-        log(LogLevel::Error, u8" ");
-        log(LogLevel::Error, u8"This is a fatal error, halting the system.");
-        log(LogLevel::Error, u8"Stacktrace:");
-        log(LogLevel::Error, u8"----------------------------");
+        error("---- QUARK KERNEL PANIC ----");
+        error$("Time:        {}", 0);
+        error$("Description: {}", msg);
+        error(" ");
+        error("This is a fatal error, halting the system.");
+        error("----------------------------");
+        error("Stacktrace:");
 
         while (true)
             asm volatile("hlt; pause;");
