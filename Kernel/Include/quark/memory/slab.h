@@ -42,7 +42,7 @@ namespace Quark::System::Memory {
         u64  Take(kmem_alloc_node_t* node);
         // void InitPageAsCached(PageFrame* page, u64 address);
 
-        StringView                  _name;
+        Qk::StringView              _name;
         // struct Node
         // {
         //     Spinlock  _spinlock;

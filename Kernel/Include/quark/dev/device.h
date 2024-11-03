@@ -40,19 +40,19 @@ namespace Quark::System::Io {
             Unknown
         };
 
-        Device(StringView name)
+        Device(Qk::StringView name)
             : Device(name, UUID::FromName(name), Type::Unknown)
         {
             // _uuid = UUID::generate();
         }
 
-        Device(StringView name, Type deviceType)
+        Device(Qk::StringView name, Type deviceType)
             : Device(name, UUID::FromName(name), deviceType)
         {
             // _uuid = UUID::generate();
         }
 
-        Device(StringView name, UUID uuid, Type deviceType)
+        Device(Qk::StringView name, UUID uuid, Type deviceType)
             : m_name(name)
             , m_uniqueId(uuid)
             , m_deviceType(deviceType)
@@ -94,17 +94,17 @@ namespace Quark::System::Io {
          */
         virtual Res<> OnShutdown() { return Ok(); }
 
-        StringView GetName() const { return m_name; }
+        Qk::StringView GetName() const { return m_name; }
 
         UUID GetUniqueId() const { return m_uniqueId; }
 
         Type GetType() const { return m_deviceType; }
 
-        static Optional<Device*> FindByName(StringView name);
+        static Opt<Device*> FindByName(Qk::StringView name);
 
         template <typename T>
             requires Std::isDerived<Device, T>
-        static Optional<T*> FindByName(StringView name)
+        static Opt<T*> FindByName(Qk::StringView name)
         {
             auto device = FindByName(name);
             if (device.IsPresent()) {
@@ -113,19 +113,19 @@ namespace Quark::System::Io {
             return Empty();
         }
 
-        static Optional<Device*> FindByUniqueId(UUID uuid);
-        static IList<Device*>*   EnumerateDevices();
-        static IList<Device*>*   EnumerateDevices(Type type);
-        static IList<Device*>*   EnumerateDevices(Predicate<Device*> predicate);
-        static Res<>             Load(Device* device);
-        static Res<>             Unload(Device* device);
-        static Res<>             Rescan();
+        static Opt<Device*>    FindByUniqueId(UUID uuid);
+        static IList<Device*>* EnumerateDevices();
+        static IList<Device*>* EnumerateDevices(Type type);
+        static IList<Device*>* EnumerateDevices(Predicate<Device*> predicate);
+        static Res<>           Load(Device* device);
+        static Res<>           Unload(Device* device);
+        static Res<>           Rescan();
 
     protected:
-        StringView m_name;
-        UUID       m_uniqueId;
-        Type       m_deviceType;
-        bool       m_isStarted;
+        Qk::StringView m_name;
+        UUID           m_uniqueId;
+        Type           m_deviceType;
+        bool           m_isStarted;
 
         static inline LinkedList<Device*> Devices;
     };
@@ -133,7 +133,7 @@ namespace Quark::System::Io {
     class EnumerationDevice : public Device
     {
     public:
-        EnumerationDevice(StringView name)
+        EnumerationDevice(Qk::StringView name)
             : Device(name, Type::SystemDevices)
         {
         }

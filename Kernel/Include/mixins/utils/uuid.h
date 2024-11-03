@@ -3,6 +3,9 @@
 #include <mixins/std/c++types.h>
 #include <mixins/str/string.h>
 
+namespace Qk {
+}
+
 union UUID
 {
     u8  _bytes[16];
@@ -25,7 +28,7 @@ union UUID
         return _qwords[0] == 0 && _qwords[1] == 0;
     }
 
-    static UUID FromName(StringView name)
+    static UUID FromName(Qk::StringView name)
     {
         UUID uuid;
         for (usize i = 0; i < name.len(); i++) {

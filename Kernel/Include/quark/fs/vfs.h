@@ -39,7 +39,7 @@ namespace Quark::System::Io::FileSystem {
         u64 _maxVolumeNameLength;
         u64 _maxVolumePathLength;
 
-        String                     _excludes;
+        Qk::StringView             _excludes;
         Flags<FileSystemAttribute> _attributes;
 
         FileSystemInfo(u64                        maxSystemSize,
@@ -48,7 +48,7 @@ namespace Quark::System::Io::FileSystem {
                        u64                        maxPathLength,
                        u64                        maxVolumeNameLength,
                        u64                        maxVolumePathLength,
-                       String                     excludes,
+                       Qk::StringView             excludes,
                        Flags<FileSystemAttribute> attributes)
             : _maxSystemSize(maxSystemSize)
             , _maxFileSize(maxFileSize)
@@ -67,22 +67,22 @@ namespace Quark::System::Io::FileSystem {
     class IFileSystem
     {
     public:
-        IFileSystem(StringView name, FileSystemId id, FileSystemInfo info)
+        IFileSystem(Qk::StringView name, FileSystemId id, FileSystemInfo info)
             : m_name(name)
             , m_id(id)
             , m_info(info) {};
 
-        virtual Res<IFileAccess*> open(String path, FileMode mode)   = 0;
-        virtual Res<IFileAccess*> open(File* file, FileMode mode)    = 0;
-        virtual Res<>             close(File* file)                  = 0;
-        virtual Res<>             create(String path, FileType type) = 0;
-        virtual Res<>             remove(String path)                = 0;
+        virtual Res<IFileAccess*> open(Qk::StringView path, FileMode mode) = 0;
+        virtual Res<IFileAccess*> open(File* file, FileMode mode)          = 0;
+        virtual Res<>             close(File* file)                        = 0;
+        virtual Res<> create(Qk::StringView path, FileType type)           = 0;
+        virtual Res<> remove(Qk::StringView path)                          = 0;
 
         FileSystemId    getId() const { return m_id; }
         FileSystemInfo& getInfo() { return m_info; }
 
     private:
-        StringView     m_name;
+        Qk::StringView m_name;
         FileSystemId   m_id;
         FileSystemInfo m_info;
     };

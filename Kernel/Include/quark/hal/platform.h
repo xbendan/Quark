@@ -8,8 +8,8 @@
 namespace Quark::System::Hal {
     struct Platform
     {
-        StringView _name;
-        StringView _version;
+        Qk::StringView _name;
+        Qk::StringView _version;
         enum class Type : u8
         {
             Unknown,

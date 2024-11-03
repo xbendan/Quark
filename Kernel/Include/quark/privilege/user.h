@@ -31,7 +31,7 @@ namespace Quark::System::Privilege {
     {
     public:
         UserAccount() = default;
-        UserAccount(StringView name, UserGroup* group)
+        UserAccount(Qk::StringView name, UserGroup* group)
             : _name(name)
             , _group(group)
             , _id(UUID())
@@ -47,19 +47,19 @@ namespace Quark::System::Privilege {
         }
 
     private:
-        StringView    _name;
-        UserGroup*    _group;
-        UUID          _id;
-        Date          _whenCreated;
-        Date          _whenLastLogin;
-        UserLoginData _loginData;
+        Qk::StringView _name;
+        UserGroup*     _group;
+        UUID           _id;
+        Date           _whenCreated;
+        Date           _whenLastLogin;
+        UserLoginData  _loginData;
     };
 
     class UserGroup
     {
     public:
         UserGroup() = default;
-        UserGroup(StringView name, Level level)
+        UserGroup(Qk::StringView name, Level level)
             : m_name(name)
             , m_level(level)
             , m_users(ArrayList<UserAccount>())
@@ -72,7 +72,7 @@ namespace Quark::System::Privilege {
         }
 
     private:
-        StringView             m_name;
+        Qk::StringView         m_name;
         Level                  m_level;
         ArrayList<UserAccount> m_users{};
     };

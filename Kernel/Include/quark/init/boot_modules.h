@@ -6,8 +6,8 @@
 namespace {
     struct OsModule
     {
-        StringView _name;
-        u64        _key;
+        Qk::StringView _name;
+        u64            _key;
 
         Func<Quark::System::Io::Device*(void)> _init;
     };

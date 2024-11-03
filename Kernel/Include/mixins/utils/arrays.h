@@ -3,10 +3,9 @@
 #include <mixins/meta/slice.h>
 #include <mixins/utils/array.h>
 
-class Arrays
-{
+namespace Qk::Arrays {
     template <typename TSource>
-    static void CopyArray(TSource* dest, TSource const* src, usize count)
+    void CopyArray(TSource* dest, TSource const* src, usize count)
     {
         for (usize i = 0; i < count; i++) {
             dest[i] = src[i];
@@ -14,9 +13,7 @@ class Arrays
     }
 
     template <typename TSource>
-    static void CopyArray(Slice<TSource>&       dest,
-                          Slice<TSource> const& src,
-                          usize                 count)
+    void CopyArray(Slice<TSource>& dest, Slice<TSource> const& src, usize count)
     {
         for (usize i = 0; i < count; i++) {
             dest[i] = src[i];
@@ -25,7 +22,7 @@ class Arrays
 
     template <typename TSource>
         requires(Computable<TSource>)
-    static TSource sum(Slice<TSource> const& src)
+    TSource sum(Slice<TSource> const& src)
     {
         TSource result = 0;
         for (usize i = 0; i < src.len(); i++) {
@@ -36,14 +33,14 @@ class Arrays
 
     template <typename TSource>
         requires(Computable<TSource>)
-    static TSource average(Slice<TSource> const& src)
+    TSource average(Slice<TSource> const& src)
     {
         return sum(src) / src.len();
     }
 
     template <typename TSource>
         requires(Comparable<TSource>)
-    static TSource max(Slice<TSource> const& src)
+    TSource max(Slice<TSource> const& src)
     {
         TSource result = src[0];
         for (usize i = 1; i < src.len(); i++) {
@@ -56,7 +53,7 @@ class Arrays
 
     template <typename TSource>
         requires(Comparable<TSource>)
-    static TSource min(Slice<TSource> const& src)
+    TSource min(Slice<TSource> const& src)
     {
         TSource result = src[0];
         for (usize i = 1; i < src.len(); i++) {
@@ -69,8 +66,7 @@ class Arrays
 
     template <typename TSource, typename TResult>
         requires(Computable<TResult>)
-    static TResult sum(Slice<TSource> const&         src,
-                       Func<TResult(TSource const&)> mapper)
+    TResult sum(Slice<TSource> const& src, Func<TResult(TSource const&)> mapper)
     {
         TResult result = 0;
         for (usize i = 0; i < src.len(); i++) {
@@ -81,16 +77,15 @@ class Arrays
 
     template <typename TSource, typename TResult>
         requires(Computable<TResult>)
-    static TResult average(Slice<TSource> const&         src,
-                           Func<TResult(TSource const&)> mapper)
+    TResult average(Slice<TSource> const&         src,
+                    Func<TResult(TSource const&)> mapper)
     {
         return sum(src, mapper) / src.len();
     }
 
     template <typename TSource, typename TResult>
         requires(Comparable<TResult>)
-    static TResult max(Slice<TSource> const&         src,
-                       Func<TResult(TSource const&)> mapper)
+    TResult max(Slice<TSource> const& src, Func<TResult(TSource const&)> mapper)
     {
         TResult result = mapper(src[0]);
         for (usize i = 1; i < src.len(); i++) {
@@ -103,8 +98,7 @@ class Arrays
 
     template <typename TSource, typename TResult>
         requires(Comparable<TResult>)
-    static TResult min(Slice<TSource> const&         src,
-                       Func<TResult(TSource const&)> mapper)
+    TResult min(Slice<TSource> const& src, Func<TResult(TSource const&)> mapper)
     {
         TResult result = mapper(src[0]);
         for (usize i = 1; i < src.len(); i++) {
@@ -117,8 +111,8 @@ class Arrays
 
     template <typename TSource, typename TKey>
         requires(Comparable<TKey>)
-    static TSource maxBy(Slice<TSource> const&      src,
-                         Func<TKey(TSource const&)> selector)
+    TSource maxBy(Slice<TSource> const&      src,
+                  Func<TKey(TSource const&)> selector)
     {
         TSource result = src[0];
         TKey    key    = selector(src[0]);
@@ -134,8 +128,8 @@ class Arrays
 
     template <typename TSource, typename TKey>
         requires(Comparable<TKey>)
-    static TSource minBy(Slice<TSource> const&      src,
-                         Func<TKey(TSource const&)> selector)
+    TSource minBy(Slice<TSource> const&      src,
+                  Func<TKey(TSource const&)> selector)
     {
         TSource result = src[0];
         TKey    key    = selector(src[0]);
@@ -151,39 +145,39 @@ class Arrays
 
     template <typename TSource>
         requires(Comparable<TSource>)
-    static Slice<TSource> order(Slice<TSource>& src, bool ascending = true)
+    Slice<TSource> order(Slice<TSource>& src, bool ascending = true)
     {
     }
 
     template <typename TSource, typename TKey>
-    static Slice<TSource> orderBy(Slice<TSource>&            src,
-                                  Func<TKey(TSource const&)> keySelector,
-                                  bool                       ascending)
+    Slice<TSource> orderBy(Slice<TSource>&            src,
+                           Func<TKey(TSource const&)> keySelector,
+                           bool                       ascending)
     {
     }
 
     template <typename TSource>
-    static TSource findFirst(Slice<TSource>& src)
+    TSource findFirst(Slice<TSource>& src)
     {
         MakeAssertion(src.len() > 0, Error::IndexOutOfBounds("Array is empty"));
         return src[0];
     }
 
     template <typename TSource>
-    static TSource findLast(Slice<TSource>& src)
+    TSource findLast(Slice<TSource>& src)
     {
         MakeAssertion(src.len() > 0, Error::IndexOutOfBounds("Array is empty"));
         return src[src.len() - 1];
     }
 
     template <typename TSource>
-    static TSource findAny(Slice<TSource>& src)
+    TSource findAny(Slice<TSource>& src)
     {
     }
 
     template <typename TSource, template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TSource>, TSource>)
-    static TSlice<TSource> take(Slice<TSource>& src, usize n)
+    TSlice<TSource> take(Slice<TSource>& src, usize n)
     {
         MakeAssertion(n <= src.len(),
                       Error::IndexOutOfBounds("Array is too small"));
@@ -195,7 +189,7 @@ class Arrays
 
     template <typename TSource, template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TSource>, TSource>)
-    static TSlice<TSource> take(Slice<TSource>& src, Tuple<usize, usize> range)
+    TSlice<TSource> take(Slice<TSource>& src, Tuple<usize, usize> range)
     {
         usize start = range.v0;
         usize end   = range.v1;
@@ -213,7 +207,7 @@ class Arrays
 
     template <typename TSource, template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TSource>, TSource>)
-    static TSlice<TSource> takeLast(Slice<TSource>& src, usize n)
+    TSlice<TSource> takeLast(Slice<TSource>& src, usize n)
     {
         MakeAssertion(n <= src.len(),
                       Error::IndexOutOfBounds("Array is too small"));
@@ -225,8 +219,8 @@ class Arrays
 
     template <typename TSource, template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TSource>, TSource>)
-    static TSlice<TSource> takeWhile(Slice<TSource>&     src,
-                                     Predicate<TSource&> predicate)
+    TSlice<TSource> takeWhile(Slice<TSource>&     src,
+                              Predicate<TSource&> predicate)
     {
         usize count = 0;
         for (usize i = 0; i < src.len(); i++) {
@@ -244,7 +238,7 @@ class Arrays
     }
 
     template <typename TSource>
-    static TSource& single(Slice<TSource>& src)
+    TSource& single(Slice<TSource>& src)
     {
         MakeAssertion(src.len() == 1,
                       Error::InvalidOperation("Array is not single"));
@@ -252,7 +246,7 @@ class Arrays
     }
 
     template <typename TSource>
-    static TSource& single(Slice<TSource>& src, Predicate<TSource&> predicate)
+    TSource& single(Slice<TSource>& src, Predicate<TSource&> predicate)
     {
         usize index = -1;
         for (usize i = 0; i < src.len(); i++) {
@@ -272,8 +266,7 @@ class Arrays
     }
 
     template <typename TSource>
-    static TSource& singleOrDefault(Slice<TSource>& src,
-                                    TSource const&  defaultValue)
+    TSource& singleOrDefault(Slice<TSource>& src, TSource const& defaultValue)
     {
         MakeAssertion(
             src.len() <= 1,
@@ -283,21 +276,20 @@ class Arrays
 
     template <typename TSource>
         requires(Constructible<TSource>)
-    static TSource& defaultIfEmpty(Slice<TSource>& src,
-                                   TSource const&  defaultValue)
+    TSource& defaultIfEmpty(Slice<TSource>& src, TSource const& defaultValue)
     {
         return src.len() ? src[0] : defaultValue;
     }
 
     template <typename TSource>
-    static TSource& defaultIfEmpty(Slice<TSource>& src)
+    TSource& defaultIfEmpty(Slice<TSource>& src)
     {
         return src.len() ? src[0] : TSource{};
     }
 
     template <typename TSource, template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TSource>, TSource>)
-    static TSlice<TSource> skip(Slice<TSource>& src, usize n)
+    TSlice<TSource> skip(Slice<TSource>& src, usize n)
     {
         MakeAssertion(n <= src.len(),
                       Error::IndexOutOfBounds("Array is too small"));
@@ -310,7 +302,7 @@ class Arrays
 
     template <typename TSource, template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TSource>, TSource>)
-    static TSlice<TSource> skipLast(Slice<TSource>& src, usize n)
+    TSlice<TSource> skipLast(Slice<TSource>& src, usize n)
     {
         MakeAssertion(n <= src.len(),
                       Error::IndexOutOfBounds("Array is too small"));
@@ -323,8 +315,8 @@ class Arrays
 
     template <typename TSource, template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TSource>, TSource>)
-    static TSlice<TSource> skipWhile(Slice<TSource>&     src,
-                                     Predicate<TSource&> predicate)
+    TSlice<TSource> skipWhile(Slice<TSource>&     src,
+                              Predicate<TSource&> predicate)
     {
         usize count = 0;
         for (usize i = 0; i < src.len(); i++) {
@@ -345,8 +337,8 @@ class Arrays
               typename TResult,
               template <typename> typename TSlice = Array>
         requires(Sliceable<TSlice<TResult>, TSource>)
-    static TSlice<TResult> select(Slice<TSource>&         src,
-                                  Func<TResult(TSource&)> selector)
+    TSlice<TResult> select(Slice<TSource>&         src,
+                           Func<TResult(TSource&)> selector)
     {
         TSlice<TResult> result{ new TResult[src.len()], src.len() };
         for (usize i = 0; i < src.len(); i++) {
@@ -356,7 +348,7 @@ class Arrays
     }
 
     template <typename TSource>
-    static bool allMatch(Slice<TSource>& src, Predicate<TSource&> predicate)
+    bool allMatch(Slice<TSource>& src, Predicate<TSource&> predicate)
     {
         for (usize i = 0; i < src.len(); i++) {
             if (!predicate(src[i]))
@@ -366,7 +358,7 @@ class Arrays
     }
 
     template <typename TSource>
-    static bool anyMatch(Slice<TSource>& src, Predicate<TSource&> predicate)
+    bool AnyMatch(Sliceable<TSource> auto& src, Predicate<TSource&> predicate)
     {
         for (usize i = 0; i < src.len(); i++) {
             if (predicate(src[i]))
@@ -376,7 +368,7 @@ class Arrays
     }
 
     template <typename TSource>
-    static bool noneMatch(Slice<TSource>& src, Predicate<TSource&> predicate)
+    bool noneMatch(Slice<TSource>& src, Predicate<TSource&> predicate)
     {
         for (usize i = 0; i < src.len(); i++) {
             if (predicate(src[i]))
@@ -386,10 +378,10 @@ class Arrays
     }
 
     template <typename TSource>
-    static void forEach(Slice<TSource>& src, Action<TSource&> action)
+    void ForEach(Sliceable<TSource> auto& src, Action<TSource&> action)
     {
         for (usize i = 0; i < src.len(); i++) {
             action(src[i]);
         }
     }
-};
+}
