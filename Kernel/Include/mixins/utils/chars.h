@@ -1,42 +1,17 @@
-namespace Chars {
-    bool IsDigit(char c)
-    {
-        return c >= '0' && c <= '9';
-    }
+#pragma once
 
-    bool IsAlpha(char c)
-    {
-        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-    }
+namespace Qk::Chars {
+    bool IsDigit(char c);
 
-    bool IsAlnum(char c)
-    {
-        return IsAlpha(c) || IsDigit(c);
-    }
+    bool IsAlpha(char c);
 
-    bool IsLowerCase(char c)
-    {
-        return c >= 'a' && c <= 'z';
-    }
+    bool IsAlnum(char c);
 
-    bool IsUpperCase(char c)
-    {
-        return c >= 'A' && c <= 'Z';
-    }
+    bool IsLowerCase(char c);
 
-    char ToLowerCase(char c)
-    {
-        if (IsUpperCase(c)) {
-            return c + 32;
-        }
-        return c;
-    }
+    bool IsUpperCase(char c);
 
-    char ToUpperCase(char c)
-    {
-        if (IsLowerCase(c)) {
-            return c - 32;
-        }
-        return c;
-    }
+    char ToLowerCase(char c);
+
+    char ToUpperCase(char c);
 }
