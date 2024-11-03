@@ -1,5 +1,6 @@
 #include <drivers/acpi/device.h>
 #include <mixins/meta/func.h>
+#include <mixins/utils/strings.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
 #include <quark/os/diagnostic/logging.h>
@@ -52,7 +53,7 @@ namespace ACPI {
             case 0:
                 _rsdt = reinterpret_cast<ACPI::RootSystemDescTable*>(
                     Memory::CopyAsIOAddress(_rsdp->_rsdtAddress));
-                log(u8"[ACPI] ACPI Version 1.0\n");
+                info("[ACPI] ACPI Version 1.0");
                 break;
             case 2:
                 _xsdp =
@@ -62,29 +63,28 @@ namespace ACPI {
                     Memory::CopyAsIOAddress(_rsdp->_rsdtAddress));
                 _xsdt = reinterpret_cast<ACPI::ExtendedSystemDescTable*>(
                     Memory::CopyAsIOAddress(_xsdp->_xsdtAddress));
-                log(u8"[ACPI] ACPI Version 2.0 ~ 6.3\n");
+                info("[ACPI] ACPI Version 2.0 ~ 6.3\n");
                 break;
             default:
                 break;
         }
 
-        _madt = FindTable<ACPI::MultiApicDescTable>("APIC").Take();
-        _fadt = FindTable<ACPI::FixedAcpiDescTable>("FACP").Take();
-        _hpet = FindTable<ACPI::HighPrecisionEventTable>("HPET").Take();
-        _mcfg = FindTable<ACPI::PCIExpressSpecTable>("MCFG").Take();
+        _madt = FindTable<ACPI::MultiApicDescTable>("APIC");
+        _fadt = FindTable<ACPI::FixedAcpiDescTable>("FACP");
+        _hpet = FindTable<ACPI::HighPrecisionEventTable>("HPET");
+        _mcfg = FindTable<ACPI::PCIExpressSpecTable>("MCFG");
 
         return Ok();
     }
 
-    Optional<ACPI::TableHeader*> ControllerDevice::FindTableBase(
-        StringView name, //
-        unsigned   index)
+    ACPI::TableHeader* ControllerDevice::FindTableBase(Qk::StringView name, //
+                                                       unsigned       index)
     {
         if (!_rsdp) {
-            return Empty();
+            return nullptr;
         }
 
-        if (name == u8"DSDT") {
+        if (name == "DSDT") {
             return (ACPI::TableHeader*)Memory::CopyAsIOAddress(_fadt->_dsdt);
         }
 
@@ -99,11 +99,16 @@ namespace ACPI {
             ACPI::TableHeader* table =
                 (ACPI::TableHeader*)Memory::CopyAsIOAddress(ent);
 
-            if (name.Equals(table->_signature) && (_index++ == index)) {
+            if (Qk::Strings::Equals(table->_signature, name) &&
+                (_index++ == index)) {
+                info$("Found ACPI Table: {}, at {#X}", name, ent);
+
                 // Perhaps check the checksum here
                 return table;
             }
         }
-        return Empty();
+
+        warn$("ACPI Table not found: {}", name);
+        return nullptr;
     }
 } // namespace Quark::System::Hal

@@ -12,8 +12,7 @@ namespace CMOS {
                 .Select<ACPI::FixedAcpiDescTable*>(
                     [](ACPI::ControllerDevice* acpi) {
                         return acpi ? acpi->FindTable<ACPI::FixedAcpiDescTable>(
-                                              "FADT")
-                                          .Take()
+                                          "FADT")
                                     : nullptr;
                     })
                 .Take();
