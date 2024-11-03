@@ -9,9 +9,10 @@ namespace Std {
 
 namespace Type {
     template <typename T>
-    static constexpr StringView GetName()
+    static constexpr Qk::StringView GetName()
     {
-        StringView name = __PRETTY_FUNCTION__;
-        return Strings::Substring(name, Strings::IndexOf(name, "T = ") + 4);
+        Qk::StringView name = __PRETTY_FUNCTION__;
+        return Qk::Strings::Substring(name,
+                                      Qk::Strings::IndexOf(name, "T = ") + 4);
     }
 }

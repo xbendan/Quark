@@ -69,12 +69,12 @@ namespace Quark::System::Task {
         return new ThreadEx(process);
     }
 
-    Thread* ProcessFactory::CreateThreadEx(Process*      process,
-                                           u8            priority,
-                                           const string& name,
-                                           const string& description,
-                                           const string& command,
-                                           const string& arguments)
+    Thread* ProcessFactory::CreateThreadEx(Process*       process,
+                                           u8             priority,
+                                           Qk::StringView name,
+                                           Qk::StringView description,
+                                           Qk::StringView command,
+                                           Qk::StringView arguments)
     {
         // TODO: Implement this
         return nullptr;

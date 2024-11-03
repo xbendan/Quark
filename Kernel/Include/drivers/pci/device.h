@@ -18,7 +18,7 @@ namespace PCI {
         PCIDevice(u8 bus, u8 slot, u8 func, u16 vendorID, u16 deviceID);
         PCIDevice(PCIInfo& info);
 
-        PCIDevice(PCIInfo& info, String name, Type type)
+        PCIDevice(PCIInfo& info, Qk::StringView name, Type type)
             : PCIInfo(info)
             , Io::Device(name, type)
         {
