@@ -18,7 +18,7 @@ namespace Qk {
         always_inline constexpr _StringView(Unit const* buf)
             requires(SameAs<Unit, char>)
             : _buf(buf)
-            , _len(strlen(buf))
+            , _len(strnlen(buf, 512))
         {
         }
 

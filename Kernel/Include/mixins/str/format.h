@@ -512,7 +512,7 @@ namespace Qk {
     {
         Res<usize> format(TextWriter& writer, const char* val)
         {
-            StringView sv(val, strlen(val));
+            StringView sv(val, strnlen(val, 512));
             return StringFormatter<Encoding::UTF8>::format(writer, sv);
         }
     };
