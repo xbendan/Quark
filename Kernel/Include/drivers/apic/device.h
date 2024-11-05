@@ -2,7 +2,7 @@
 
 #include <drivers/acpi/spec.h>
 #include <drivers/apic/spec.h>
-#include <mixins/utils/linked_list.h>
+#include <mixins/utils/list.h>
 #include <quark/dev/device.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/memory/address_space.h>
@@ -10,6 +10,7 @@
 namespace APIC {
     using namespace Quark::System;
     using namespace Quark::System::Hal;
+    using Qk::List;
 
     class GenericControllerDevice : public Io::Device
     {
@@ -20,7 +21,7 @@ namespace APIC {
                   GenericControllerDevice* apic,
                   ICPULocalDevice*         device)
                 : _apicId(apicId)
-                , _basePhys(apic->localBaseRead() & LOCAL_APIC_BASE)
+                , _basePhys(apic->ReadBase() & LOCAL_APIC_BASE)
                 , _baseVirt(Memory::CopyAsIOAddress(_basePhys))
                 , _device(device)
             {
@@ -32,8 +33,8 @@ namespace APIC {
             u32  RegRead(u32 reg);
 
             void Enable();
-            void CallIPI(u32 vec);
-            void CallIPI(u32 dsh, u32 type, u8 vector);
+            void SendIPI(u32 vec);
+            void SendIPI(u32 dsh, u32 type, u8 vector);
 
             u8               _apicId;
             u64              _basePhys;
@@ -45,22 +46,27 @@ namespace APIC {
         ~GenericControllerDevice() = default;
 
         /* --- Methods --- */
-        void ioRegWrite32(u32 reg, u32 data);
-        u32  ioRegRead32(u32 reg);
-        void ioRegWrite64(u32 reg, u64 data);
-        u64  ioRegRead64(u32 reg);
-        void ioRedTblWrite(u32 index, u64 data);
-        u64  ioRedTblRead(u32 index);
+        void WriteReg32(u32 reg, u32 data);
+        u32  ReadReg32(u32 reg);
+        void WriteReg64(u32 reg, u64 data);
+        u64  ReadReg64(u32 reg);
+        void WriteRedTbl(u32 index, u64 data);
+        u64  ReadRedTbl(u32 index);
 
-        void localBaseWrite(u64 data);
-        u64  localBaseRead();
-        void localRegWrite(u32 reg, u32 data);
-        u32  localRegRead(u32 reg);
+        void WriteBase(u64 data);
+        u64  ReadBase();
+        void WriteRegLoc(u32 reg, u32 data);
+        u32  ReadRegLoc(u32 reg);
 
-        LinkedList<Local*>* GetAPICLocals() const { return m_units; }
-        Local*              GetAPICLocal(u8 id) { return (*m_units)[id]; }
+        List<Local*>* GetApicLocals() const { return m_units; }
+        Local*        GetApicLocal(u8 id) { return (*m_units)[id]; }
+
+        void SendIPI(u8 dest, u32 dsh, u32 type, u8 vector);
 
         Res<> OnInitialize() override;
+
+        static inline const char* Name =
+            "Advanced Programmable Interrupt Controller";
 
     private:
         u64           m_ioBasePhys;
@@ -69,8 +75,7 @@ namespace APIC {
         volatile u32* m_ioRegSel;
         volatile u32* m_ioWindow;
 
-        LinkedList<Local*>* m_units;
-        LinkedList<ACPI::MultiApicDescTable::InterruptServiceOverride*>*
-            m_overrides;
+        List<Local*>*                                m_units;
+        List<ACPI::MADT::InterruptServiceOverride*>* m_overrides;
     };
 } // namespace Quark::System::Hal
