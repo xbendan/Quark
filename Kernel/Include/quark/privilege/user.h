@@ -1,11 +1,12 @@
 #pragma once
 
 #include <mixins/str/string.h>
-#include <mixins/utils/array_list.h>
 #include <mixins/utils/date.h>
+#include <mixins/utils/list.h>
 #include <mixins/utils/uuid.h>
 
 namespace Quark::System::Privilege {
+    using Qk::List;
 
     enum class Level
     {
@@ -62,7 +63,7 @@ namespace Quark::System::Privilege {
         UserGroup(Qk::StringView name, Level level)
             : m_name(name)
             , m_level(level)
-            , m_users(ArrayList<UserAccount>())
+            , m_users(List<UserAccount>())
         {
         }
 
@@ -72,8 +73,8 @@ namespace Quark::System::Privilege {
         }
 
     private:
-        Qk::StringView         m_name;
-        Level                  m_level;
-        ArrayList<UserAccount> m_users{};
+        Qk::StringView    m_name;
+        Level             m_level;
+        List<UserAccount> m_users{};
     };
 }

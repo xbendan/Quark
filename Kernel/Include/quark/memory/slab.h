@@ -1,6 +1,5 @@
 #include <mixins/concurrent/spinlock.h>
 #include <mixins/str/string.h>
-#include <mixins/utils/linked_list.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/memory/page.h>
 #include <quark/memory/page_alloc.h>

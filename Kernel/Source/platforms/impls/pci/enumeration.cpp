@@ -1,8 +1,9 @@
 #include <drivers/acpi/device.h>
 #include <drivers/pci/enumeration.h>
-#include <mixins/utils/array_list.h>
 
 namespace PCI {
+    using Qk::List;
+
     PCIEnumerationDevice::PCIEnumerationDevice()
         : Io::EnumerationDevice("PCI Device Enumerator")
         , m_enhancedBaseAddressList()
@@ -28,19 +29,19 @@ namespace PCI {
         return Ok();
     }
 
-    ICollection<Io::Device*>* PCIEnumerationDevice::EnumerateDevices()
+    List<Io::Device*>* PCIEnumerationDevice::EnumerateDevices()
     {
-        ArrayList<Io::Device*>* devices = new ArrayList<Io::Device*>();
+        List<Io::Device*>* devices = new List<Io::Device*>();
         for (u16 i = 0; i < 256; i++) {
             for (u16 j = 0; j < 32; j++) {
                 if (CheckDevice(i, j, 0)) {
                     PCIInfo info(i, j, 0);
-                    devices->Add(new PCI::PCIDevice(info));
+                    devices->PushBack(new PCI::PCIDevice(info));
 
                     if (info.Read<>(PCI::ConfigRegs::HeaderType) & 0x80) {
                         for (int k = 1; k < 8; k++) { // Func
                             if (CheckDevice(i, j, k)) {
-                                devices->Add(new PCI::PCIDevice(i, j, k));
+                                devices->PushBack(new PCI::PCIDevice(i, j, k));
                             }
                         }
                     }

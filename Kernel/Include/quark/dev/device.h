@@ -6,9 +6,12 @@
 #include <mixins/utils/array.h>
 #include <mixins/utils/uuid.h>
 
-#include <mixins/utils/linked_list.h>
+#include <mixins/utils/list.h>
 
 namespace Quark::System::Io {
+    using Qk::List;
+    using Qk::StringView;
+
     class Device
     {
     public:
@@ -40,19 +43,19 @@ namespace Quark::System::Io {
             Unknown
         };
 
-        Device(Qk::StringView name)
+        Device(StringView name)
             : Device(name, UUID::FromName(name), Type::Unknown)
         {
             // _uuid = UUID::generate();
         }
 
-        Device(Qk::StringView name, Type deviceType)
+        Device(StringView name, Type deviceType)
             : Device(name, UUID::FromName(name), deviceType)
         {
             // _uuid = UUID::generate();
         }
 
-        Device(Qk::StringView name, UUID uuid, Type deviceType)
+        Device(StringView name, UUID uuid, Type deviceType)
             : m_name(name)
             , m_uniqueId(uuid)
             , m_deviceType(deviceType)
@@ -94,17 +97,17 @@ namespace Quark::System::Io {
          */
         virtual Res<> OnShutdown() { return Ok(); }
 
-        Qk::StringView GetName() const { return m_name; }
+        StringView GetName() const { return m_name; }
 
         UUID GetUniqueId() const { return m_uniqueId; }
 
         Type GetType() const { return m_deviceType; }
 
-        static Opt<Device*> FindByName(Qk::StringView name);
+        static Opt<Device*> FindByName(StringView name);
 
         template <typename T>
             requires Std::isDerived<Device, T>
-        static Opt<T*> FindByName(Qk::StringView name)
+        static Opt<T*> FindByName(StringView name)
         {
             auto device = FindByName(name);
             if (device.IsPresent()) {
@@ -122,24 +125,24 @@ namespace Quark::System::Io {
         static Res<>           Rescan();
 
     protected:
-        Qk::StringView m_name;
-        UUID           m_uniqueId;
-        Type           m_deviceType;
-        bool           m_isStarted;
+        StringView m_name;
+        UUID       m_uniqueId;
+        Type       m_deviceType;
+        bool       m_isStarted;
 
-        static inline LinkedList<Device*> Devices;
+        static inline List<Device*> Devices;
     };
 
     class EnumerationDevice : public Device
     {
     public:
-        EnumerationDevice(Qk::StringView name)
+        EnumerationDevice(StringView name)
             : Device(name, Type::SystemDevices)
         {
         }
         ~EnumerationDevice() = default;
 
-        virtual ICollection<Device*>* EnumerateDevices() = 0;
+        virtual List<Device*>* EnumerateDevices() = 0;
     };
 }
 

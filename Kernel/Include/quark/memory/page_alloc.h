@@ -3,7 +3,7 @@
 #include <mixins/meta/opt.h>
 #include <mixins/meta/result.h>
 #include <mixins/utils/array.h>
-#include <mixins/utils/linked_queue.h>
+#include <mixins/utils/queue.h>
 #include <quark/hal/pmm.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>

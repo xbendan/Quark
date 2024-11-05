@@ -1,8 +1,9 @@
 #include <mixins/io/traits.h>
-#include <mixins/utils/array_list.h>
 #include <quark/os/diagnostic/logging.h>
 
 namespace Quark::System::Diagnostic {
+    using Qk::StringView;
+
     LoggerTextWriter _LoggerWriter;
 
     LoggerTextWriter::LoggerTextWriter(Qk::TextWriter* _default)
@@ -25,7 +26,7 @@ namespace Quark::System::Diagnostic {
         return bytes.len();
     }
 
-    usize LoggerTextWriter::writeStr(Qk::StringView str)
+    usize LoggerTextWriter::writeStr(StringView str)
     {
         m_builder.append(str);
         return str.len();
@@ -39,7 +40,7 @@ namespace Quark::System::Diagnostic {
 
     usize LoggerTextWriter::flush()
     {
-        Qk::StringView view = m_builder.getStringView();
+        StringView view = m_builder.getStringView();
         for (auto* listener : m_listeners) {
             listener->writeStr(view);
             listener->flush();
