@@ -6,5 +6,5 @@
 namespace Quark::System {
     constexpr u8          OsVersionMajor = 1;
     constexpr u8          OsVersionMinor = 0;
-    constexpr const char* OsVersionPatchId = "53f3b7e";
+    constexpr const char* OsVersionPatchId = "1eeee31";
 }
