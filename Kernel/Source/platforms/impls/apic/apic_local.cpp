@@ -16,7 +16,7 @@ namespace APIC {
         RegWrite(LOCAL_APIC_SIVR, 0x1FF);
     }
 
-    void GenericControllerDevice::Local::CallIPI(u32 vec)
+    void GenericControllerDevice::Local::SendIPI(u32 vec)
     {
         RegWrite(LOCAL_APIC_ICR_HIGH, ((u32)_apicId) << 24);
         RegWrite(LOCAL_APIC_ICR_LOW, vec);
@@ -25,8 +25,8 @@ namespace APIC {
             ;
     }
 
-    void GenericControllerDevice::Local::CallIPI(u32 dsh, u32 type, u8 vector)
+    void GenericControllerDevice::Local::SendIPI(u32 dsh, u32 type, u8 vector)
     {
-        CallIPI(dsh | type | ICR_VECTOR(vector));
+        SendIPI(dsh | type | ICR_VECTOR(vector));
     }
 } // namespace Quark::System::Hal

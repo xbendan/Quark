@@ -13,7 +13,7 @@ namespace ACPI {
     static const char* _signature = "RSD PTR ";
 
     ControllerDevice::ControllerDevice()
-        : Device("ACPI Management Device", Type::SystemDevices)
+        : Device(Name, Type::SystemDevices)
     {
     }
 
@@ -36,7 +36,7 @@ namespace ACPI {
         if (!address) {
             return Error::DeviceFault("ACPI RSDP not found");
         } else {
-            _rsdp = (ACPI::RootSystemDescPointer*)address;
+            TblRsdp = (ACPI::RootSystemDescPointer*)address;
         }
 
         /*
@@ -49,30 +49,30 @@ namespace ACPI {
             If non of them above matches the revision, call kernel panic
             because there shouldn't be any exceptions.
          */
-        switch (_rsdp->_revision) {
+        switch (TblRsdp->_revision) {
             case 0:
-                _rsdt = reinterpret_cast<ACPI::RootSystemDescTable*>(
-                    Memory::CopyAsIOAddress(_rsdp->_rsdtAddress));
+                TblRsdt = reinterpret_cast<ACPI::RootSystemDescTable*>(
+                    Memory::CopyAsIOAddress(TblRsdp->_rsdtAddress));
                 info("[ACPI] ACPI Version 1.0");
                 break;
             case 2:
-                _xsdp =
-                    reinterpret_cast<ACPI::ExtendedSystemDescPointer*>(_rsdp);
+                TblXsdp =
+                    reinterpret_cast<ACPI::ExtendedSystemDescPointer*>(TblRsdp);
 
-                _rsdt = reinterpret_cast<ACPI::RootSystemDescTable*>(
-                    Memory::CopyAsIOAddress(_rsdp->_rsdtAddress));
-                _xsdt = reinterpret_cast<ACPI::ExtendedSystemDescTable*>(
-                    Memory::CopyAsIOAddress(_xsdp->_xsdtAddress));
+                TblRsdt = reinterpret_cast<ACPI::RootSystemDescTable*>(
+                    Memory::CopyAsIOAddress(TblRsdp->_rsdtAddress));
+                TblXsdt = reinterpret_cast<ACPI::ExtendedSystemDescTable*>(
+                    Memory::CopyAsIOAddress(TblXsdp->_xsdtAddress));
                 info("[ACPI] ACPI Version 2.0 ~ 6.3\n");
                 break;
             default:
                 break;
         }
 
-        _madt = FindTable<ACPI::MultiApicDescTable>("APIC");
-        _fadt = FindTable<ACPI::FixedAcpiDescTable>("FACP");
-        _hpet = FindTable<ACPI::HighPrecisionEventTable>("HPET");
-        _mcfg = FindTable<ACPI::PCIExpressSpecTable>("MCFG");
+        TblMadt = FindTable<ACPI::MultiApicDescTable>("APIC");
+        TblFadt = FindTable<ACPI::FixedAcpiDescTable>("FACP");
+        TblHpet = FindTable<ACPI::HighPrecisionEventTable>("HPET");
+        TblMcfg = FindTable<ACPI::PCIExpressSpecTable>("MCFG");
 
         return Ok();
     }
@@ -80,28 +80,28 @@ namespace ACPI {
     ACPI::TableHeader* ControllerDevice::FindTableBase(Qk::StringView name, //
                                                        unsigned       index)
     {
-        if (!_rsdp) {
+        if (!TblRsdp) {
             return nullptr;
         }
 
         if (name == "DSDT") {
-            return (ACPI::TableHeader*)Memory::CopyAsIOAddress(_fadt->_dsdt);
+            return (ACPI::TableHeader*)Memory::CopyAsIOAddress(TblFadt->_dsdt);
         }
 
         u64 entries =
-            _rsdp->_revision
-                ? (_xsdt->_length - sizeof(ACPI::TableHeader) / sizeof(u64))
-                : (_rsdt->_length - sizeof(ACPI::TableHeader) / sizeof(u32));
+            TblRsdp->_revision
+                ? (TblXsdt->_length - sizeof(ACPI::TableHeader) / sizeof(u64))
+                : (TblRsdt->_length - sizeof(ACPI::TableHeader) / sizeof(u32));
         usize _index = 0;
         for (int i = 0; i < entries; i++) {
-            u64 ent =
-                _rsdp->_revision ? _xsdt->_pointers[i] : _rsdt->_pointers[i];
+            u64                ent = TblRsdp->_revision ? TblXsdt->_pointers[i]
+                                                        : TblRsdt->_pointers[i];
             ACPI::TableHeader* table =
                 (ACPI::TableHeader*)Memory::CopyAsIOAddress(ent);
 
             if (Qk::Strings::Equals(table->_signature, name) &&
                 (_index++ == index)) {
-                info$("Found ACPI Table: {}, at {#X}", name, ent);
+                info$("ACPI Table found: {}, at {#X}", name, ent);
 
                 // Perhaps check the checksum here
                 return table;

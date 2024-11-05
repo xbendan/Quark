@@ -7,16 +7,14 @@ namespace CMOS {
 
     Res<> RealTimeClockDevice::OnInitialize()
     {
-        auto* fadt =
-            Device::FindByName<ACPI::ControllerDevice>("ACPI Management Device")
-                .Select<ACPI::FixedAcpiDescTable*>(
-                    [](ACPI::ControllerDevice* acpi) {
-                        return acpi ? acpi->FindTable<ACPI::FixedAcpiDescTable>(
-                                          "FADT")
-                                    : nullptr;
-                    })
-                .Take();
-        MakeAssertion(fadt);
+        auto* fadt = Device::FindByName<ACPI::ControllerDevice>(
+                         ACPI::ControllerDevice::Name)
+                         .Select<ACPI::FixedAcpiDescTable*>(
+                             [](ACPI::ControllerDevice* acpi) {
+                                 return acpi ? acpi->TblFadt : nullptr;
+                             })
+                         .Take();
+        assert(fadt != nullptr);
 
         m_centuryRegsiter = fadt->_century;
         // TODO: Log
@@ -90,6 +88,18 @@ namespace CMOS {
     void RealTimeClockDevice::SleepNanos(u64 ms) {}
 
     void RealTimeClockDevice::SleepUntil(Date date) {}
+
+    Res<TimerAlarm> RealTimeClockDevice::CreateAlarm(Date         date,
+                                                     Func<void()> func)
+    {
+        return Error::NotImplemented();
+    }
+
+    Res<TimerAlarm> RealTimeClockDevice::CreateAlarm(TimeSpan     span,
+                                                     Func<void()> func)
+    {
+        return Error::NotImplemented();
+    }
 
     Date RealTimeClockDevice::GetToday()
     {
