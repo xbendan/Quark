@@ -2,10 +2,12 @@
 #include <mixins/utils/rbtree.h>
 #include <mixins/utils/strings.h>
 #include <quark/dev/device.h>
+#include <quark/os/diagnostic/logging.h>
 
-#include <mixins/utils/linked_list.h>
+#include <mixins/utils/list.h>
 
 namespace Quark::System::Io {
+    using namespace Quark::System::Diagnostic;
     // RbTree<string, Device*> devices;
     // LinkedList<Device*> Devices;
 
@@ -40,10 +42,11 @@ namespace Quark::System::Io {
         if (!device || device->m_name.isEmpty() || device->m_uniqueId.IsNull())
             return Error::InvalidArgument("Device name or UUID is invalid");
 
+        info$("Loading device: {}", device->GetName());
         // devices.PutIfAbsent(device->GetName(), device);
         // 实现加载设备的方法
         // 将设备添加到设备表中
-        Devices.Add(device);
+        Devices.PushBack(device);
         return Ok();
     }
 

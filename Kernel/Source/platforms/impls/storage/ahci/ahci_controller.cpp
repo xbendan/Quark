@@ -52,7 +52,7 @@ namespace AHCI {
                         // Initializing failed, delete the disk
                         delete disk;
                     } else
-                        m_diskList.pushBack(disk);
+                        m_diskList.PushBack(disk);
                     break;
                 }
             }

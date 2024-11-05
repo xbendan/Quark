@@ -2,9 +2,11 @@
 
 #include <drivers/acpi/spec.h>
 #include <drivers/pci/device.h>
-#include <mixins/utils/linked_list.h>
+#include <mixins/utils/list.h>
 
 namespace PCI {
+    using Qk::List;
+
     class PCIEnumerationDevice : public Io::EnumerationDevice
     {
     public:
@@ -14,7 +16,7 @@ namespace PCI {
 
         Res<> OnInitialize() override;
 
-        ICollection<Io::Device*>* EnumerateDevices() override;
+        List<Io::Device*>* EnumerateDevices() override;
 
         bool         CheckDevice(u8 bus, u8 slot, u8 func);
         bool         CheckDevice(PCIInfo& info);
@@ -24,8 +26,8 @@ namespace PCI {
         Opt<Device*> GetDevice(u8 classCode, u8 subclassCode);
 
     private:
-        ICollection<Io::Device*>* m_devices;
-        LinkedList<ACPI::PCIExpressSpecTable::AddressPacket*>
+        List<Io::Device*>* m_devices;
+        List<ACPI::PCIExpressSpecTable::AddressPacket*>
                                    m_enhancedBaseAddressList;
         ConfigAccessMode           m_accessMode;
         ACPI::PCIExpressSpecTable* m_pciExpressTable;

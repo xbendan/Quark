@@ -29,9 +29,8 @@ namespace Quark::System::Task {
     private:
         Scheduler() = delete;
 
-        static inline PidNamespace                        m_pidNamespace{};
-        static inline ICollection<Hal::ICPULocalDevice*>* m_devices;
-        static inline ArrayList<Process*>                 m_processes{};
-        static inline u32                                 m_nextPID{ 0 };
+        static inline PidNamespace                 m_pidNamespace{};
+        static inline List<Hal::ICPULocalDevice*>* m_devices;
+        static inline u32                          m_nextPID{ 0 };
     };
 } // namespace Quark::System::Task

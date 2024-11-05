@@ -16,7 +16,7 @@ namespace Quark::System::Task {
         , _mainThread(ProcessFactory::CreateThread(this))
         , m_childrenThreadList()
     {
-        m_childrenThreadList.Add(_mainThread);
+        m_childrenThreadList.PushBack(_mainThread);
     }
 
     Process::~Process() {}

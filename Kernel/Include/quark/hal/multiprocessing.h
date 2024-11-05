@@ -2,10 +2,14 @@
 
 #include <mixins/meta/result.h>
 #include <mixins/utils/collections.h>
+#include <mixins/utils/queue.h>
 #include <quark/dev/device.h>
 #include <quark/sched/thread.h>
 
 namespace Quark::System::Hal {
+    using Qk::List;
+    using Qk::Queue;
+
     enum class Signal
     {
         INIT    = 0,
@@ -29,10 +33,10 @@ namespace Quark::System::Hal {
 
         virtual void SendSignal(Signal signal, u32 data = 0);
 
-        IQueue<Task::Thread*>* _threadQueue;
+        Queue<Task::Thread*>* _threadQueue;
     };
 
-    Res<ICollection<ICPULocalDevice*>*> SetupMultiprocessing();
+    Res<List<ICPULocalDevice*>*> SetupMultiprocessing();
 
     ICPULocalDevice* GetCPULocal(u32 id);
     ICPULocalDevice* GetCPULocal();

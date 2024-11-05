@@ -1,7 +1,6 @@
 #include <drivers/apic/device.h>
 #include <mixins/meta/inert.h>
 #include <mixins/std/c++types.h>
-#include <mixins/utils/array_list.h>
 #include <platforms/x86_64/cpu.h>
 #include <platforms/x86_64/sched.h>
 #include <platforms/x86_64/smp_define.inc>
@@ -62,7 +61,7 @@ namespace Quark::System::Platform::X64 {
         Device::FindByName<APIC::GenericControllerDevice>(
             "Advanced Programmable Interrupt Controller")
             .Get()
-            ->GetAPICLocal(cpuID)
+            ->GetApicLocal(cpuID)
             ->Enable();
 
         asm volatile("sti");
@@ -75,26 +74,27 @@ namespace Quark::System::Platform::X64 {
 
 namespace Quark::System::Hal {
     using namespace Quark::System::Platform::X64;
+    using Qk::List;
 
-    IList<ICPULocalDevice*>* _cpuLocals = nullptr;
+    List<ICPULocalDevice*>* _cpuLocals = nullptr;
 
-    Res<ICollection<ICPULocalDevice*>*> SetupMultiprocessing()
+    Res<List<ICPULocalDevice*>*> SetupMultiprocessing()
     {
         auto* apic = Device::FindByName<APIC::GenericControllerDevice>(
                          "Advanced Programmable Interrupt Controller")
                          .Take();
-        MakeAssertion(apic != nullptr,
-                      "Multi processing feature requires APIC device");
+        assert(apic != nullptr,
+               "Multi processing feature requires APIC device");
 
-        MakeAssertion(_cpuLocals == nullptr,
-                      "Do not call SetupMultiprocessing() more than once");
-        _cpuLocals = apic->GetAPICLocals()->Select<ICPULocalDevice*>(
+        assert(_cpuLocals == nullptr,
+               "Do not call SetupMultiprocessing() more than once");
+        _cpuLocals = apic->GetApicLocals()->Select<ICPULocalDevice*>(
             [](APIC::GenericControllerDevice::Local* const& apicLocal) {
                 return apicLocal->_device;
             });
 
         (*_cpuLocals)[0] = &(kCPULocal.unwrap());
-        apic->GetAPICLocals()->ForEach(
+        apic->GetApicLocals()->ForEach(
             [&](APIC::GenericControllerDevice::Local* apicLocal) {
                 if (apicLocal->_apicId == 0)
                     return;
@@ -117,11 +117,11 @@ namespace Quark::System::Hal {
                              :
                              : "rax");
 
-                apicLocal->CallIPI(ICR_DSH_DEST, ICR_MESSAGE_TYPE_INIT, 0);
+                apicLocal->SendIPI(ICR_DSH_DEST, ICR_MESSAGE_TYPE_INIT, 0);
                 Task::Delay(50);
 
                 while (*MagicValue != 0xB33F) {
-                    apicLocal->CallIPI(ICR_DSH_DEST,
+                    apicLocal->SendIPI(ICR_DSH_DEST,
                                        ICR_MESSAGE_TYPE_STARTUP,
                                        (SMP_TRAMPOLINE_ENTRY >> 12));
                     Task::Delay(200);
@@ -133,7 +133,7 @@ namespace Quark::System::Hal {
                 DoneInit = false;
             });
 
-        return Ok((ICollection<ICPULocalDevice*>*)_cpuLocals);
+        return Ok(_cpuLocals);
     }
 
     ICPULocalDevice* GetCPULocal(u32 id)

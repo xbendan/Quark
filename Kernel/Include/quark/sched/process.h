@@ -3,8 +3,7 @@
 #include <mixins/meta/ref.h>
 #include <mixins/std/c++types.h>
 #include <mixins/str/string.h>
-#include <mixins/utils/array_list.h>
-#include <mixins/utils/linked_list.h>
+#include <mixins/utils/list.h>
 #include <quark/fs/file.h>
 #include <quark/memory/address_space.h>
 #include <quark/sched/thread.h>
@@ -12,6 +11,7 @@
 namespace Quark::System::Task {
     using namespace Quark::System::Memory;
     using namespace Quark::System::Io::FileSystem;
+    using Qk::List;
 
     class Process
     {
@@ -58,7 +58,7 @@ namespace Quark::System::Task {
         static RefPtr<Process>      GetProcessById(u16 id);
 
     private:
-        LinkedList<Thread*> m_childrenThreadList;
+        List<Thread*> m_childrenThreadList;
 
         u64 m_entryPoint;
         u64 m_memHeap;

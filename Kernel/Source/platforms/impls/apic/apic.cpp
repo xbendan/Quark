@@ -10,10 +10,9 @@ namespace APIC {
     using namespace Quark::System::Diagnostic;
 
     GenericControllerDevice::GenericControllerDevice()
-        : Device("Advanced Programmable Interrupt Controller",
-                 Type::SystemDevices)
-        , m_units(new LinkedList<Local*>())
-        , m_overrides(new LinkedList<ACPI::MADT::InterruptServiceOverride*>())
+        : Device(Name, Type::SystemDevices)
+        , m_units(new List<Local*>())
+        , m_overrides(new List<ACPI::MADT::InterruptServiceOverride*>())
     {
     }
 
@@ -47,11 +46,11 @@ namespace APIC {
                             apicLocal->_processorId, nullptr);
                         Device::Load(device);
 
-                        m_units->pushBack(
+                        m_units->PushBack(
                             new Local(apicLocal->_apicId, this, device));
                         info$(
                             "[APIC] Local APIC, Processor ID: {}, APIC ID: {}, "
-                            "Flags: {}",
+                            "Flags: {#b}",
                             apicLocal->_processorId,
                             apicLocal->_apicId,
                             apicLocal->_flags);
@@ -63,11 +62,11 @@ namespace APIC {
                         static_cast<ACPI::MultiApicDescTable::IoApic*>(entry);
                     if (!apicIo->_gSiB) {
                         m_ioBasePhys = apicIo->_address;
-                        info$("[APIC] I/O APIC, ID: {}, Address: {#x}, Global "
-                              "System Interrupt Base: {}",
-                              apicIo->_apicId,
-                              apicIo->_address,
-                              apicIo->_gSiB);
+                        info$(
+                            "[APIC] I/O APIC, ID: {}, Address: {#X}, gSiB: {}",
+                            apicIo->_apicId,
+                            apicIo->_address,
+                            apicIo->_gSiB);
                     }
                     break;
                 }
@@ -75,9 +74,9 @@ namespace APIC {
                     ACPI::MultiApicDescTable::InterruptServiceOverride* iso =
                         static_cast<ACPI::MultiApicDescTable::
                                         InterruptServiceOverride*>(entry);
-                    m_overrides->pushBack(iso);
-                    info$("[APIC] Interrupt Service Override, Bus={}, "
-                          "IRQ={}, gSI={}",
+                    m_overrides->PushBack(iso);
+                    info$("[APIC] Interrupt Service Override, Bus: {}, "
+                          "IRQ: {}, gSi: {}",
                           iso->_busSource,
                           iso->_irqSource,
                           iso->_gSi);
@@ -89,9 +88,10 @@ namespace APIC {
                         static_cast<
                             ACPI::MultiApicDescTable::NonMaskableInterrupt*>(
                             entry);
-                    info$("[APIC] NMI Source: {}, Global System Interrupt: {}",
+                    info$("[APIC] NMI Source: {}, Flags: {}, LINT: {}",
                           nmi->_processorId,
-                          nmi->_type);
+                          nmi->_flags,
+                          nmi->_lInt);
                     break;
                 }
                 case 0x04: /* Local APIC Non-maskable Interrupt */ {
@@ -140,14 +140,14 @@ namespace APIC {
         }
 
         if (!m_ioBasePhys) {
-            // TODO: log
+            warn("[APIC] No I/O APIC found");
             return Error::DeviceFault("No I/O APIC found");
         }
 
         m_ioBaseVirt = Memory::CopyAsIOAddress(m_ioBasePhys);
         m_ioRegSel   = (u32*)(m_ioBaseVirt + IO_APIC_REGSEL);
         m_ioWindow   = (u32*)(m_ioBaseVirt + IO_APIC_WIN);
-        m_interrupts = ioRegRead32(IO_APIC_REGISTER_VER) >> 16;
+        m_interrupts = ReadReg32(IO_APIC_REGISTER_VER) >> 16;
 
         if (Platform::X64::rdmsr(MSR_APIC_BASE) != 0) {
         }
@@ -155,59 +155,59 @@ namespace APIC {
         return Ok();
     }
 
-    void GenericControllerDevice::ioRegWrite32(u32 reg, u32 data)
+    void GenericControllerDevice::WriteReg32(u32 reg, u32 data)
     {
         *m_ioRegSel = reg;
         *m_ioWindow = data;
     }
 
-    u32 GenericControllerDevice::ioRegRead32(u32 reg)
+    u32 GenericControllerDevice::ReadReg32(u32 reg)
     {
         *m_ioRegSel = reg;
         return *m_ioWindow;
     }
 
-    void GenericControllerDevice::ioRegWrite64(u32 reg, u64 data)
+    void GenericControllerDevice::WriteReg64(u32 reg, u64 data)
     {
         u32 low = data & 0xFFFFFFFF, high = data >> 32;
 
-        ioRegWrite32(reg, low);
-        ioRegWrite32(reg + 1, high);
+        WriteReg32(reg, low);
+        WriteReg32(reg + 1, high);
     }
 
-    u64 GenericControllerDevice::ioRegRead64(u32 reg)
+    u64 GenericControllerDevice::ReadReg64(u32 reg)
     {
-        u32 low = ioRegRead32(reg), high = ioRegRead32(reg + 1);
+        u32 low = ReadReg32(reg), high = ReadReg32(reg + 1);
 
         return (u64)high << 32 | low;
     }
 
-    void GenericControllerDevice::ioRedTblWrite(u32 index, u64 data)
+    void GenericControllerDevice::WriteRedTbl(u32 index, u64 data)
     {
-        ioRegWrite64(IO_APIC_RED_TABLE_ENT(index), data);
+        WriteReg64(IO_APIC_RED_TABLE_ENT(index), data);
     }
 
-    u64 GenericControllerDevice::ioRedTblRead(u32 index)
+    u64 GenericControllerDevice::ReadRedTbl(u32 index)
     {
-        return ioRegRead64(IO_APIC_RED_TABLE_ENT(index));
+        return ReadReg64(IO_APIC_RED_TABLE_ENT(index));
     }
 
-    void GenericControllerDevice::localBaseWrite(u64 data)
+    void GenericControllerDevice::WriteBase(u64 data)
     {
         Platform::X64::wrmsr(MSR_APIC_BASE, data);
     }
 
-    u64 GenericControllerDevice::localBaseRead()
+    u64 GenericControllerDevice::ReadBase()
     {
         return Platform::X64::rdmsr(MSR_APIC_BASE);
     }
 
-    void GenericControllerDevice::localRegWrite(u32 reg, u32 data)
+    void GenericControllerDevice::WriteRegLoc(u32 reg, u32 data)
     {
         *((volatile u32*)(m_ioBaseVirt + reg)) = data;
     }
 
-    u32 GenericControllerDevice::localRegRead(u32 reg)
+    u32 GenericControllerDevice::ReadRegLoc(u32 reg)
     {
         return *((volatile u32*)(m_ioBaseVirt + reg));
     }

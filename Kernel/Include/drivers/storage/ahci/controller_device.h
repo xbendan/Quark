@@ -3,6 +3,8 @@
 #include <drivers/storage/ahci/spec.h>
 
 namespace AHCI {
+    using Qk::List;
+
     class AHCIControllerDevice : public PCI::PCIDevice
     {
     public:
@@ -23,6 +25,6 @@ namespace AHCI {
         u64               m_addrVirt;
         AHCI::HBAMemRegs* m_memRegs;
 
-        LinkedList<SATADiskDevice*> m_diskList;
+        List<SATADiskDevice*> m_diskList;
     };
 }
