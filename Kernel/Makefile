@@ -161,7 +161,7 @@ build-x86_64: check_stivalescript $(GENERIC_SOURCE) $(DRIVERS_SOURCE) $(PLATFORM
 run-x86_64:
 	@echo "Running x86_64 kernel..."
 	@qemu-system-x86_64.exe -cdrom $(patsubst /mnt/d/%, D:/%, $(FINAL_PATH)) -s -S \
-		-monitor stdio \
+		-serial stdio \
 		-cpu qemu64,+ssse3,+sse4.1,+sse4.2 \
 		-smp 4 -m 64m 
 
