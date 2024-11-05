@@ -216,9 +216,9 @@ ISR_NO_ERROR_CODE 31
 ; %endrep
 
 section .rodata
-global interruptVectors
+global IntVec
 
-interruptVectors:
+IntVec:
 %assign i 0
 %rep 256
     dq _int %+ i

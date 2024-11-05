@@ -48,52 +48,44 @@
 #define IRQ_ATA_HARD_DISK_2 47
 
 namespace Quark::System::Platform::X64 {
-    struct InterruptVector
-    {
-        // String _name;
-        const char* _name;
+    bool UnhandledException(int num, Registers* registers);
 
-        enum Traits : u8
-        {
-            Reserved  = 0,
-            Fault     = 0x1,
-            Trap      = 0x2,
-            Interrupt = 0x4,
-            Abort     = 0x8
-        };
+    bool DivisionError(int num, Registers* registers);
+    bool Debug(int num, Registers* registers);
+    bool NonMaskableInterrupt(int num, Registers* registers);
+    bool Breakpoint(int num, Registers* registers);
+    bool Overflow(int num, Registers* registers);
+    bool BoundRangeExceeded(int num, Registers* registers);
+    bool InvalidOpcode(int num, Registers* registers);
+    bool DeviceNotAvailable(int num, Registers* registers);
+    bool DoubleFault(int num, Registers* registers);
+    bool CoprocessorSegmentOverrun(int num, Registers* registers);
+    bool InvalidTaskStateSegment(int num, Registers* registers);
+    bool SegmentNotPresent(int num, Registers* registers);
+    bool StackSegmentFault(int num, Registers* registers);
+    bool GeneralProtectionFault(int num, Registers* registers);
 
-        Flags<Traits> _traits;
-        bool          _hasErrorCode;
-        // Func<void(Registers*)> _handler;
-        void (*_handler)(int, Registers*);
-    };
-
-    MakeFlags$(InterruptVector::Traits);
-
-    void UnhandledException(int num, Registers* registers);
-
-    void DivisionError(int num, Registers* registers);
-    void Debug(int num, Registers* registers);
-    void NonMaskableInterrupt(int num, Registers* registers);
-    void Breakpoint(int num, Registers* registers);
-    void Overflow(int num, Registers* registers);
-    void BoundRangeExceeded(int num, Registers* registers);
-    void InvalidOpcode(int num, Registers* registers);
-    void DeviceNotAvailable(int num, Registers* registers);
-    void DoubleFault(int num, Registers* registers);
-    void CoprocessorSegmentOverrun(int num, Registers* registers);
-    void InvalidTaskStateSegment(int num, Registers* registers);
-    void SegmentNotPresent(int num, Registers* registers);
-    void StackSegmentFault(int num, Registers* registers);
-    void GeneralProtectionFault(int num, Registers* registers);
-    void PageFault(int num, Registers* registers);
-    void x87FloatingPointException(int num, Registers* registers);
-    void AlignmentCheck(int num, Registers* registers);
-    void MachineCheck(int num, Registers* registers);
-    void SIMDFloatingPointException(int num, Registers* registers);
-    void VirtualizationException(int num, Registers* registers);
-    void ControlProtectionException(int num, Registers* registers);
-    void HypervisorInjectionException(int num, Registers* registers);
-    void VMMCommunicationException(int num, Registers* registers);
-    void SecurityException(int num, Registers* registers);
+    /**
+     * @brief Page Fault
+     *
+     * A Page Fault occurs when:
+     * - A page directory or table entry is not present in physical memory.
+     * - Attempting to load the instruction TLB with a translation for a
+     * non-executable page.
+     * - A protection check (privileges, read/write) failed.
+     * - A reserved bit in the page directory or table entries is set to 1.
+     *
+     * @param num
+     * @param registers the instruction which caused the exception
+     */
+    bool PageFault(int num, Registers* registers);
+    bool x87FloatingPointException(int num, Registers* registers);
+    bool AlignmentCheck(int num, Registers* registers);
+    bool MachineCheck(int num, Registers* registers);
+    bool SIMDFloatingPointException(int num, Registers* registers);
+    bool VirtualizationException(int num, Registers* registers);
+    bool ControlProtectionException(int num, Registers* registers);
+    bool HypervisorInjectionException(int num, Registers* registers);
+    bool VMMCommunicationException(int num, Registers* registers);
+    bool SecurityException(int num, Registers* registers);
 } // namespace Quark::System::Platform::X64

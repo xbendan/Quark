@@ -2,7 +2,7 @@
 
 #include <mixins/meta/event.h>
 #include <mixins/meta/result.h>
-#include <mixins/utils/linked_list.h>
+#include <mixins/utils/list.h>
 #include <quark/dev/device.h>
 #include <quark/hal/definition.h>
 
@@ -15,20 +15,15 @@
 #endif
 
 namespace Quark::System::Hal {
-    using Quark::System::Io::Device;
     using Registers = Platform::__ARCH_NAMESPACE::Registers;
 
-    class InterruptsControllerDevice : public Device
-    {
-    public:
-        InterruptsControllerDevice();
+    using Qk::List;
+    using Quark::System::Io::Device;
 
-        Res<> AddHandler(int intno, void (*handler)(Registers*));
-        Res<> RemoveHandler(int intno, void (*handler)(Registers*));
+    bool SetInterrupt(u8, bool (*)(int, Registers*));
 
-        void CallEvent(int intno, Registers* frame);
+    Res<> SetupInterrupts();
 
-    private:
-        LinkedList<Event<Registers*>> m_interruptList;
-    };
+    void EnableInterrupts();
+    void DisableInterrupts();
 }

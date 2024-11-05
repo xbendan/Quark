@@ -5,269 +5,283 @@
 #include <quark/hal/interrupts.h>
 #include <quark/os/diagnostic/logging.h>
 
+#include <drivers/apic/device.h>
+
+extern u64 IntVec[];
+
 namespace Quark::System::Platform::X64 {
     using namespace Quark::System::Diagnostic;
     using namespace Quark::System::Hal;
 
-    InterruptDescTbl           tbl = {};
-    InterruptsControllerDevice controller;
+    InterruptDescTbl IntTbls;
 
-    // clang-format off
-    InterruptVector vectors[256] = {
-        {
-            ._name = "Division Error",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = DivisionError
-        },
-        {
-            ._name = "Debug",
-            ._traits = (InterruptVector::Fault | InterruptVector::Trap),
-            ._hasErrorCode = false,
-            ._handler = Debug
-        },
-        {
-            ._name = "Non-maskable Interrupt",
-            ._traits = InterruptVector::Interrupt,
-            ._hasErrorCode = false,
-            ._handler = NonMaskableInterrupt
-        },
-        {
-            ._name = "Breakpoint",
-            ._traits = InterruptVector::Trap,
-            ._hasErrorCode = false,
-            ._handler = Breakpoint
-        },
-        {
-            ._name = "Overflow",
-            ._traits = InterruptVector::Trap,
-            ._hasErrorCode = false,
-            ._handler = Overflow
-        },
-        {
-            ._name = "Bound Range Exceeded",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = BoundRangeExceeded
-        },
-        {
-            ._name = "Invalid Opcode",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = InvalidOpcode
-        },
-        {
-            ._name = "Device Not Available",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = DeviceNotAvailable
-        },
-        {
-            ._name = "Double Fault",
-            ._traits = InterruptVector::Abort,
-            ._hasErrorCode = true,
-            ._handler = DoubleFault
-        },
-        {
-            ._name = "Coprocessor Segment Overrun",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = CoprocessorSegmentOverrun
-        },
-        {
-            ._name = "Invalid Task State Segment",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = true,
-            ._handler = InvalidTaskStateSegment
-        },
-        {
-            ._name = "Segment Not Present",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = true,
-            ._handler = SegmentNotPresent
-        },
-        {
-            ._name = "Stack-Segment Fault",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = true,
-            ._handler = StackSegmentFault
-        },
-        {
-            ._name = "General Protection Fault",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = true,
-            ._handler = GeneralProtectionFault
-        },
-        {
-            ._name = "Page Fault",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = true,
-            ._handler = PageFault
-        },
-        {
-            ._name = "Reserved",
-            ._traits = 0,
-            ._hasErrorCode = false,
-            ._handler = UnhandledException
-        },
-        {
-            ._name = "x87 Floating-Point Exception",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = x87FloatingPointException
-        },
-        {
-            ._name = "Alignment Check",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = true,
-            ._handler = AlignmentCheck
-        },
-        {
-            ._name = "Machine Check",
-            ._traits = InterruptVector::Abort,
-            ._hasErrorCode = false,
-            ._handler = MachineCheck
-        },
-        {
-            ._name = "SIMD Floating-Point Exception",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = SIMDFloatingPointException
-        },
-        {
-            ._name = "Virtualization Exception",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = VirtualizationException
-        },
-        {
-            ._name = "Control Protection Exception",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = ControlProtectionException
-        },
-        {
-            ._name = "Reserved",
-            ._traits = 0,
-            ._hasErrorCode = false,
-            ._handler = UnhandledException
-        },
-        {
-            ._name = "Reserved",
-            ._traits = 0,
-            ._hasErrorCode = false,
-            ._handler = UnhandledException
-        },
-        {
-            ._name = "Reserved",
-            ._traits = 0,
-            ._hasErrorCode = false,
-            ._handler = UnhandledException
-        },
-        {
-            ._name = "Reserved",
-            ._traits = 0,
-            ._hasErrorCode = false,
-            ._handler = UnhandledException
-        },
-        {
-            ._name = "Reserved",
-            ._traits = 0,
-            ._hasErrorCode = false,
-            ._handler = UnhandledException
-        },
-        {
-            ._name = "Reserved",
-            ._traits = 0,
-            ._hasErrorCode = false,
-            ._handler = UnhandledException
-        },
-        {
-            ._name = "Hypervisor Injection Exception",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = false,
-            ._handler = HypervisorInjectionException
-        },
-        {
-            ._name = "VMM Communication Exception",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = true,
-            ._handler = VMMCommunicationException
-        },
-        {
-            ._name = "Security Exception",
-            ._traits = InterruptVector::Fault,
-            ._hasErrorCode = true,
-            ._handler = SecurityException
-        },
+    bool (*Interrupts[0xFF])(int, Registers*) = {
+        [0]  = DivisionError,
+        [1]  = Debug,
+        [2]  = NonMaskableInterrupt,
+        [3]  = Breakpoint,
+        [4]  = Overflow,
+        [5]  = BoundRangeExceeded,
+        [6]  = InvalidOpcode,
+        [7]  = DeviceNotAvailable,
+        [8]  = DoubleFault,
+        [9]  = CoprocessorSegmentOverrun,
+        [10] = InvalidTaskStateSegment,
+        [11] = SegmentNotPresent,
+        [12] = StackSegmentFault,
+        [13] = GeneralProtectionFault,
+        [14] = PageFault,
+        [15] = UnhandledException,
+        [16] = x87FloatingPointException,
+        [17] = AlignmentCheck,
+        [18] = MachineCheck,
+        [19] = SIMDFloatingPointException,
+        [20] = VirtualizationException,
+        [21] = ControlProtectionException,
+        [22] = UnhandledException,
+        [23] = UnhandledException,
+        [24] = UnhandledException,
+        [25] = UnhandledException,
+        [26] = UnhandledException,
+        [27] = UnhandledException,
+        [28] = HypervisorInjectionException,
+        [29] = VMMCommunicationException,
+        [30] = SecurityException,
     };
-    // clang-format on
 
-    void UnhandledException(int num, Registers* registers)
+    void Registers::DumpAll()
     {
-        // warn(u8"Unhandled exception %d\n", num);
+        info("<------------= REGISTERS =------------>");
+        info$("RAX[{:#X}], RBX[{:#X}], RCX[{:#X}]",
+              Qk::align(rax, Qk::Align::RIGHT, 18),
+              Qk::align(rbx, Qk::Align::RIGHT, 18),
+              Qk::align(rcx, Qk::Align::RIGHT, 18));
+        info$("RDX[{:#X}], RSI[{:#X}], RDI[{:#X}]",
+              Qk::align(rdx, Qk::Align::RIGHT, 18),
+              Qk::align(rsi, Qk::Align::RIGHT, 18),
+              Qk::align(rdi, Qk::Align::RIGHT, 18));
+        info$("RSP[{:#X}], RBP[{:#X}], RIP[{:#X}]",
+              Qk::align(rsp, Qk::Align::RIGHT, 18),
+              Qk::align(rbp, Qk::Align::RIGHT, 18),
+              Qk::align(rip, Qk::Align::RIGHT, 18));
+        info$("R8 [{:#X}], R9 [{:#X}], R10[{:#X}]",
+              Qk::align(r8, Qk::Align::RIGHT, 18),
+              Qk::align(r9, Qk::Align::RIGHT, 18),
+              Qk::align(r10, Qk::Align::RIGHT, 18));
+        info$("R11[{:#X}], R12[{:#X}], R13[{:#X}]",
+              Qk::align(r11, Qk::Align::RIGHT, 18),
+              Qk::align(r12, Qk::Align::RIGHT, 18),
+              Qk::align(r13, Qk::Align::RIGHT, 18));
+        info$("R14[{:#X}], R15[{:#X}]",
+              Qk::align(r14, Qk::Align::RIGHT, 18),
+              Qk::align(r15, Qk::Align::RIGHT, 18));
+        info$("Flags[{:#b}]", rflags);
+        info(" ");
+        info("Stack Trace:");
+        // TODO: Print stack trace
+        info("<------------------------------------->");
     }
 
-    void DivisionError(int num, Registers* registers)
+    bool UnhandledException(int num, Registers* registers)
     {
-        // log(u8"Division Error\n");
+        error$("[INT] Unhandled interrupt: {}\n", num);
+        return false;
     }
 
-    void Debug(int num, Registers* registers) {}
+    bool DivisionError(int num, Registers* registers)
+    {
+        warn("[INT] Division Error");
 
-    void NonMaskableInterrupt(int num, Registers* registers) {}
+        Std::panic("Division Error");
+    }
 
-    void Breakpoint(int num, Registers* registers) {}
+    bool Debug(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void Overflow(int num, Registers* registers) {}
+    bool NonMaskableInterrupt(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void BoundRangeExceeded(int num, Registers* registers) {}
+    bool Breakpoint(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void InvalidOpcode(int num, Registers* registers) {}
+    bool Overflow(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void DeviceNotAvailable(int num, Registers* registers) {}
+    bool BoundRangeExceeded(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void DoubleFault(int num, Registers* registers) {}
+    bool InvalidOpcode(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void CoprocessorSegmentOverrun(int num, Registers* registers) {}
+    bool DeviceNotAvailable(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void InvalidTaskStateSegment(int num, Registers* registers) {}
+    bool DoubleFault(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void SegmentNotPresent(int num, Registers* registers) {}
+    bool CoprocessorSegmentOverrun(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void StackSegmentFault(int num, Registers* registers) {}
+    bool InvalidTaskStateSegment(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void GeneralProtectionFault(int num, Registers* registers) {}
+    bool SegmentNotPresent(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void PageFault(int num, Registers* registers) {}
+    bool StackSegmentFault(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void x87FloatingPointException(int num, Registers* registers) {}
+    bool GeneralProtectionFault(int num, Registers* registers)
+    {
+        info("[INT] --- General Protection Fault --- ");
+        info$("[INT] Error Code: {:#X}", registers->err);
+        registers->DumpAll();
 
-    void AlignmentCheck(int num, Registers* registers) {}
+        Std::panic("General Protection Fault");
+        return false;
+    }
 
-    void MachineCheck(int num, Registers* registers) {}
+    bool PageFault(int num, Registers* registers)
+    {
+        info("[INT] --- Page Fault --- ");
+        bool p = registers->err & 1, w = registers->err & 2,
+             u = registers->err & 3;
+        u64 addr;
+        asm volatile("mov %%cr2, %0" : "=r"(addr));
 
-    void SIMDFloatingPointException(int num, Registers* registers) {}
+        info$("[INT] P[{}], W[{}], U[{}]",
+              Qk::align(p, Qk::Align::LEFT, 5),
+              Qk::align(w, Qk::Align::LEFT, 5),
+              Qk::align(u, Qk::Align::LEFT, 5));
+        info$("[INT] Address: {:#X}", addr);
 
-    void VirtualizationException(int num, Registers* registers) {}
+        return false;
+    }
 
-    void ControlProtectionException(int num, Registers* registers) {}
+    bool x87FloatingPointException(int num, Registers* registers)
+    {
 
-    void HypervisorInjectionException(int num, Registers* registers) {}
+        return false;
+    }
 
-    void VMMCommunicationException(int num, Registers* registers) {}
+    bool AlignmentCheck(int num, Registers* registers)
+    {
+        return false;
+    }
 
-    void SecurityException(int num, Registers* registers) {}
+    bool MachineCheck(int num, Registers* registers)
+    {
+        return false;
+    }
+
+    bool SIMDFloatingPointException(int num, Registers* registers)
+    {
+        return false;
+    }
+
+    bool VirtualizationException(int num, Registers* registers)
+    {
+        return false;
+    }
+
+    bool ControlProtectionException(int num, Registers* registers)
+    {
+        return false;
+    }
+
+    bool HypervisorInjectionException(int num, Registers* registers)
+    {
+        return false;
+    }
+
+    bool VMMCommunicationException(int num, Registers* registers)
+    {
+        return false;
+    }
+
+    bool SecurityException(int num, Registers* registers)
+    {
+        return false;
+    }
 
 } // namespace Quark::System::Platform::X64
 
-using Quark::System::Platform::X64::Registers;
+using namespace Quark::System::Platform::X64;
 
 extern "C"
 {
-    void isr_handler(int num, Registers* registers) {}
+    void isr_handler(int num, Registers* registers)
+    {
+        if (__builtin_expect(Interrupts[num] != nullptr, 1) &&
+            Interrupts[num](num, registers) == true) {
+            return;
+        }
+
+        warn$("Unhandled or unresolved interrupt: {}", num);
+        if (!(registers->ss & 0x3)) /* Kernel Interrupt Exception */ {
+            Device::FindByName<APIC::GenericControllerDevice>(
+                APIC::GenericControllerDevice::Name)
+                .IfPresent([](auto* apic) {
+                    apic->GetApicLocal(0)->SendIPI(
+                        ICR_DSH_OTHER, ICR_MESSAGE_TYPE_FIXED, IPI_HALT);
+                });
+
+            // TODO: BSOD
+            registers->DumpAll();
+            Std::panic("Unresolvable Kernel Interrupt Exception.");
+        } else /* User Process Interrupt Exception */ {
+        }
+    }
 
     void irq_handler(int num, Registers* registers) {}
 
     void ipi_handler(int num, Registers* registers) {}
+}
+
+namespace Quark::System::Hal {
+    bool SetInterrupt(u8 num, bool (*handler)(int, Registers*))
+    {
+        if (num < 0x20 or num >= 0xFF) {
+            warn$("Trying to set handler for invalid interrupt number: {}",
+                  num);
+            return false;
+        }
+
+        Interrupts[num] = handler;
+        return true;
+    }
+
+    void EnableInterrupts()
+    {
+        asm volatile("sti");
+    }
+
+    void DisableInterrupts()
+    {
+        asm volatile("cli");
+    }
 }
