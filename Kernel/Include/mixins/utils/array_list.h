@@ -259,15 +259,13 @@ public:
 
     TSource& operator[](usize const& index) override
     {
-        MakeAssertion(index < m_count,
-                      Error::IndexOutOfBounds("Index out of bounds"));
+        assert(index < m_count, Error::IndexOutOfBounds("Index out of bounds"));
         return m_data[index];
     }
 
     TSource const& operator[](usize const& index) const override
     {
-        MakeAssertion(index < m_count,
-                      Error::IndexOutOfBounds("Index out of bounds"));
+        assert(index < m_count, Error::IndexOutOfBounds("Index out of bounds"));
         return m_data[index];
     }
 
@@ -517,7 +515,7 @@ public:
 
     TSource& Single() override
     {
-        MakeAssertion(
+        assert(
             m_count == 1,
             Error::InvalidOperation("Sequence contains more than one element"));
         return m_data[0];
@@ -529,22 +527,21 @@ public:
         for (usize i = 0; i < m_count; i++) {
             if (predicate(m_data[i])) {
                 if (index != -1) {
-                    MakeAssertion(
-                        false,
-                        Error::InvalidOperation(
-                            "Sequence contains more than one element"));
+                    assert(false,
+                           Error::InvalidOperation(
+                               "Sequence contains more than one element"));
                 }
                 index = i;
             }
         }
-        MakeAssertion(index != -1,
-                      Error::InvalidOperation("Sequence contains no element"));
+        assert(index != -1,
+               Error::InvalidOperation("Sequence contains no element"));
         return m_data[index];
     }
 
     TSource& SingleOrDefault(TSource const& defaultValue) override
     {
-        MakeAssertion(
+        assert(
             m_count <= 1,
             Error::InvalidOperation("Sequence contains more than one element"));
         return m_count ? m_data[0] : const_cast<TSource&>(defaultValue);

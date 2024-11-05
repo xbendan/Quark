@@ -39,13 +39,13 @@ namespace Qk {
 
         always_inline constexpr TSource& operator[](usize index)
         {
-            MakeAssertion(index < TLen, "Index out of bounds");
+            assert(index < TLen, "Index out of bounds");
             return _data[index];
         }
 
         always_inline constexpr TSource const& operator[](usize index) const
         {
-            MakeAssertion(index < TLen, "Index out of bounds");
+            assert(index < TLen, "Index out of bounds");
             return _data[index];
         }
 

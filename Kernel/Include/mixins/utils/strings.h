@@ -47,8 +47,8 @@ namespace Qk::Strings {
 
     inline StringView Substring(StringView str, usize begin, usize end)
     {
-        MakeAssertion(begin <= end && end <= str.len(),
-                      Error::IndexOutOfBounds("Invalid range"));
+        assert(begin <= end && end <= str.len(),
+               Error::IndexOutOfBounds("Invalid range"));
 
         usize rbegin = 0, rend = 0;
         usize len;

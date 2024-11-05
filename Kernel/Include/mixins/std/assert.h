@@ -4,7 +4,7 @@
 #include <mixins/std/panic.h>
 
 static inline void
-MakeAssertion(bool expr, const char* msg = "Assertion failed")
+assert(bool expr, const char* msg = "Assertion failed")
 {
     if (!expr) {
         Std::panic(msg);
@@ -12,7 +12,7 @@ MakeAssertion(bool expr, const char* msg = "Assertion failed")
 }
 
 static inline void
-MakeAssertion(bool expr, Error err)
+assert(bool expr, Error err)
 {
     if (!expr) {
         Std::panic(err);

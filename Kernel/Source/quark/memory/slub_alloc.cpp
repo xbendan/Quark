@@ -101,7 +101,7 @@ namespace Quark::System::Memory {
         }
 
         auto* page = PageFrame::ByAddress(result.Unwrap());
-        MakeAssertion(page != nullptr, "Invalid page frame for address");
+        assert(page != nullptr, "Invalid page frame for address");
 
         if (page->_kmemPool == nullptr ||
             !(page->_flags & Hal::PmmFlags::KERNEL))
@@ -116,8 +116,8 @@ namespace Quark::System::Memory {
             node = &cache->_fallback;
         }
 
-        MakeAssertion(page->_kmem._inuse != page->_kmem._objects,
-                      "Invalid \"inuse\" count in page {}");
+        assert(page->_kmem._inuse != page->_kmem._objects,
+               "Invalid \"inuse\" count in page {}");
 
         *((u64*)address) = (u64)page->_freelist;
         page->_freelist  = (void**)address;

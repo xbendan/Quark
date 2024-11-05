@@ -105,13 +105,13 @@ namespace Qk {
 
         always_inline Unit& operator[](usize i)
         {
-            MakeAssertion(i < _len, "Index out of bounds");
+            assert(i < _len, "Index out of bounds");
             return const_cast<char&>(_buf[i]);
         }
 
         always_inline Unit const& operator[](usize i) const
         {
-            MakeAssertion(i < _len, "Index out of bounds");
+            assert(i < _len, "Index out of bounds");
             return _buf[i];
         }
 

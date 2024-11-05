@@ -159,14 +159,14 @@ namespace Qk::Arrays {
     template <typename TSource>
     TSource findFirst(Slice<TSource>& src)
     {
-        MakeAssertion(src.len() > 0, Error::IndexOutOfBounds("Array is empty"));
+        assert(src.len() > 0, Error::IndexOutOfBounds("Array is empty"));
         return src[0];
     }
 
     template <typename TSource>
     TSource findLast(Slice<TSource>& src)
     {
-        MakeAssertion(src.len() > 0, Error::IndexOutOfBounds("Array is empty"));
+        assert(src.len() > 0, Error::IndexOutOfBounds("Array is empty"));
         return src[src.len() - 1];
     }
 
@@ -179,8 +179,7 @@ namespace Qk::Arrays {
         requires(Sliceable<TSlice<TSource>, TSource>)
     TSlice<TSource> take(Slice<TSource>& src, usize n)
     {
-        MakeAssertion(n <= src.len(),
-                      Error::IndexOutOfBounds("Array is too small"));
+        assert(n <= src.len(), Error::IndexOutOfBounds("Array is too small"));
 
         TSlice result{ new TSource[n], n };
         CopyArray(result, src, n);
@@ -194,10 +193,9 @@ namespace Qk::Arrays {
         usize start = range.v0;
         usize end   = range.v1;
 
-        MakeAssertion(start <= src.len(),
-                      Error::IndexOutOfBounds("Array is too small"));
-        MakeAssertion(end <= src.len(),
-                      Error::IndexOutOfBounds("Array is too small"));
+        assert(start <= src.len(),
+               Error::IndexOutOfBounds("Array is too small"));
+        assert(end <= src.len(), Error::IndexOutOfBounds("Array is too small"));
 
         usize           count = end - start;
         TSlice<TSource> result{ new TSource[count], count };
@@ -209,8 +207,7 @@ namespace Qk::Arrays {
         requires(Sliceable<TSlice<TSource>, TSource>)
     TSlice<TSource> takeLast(Slice<TSource>& src, usize n)
     {
-        MakeAssertion(n <= src.len(),
-                      Error::IndexOutOfBounds("Array is too small"));
+        assert(n <= src.len(), Error::IndexOutOfBounds("Array is too small"));
 
         TSlice<TSource> result{ new TSource[n], n };
         CopyArray(result.buf(), &(src[src.len() - n]), n);
@@ -240,8 +237,7 @@ namespace Qk::Arrays {
     template <typename TSource>
     TSource& single(Slice<TSource>& src)
     {
-        MakeAssertion(src.len() == 1,
-                      Error::InvalidOperation("Array is not single"));
+        assert(src.len() == 1, Error::InvalidOperation("Array is not single"));
         return src[0];
     }
 
@@ -252,23 +248,22 @@ namespace Qk::Arrays {
         for (usize i = 0; i < src.len(); i++) {
             if (predicate(src[i])) {
                 if (index != -1) {
-                    MakeAssertion(
-                        false,
-                        Error::InvalidOperation(
-                            "Sequence contains more than one element"));
+                    assert(false,
+                           Error::InvalidOperation(
+                               "Sequence contains more than one element"));
                 }
                 index = i;
             }
         }
-        MakeAssertion(index != -1,
-                      Error::InvalidOperation("Sequence contains no element"));
+        assert(index != -1,
+               Error::InvalidOperation("Sequence contains no element"));
         return src[index];
     }
 
     template <typename TSource>
     TSource& singleOrDefault(Slice<TSource>& src, TSource const& defaultValue)
     {
-        MakeAssertion(
+        assert(
             src.len() <= 1,
             Error::InvalidOperation("Sequence contains more than one element"));
         return src.len() ? src[0] : defaultValue;
@@ -291,8 +286,7 @@ namespace Qk::Arrays {
         requires(Sliceable<TSlice<TSource>, TSource>)
     TSlice<TSource> skip(Slice<TSource>& src, usize n)
     {
-        MakeAssertion(n <= src.len(),
-                      Error::IndexOutOfBounds("Array is too small"));
+        assert(n <= src.len(), Error::IndexOutOfBounds("Array is too small"));
 
         usize           count = src.len() - n;
         TSlice<TSource> result{ new TSource[count], count };
@@ -304,8 +298,7 @@ namespace Qk::Arrays {
         requires(Sliceable<TSlice<TSource>, TSource>)
     TSlice<TSource> skipLast(Slice<TSource>& src, usize n)
     {
-        MakeAssertion(n <= src.len(),
-                      Error::IndexOutOfBounds("Array is too small"));
+        assert(n <= src.len(), Error::IndexOutOfBounds("Array is too small"));
 
         usize           count = src.len() - n;
         TSlice<TSource> result{ new TSource[count], count };

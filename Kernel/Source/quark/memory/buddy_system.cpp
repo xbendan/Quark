@@ -216,7 +216,7 @@ namespace Quark::System::Memory {
 
     void MarkRegionAsUsed(AddressRange range)
     {
-        MakeAssertion(range.From() && range.To(), "Invalid address range");
+        assert(range.From() && range.To(), "Invalid address range");
         auto& pageRange = range.InnerAlign(PAGE_SIZE_4K);
         while (pageRange.From() < PAGE_BIOS_RESERVED) {
             /* To avoid potential issues, don't mark memory below 0x100000 */
@@ -244,7 +244,7 @@ namespace Quark::System::Memory {
 
     void MarkRegionAsFree(AddressRange range)
     {
-        MakeAssertion(range.From() && range.To(), "Invalid address range");
+        assert(range.From() && range.To(), "Invalid address range");
         auto& pageRange = range.InnerAlign(PAGE_SIZE_4K);
         while (pageRange.From() < PAGE_BIOS_RESERVED)
             /* To avoid potential issues, don't mark memory below 0x100000
