@@ -23,16 +23,16 @@ namespace ACPI {
 
         Res<> OnInitialize() override;
 
-    private:
+        static inline const char* Name = "ACPI Management Device";
         // HashTable<string, ACPI::TableHeader*> _tables;
 
-        ACPI::RootSystemDescPointer*     _rsdp;
-        ACPI::RootSystemDescTable*       _rsdt;
-        ACPI::ExtendedSystemDescPointer* _xsdp;
-        ACPI::ExtendedSystemDescTable*   _xsdt;
-        ACPI::MultiApicDescTable*        _madt;
-        ACPI::HighPrecisionEventTable*   _hpet;
-        ACPI::FixedAcpiDescTable*        _fadt;
-        ACPI::PCIExpressSpecTable*       _mcfg;
+        ACPI::RootSystemDescPointer*     TblRsdp;
+        ACPI::RootSystemDescTable*       TblRsdt;
+        ACPI::ExtendedSystemDescPointer* TblXsdp;
+        ACPI::ExtendedSystemDescTable*   TblXsdt;
+        ACPI::MultiApicDescTable*        TblMadt;
+        ACPI::HighPrecisionEventTable*   TblHpet;
+        ACPI::FixedAcpiDescTable*        TblFadt;
+        ACPI::PCIExpressSpecTable*       TblMcfg;
     };
 } // namespace Quark::System::Hal
