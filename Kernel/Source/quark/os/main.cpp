@@ -1,3 +1,4 @@
+#include <quark/hal/interrupts.h>
 #include <quark/os/main.h>
 
 #include <mixins/meta/buf.h>
@@ -46,6 +47,9 @@ namespace Quark::System {
         InitPhysMemory().Unwrap();
         log("OK."s);
 
+        // log("Initializing basic interrupts...");
+        // Hal::SetupInterrupts().Unwrap();
+
         log("Creating kernel process...");
         Process::CreateKernelProcess(kernelAddressSpace).Unwrap();
 
@@ -53,7 +57,6 @@ namespace Quark::System {
         auto devList = EnumerateInitialDevices().Unwrap();
 
         for (auto& dev : *devList) {
-            log$("Found device: {}", dev->GetName());
             dev->OnInitialize();
 
             Io::Device::Load(dev);
@@ -74,13 +77,11 @@ namespace Std {
 
     [[noreturn]] void panic(Error err)
     {
-        while (true)
-            asm volatile("hlt; pause;");
+        panic(err.message());
     }
 
     [[noreturn]] void panic(const char* msg)
     {
-        // TODO: Implement panic
         error("---- QUARK KERNEL PANIC ----");
         error$("Time:        {}", 0);
         error$("Description: {}", msg);

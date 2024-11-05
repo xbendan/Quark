@@ -26,7 +26,6 @@ namespace Quark::System {
     Res<Qk::Array<Io::Device*>*> EnumerateInitialDevices();
     Res<IList<Io::Device*>*>     SetupDevices();
     Res<>                        InitKernelMemory();
-    Res<>                        SetupInterrupts();
     Res<>                        InitTasks();
     Res<>                        InitFileSystems();
 

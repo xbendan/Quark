@@ -7,6 +7,8 @@
 
 #include <drivers/acpi/device.h>
 #include <drivers/apic/device.h>
+#include <drivers/clocksource/pit/device.h>
+#include <drivers/cmos/timer_device.h>
 #include <drivers/pci/enumeration.h>
 #include <drivers/ps2/device.h>
 
@@ -21,12 +23,7 @@ extern "C"
     void _lfpu();
 }
 
-extern "C" void
-_lgdt(void*);
-extern "C" void
-_lidt(void*);
-
-extern u64 interruptVectors[];
+extern u64 IntVec[];
 
 namespace Quark::System {
     using namespace Quark::System::Memory;
@@ -46,6 +43,8 @@ namespace Quark::System {
             new APIC::GenericControllerDevice(),
             new PCI::PCIEnumerationDevice(),
             new PS2::LegacyControllerDevice(),
+            new PIT::PITimerDevice(1000),
+            new CMOS::RealTimeClockDevice(),
         });
 
         return Ok(devices);
@@ -61,13 +60,19 @@ namespace Quark::System {
         _lgdt(&p->_gdtPtr);
 
         /* load interrupt descriptor table */
-        for (int i = 0; i < kIdt.Count; i++) {
-            kIdt._entries[i] =
-                InterruptDescTbl::Entry((u64)&interruptVectors[i],        //
-                                        0x08,                             //
-                                        0,                                //
-                                        InterruptDescTbl::InterruptGate); //
-        }
+        // for (int i = 0; i < kIdt.Count; i++) {
+        //     kIdt.Entries[i] =
+        //         InterruptDescTbl::Entry((u64)&interruptVectors[i],  //
+        //                                 0x08,                       //
+        //                                 0,                          //
+        //                                 InterruptDescTbl::IntGate); //
+        // }
+        for (int i = 0; i < 256; i++)
+            kIdt.Entries[i] = InterruptDescTbl::Entry(
+                IntVec[i], 0x08, InterruptDescTbl::IntGate);
+
+        kIdt.Entries[8]._ist = 2;
+
         p->_idtPtr = { sizeof(kIdt) - 1, (u64)&kIdt };
         _lidt(&p->_idtPtr);
 
@@ -89,19 +94,16 @@ namespace Quark::System {
         // asm volatile("cpuid"
         //              : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
         //              : "a"(1), "c"(0));
-        MakeAssertion(
-            cpuid._ecx & CPUID_ECX_SSE4_2,
-            "System requires [SSE4.2] to run while it's not supported");
-        MakeAssertion(
-            cpuid._edx & CPUID_EDX_FPU,
-            "System requires [FPU] to run while it's not supported."
-            "FPUs are coprocessors that are used to perform floating-point"
-            "operations");
-        MakeAssertion(
-            cpuid._edx & CPUID_EDX_APIC,
-            "System requires [APIC] to run while it's not supported, "
-            "The Advanced Programmable Interrupt Controller (APIC) is a "
-            "family of interrupt controllers");
+        assert(cpuid._ecx & CPUID_ECX_SSE4_2,
+               "System requires [SSE4.2] to run while it's not supported");
+        assert(cpuid._edx & CPUID_EDX_FPU,
+               "System requires [FPU] to run while it's not supported."
+               "FPUs are coprocessors that are used to perform floating-point"
+               "operations");
+        assert(cpuid._edx & CPUID_EDX_APIC,
+               "System requires [APIC] to run while it's not supported, "
+               "The Advanced Programmable Interrupt Controller (APIC) is a "
+               "family of interrupt controllers");
         // WTF is this?
         // Why the CPUID provided by QEMU doesn't have ACPI bit?
         // assert(edx & CPUID_EDX_ACPI,
@@ -110,11 +112,10 @@ namespace Quark::System {
         //        "open industry specification that defines power management "
         //        "and configuration interfaces between operating systems and "
         //        "hardware");
-        MakeAssertion(
-            cpuid._edx & CPUID_EDX_MSR,
-            "System requires [MSR] to run while it's not supported, "
-            "Model-specific registers (MSRs) are special registers in "
-            "the x86 architecture");
+        assert(cpuid._edx & CPUID_EDX_MSR,
+               "System requires [MSR] to run while it's not supported, "
+               "Model-specific registers (MSRs) are special registers in "
+               "the x86 architecture");
 
         // Enable FPU here
         // _lfpu();

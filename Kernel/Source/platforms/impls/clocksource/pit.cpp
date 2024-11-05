@@ -3,12 +3,17 @@
 #include <quark/hal/interrupts.h>
 #include <quark/hal/ports.h>
 
+#include <quark/os/diagnostic/logging.h>
+
 namespace PIT {
     using namespace Quark::System::Hal;
+    using namespace Quark::System::Diagnostic;
 
-    void PITimerDevice::Tick(Registers* frame)
+    bool PITimerDevice::Tick(int, Registers* frame)
     {
         m_instance->m_uptime.Inc(MemoryOrder::MemoryOrderRelaxed);
+
+        return true;
     }
 
     PITimerDevice::PITimerDevice(u32 frequency)
@@ -26,36 +31,19 @@ namespace PIT {
 
     Res<> PITimerDevice::OnStartup()
     {
-        auto device = Device::FindByName<InterruptsControllerDevice>(
-            "Interrupts Controller Device");
-
-        if (!device.IsPresent()) {
-            return Error::DeviceNotFound(
-                "Interrupts Controller Device not found");
-        }
-
-        device.Take()->AddHandler(IRQ_PIT_TIMER_UPDATE, &PITimerDevice::Tick);
+        SetInterrupt(IRQ_PIT_TIMER_UPDATE, &PITimerDevice::Tick);
         return Ok();
     }
 
     Res<> PITimerDevice::OnShutdown()
     {
-        auto device = Device::FindByName<InterruptsControllerDevice>(
-            "Interrupts Controller Device");
-
-        if (!device.IsPresent()) {
-            return Error::DeviceNotFound(
-                "Interrupts Controller Device not found");
-        }
-
-        device.Take()->RemoveHandler(IRQ_PIT_TIMER_UPDATE,
-                                     &PITimerDevice::Tick);
+        SetInterrupt(IRQ_PIT_TIMER_UPDATE, nullptr);
         return Ok();
     }
 
     void PITimerDevice::Sleep(u64 ms)
     {
-        MakeAssertion(ms > 0);
+        assert(ms > 0);
 
         ms = ms * 1000 + m_uptime.Load();
         while (m_uptime.Load() < ms)

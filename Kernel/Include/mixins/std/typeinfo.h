@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/str/string.h>
 #include <mixins/utils/strings.h>
 

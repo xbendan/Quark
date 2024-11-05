@@ -6,6 +6,7 @@
 #include <mixins/utils/date.h>
 
 namespace Quark::System::Task {
+    using Qk::Event;
     using Std::TimeSpan;
 
     template <typename TResult = void>

@@ -54,3 +54,6 @@
 #define IO_APIC_RED_TABLE_ENT(x) (0x10 + 2 * x)
 
 #define IO_RED_TBL_VECTOR(x) (x & 0xFF)
+
+#define IPI_HALT 0xFE
+#define IPI_SCHED 0xFD

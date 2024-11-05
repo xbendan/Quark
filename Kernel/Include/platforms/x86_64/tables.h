@@ -124,9 +124,9 @@ namespace Quark::System::Platform::X64 {
 
         enum Flags : u8
         {
-            InterruptGate = 0b1000'1110,
-            TrapGate      = 0b1110'1111,
-            User          = 0b0110'0000,
+            IntGate  = 0b1000'1110,
+            TrapGate = 0b1110'1111,
+            User     = 0b0110'0000,
         };
 
         struct Pack
@@ -145,9 +145,9 @@ namespace Quark::System::Platform::X64 {
             u32 _baseHigh;
             u32 __reserved__0;
 
-            Entry() {}
+            constexpr Entry() {}
 
-            Entry(u64 base, u16 selector, u8 ist, u8 flags)
+            constexpr Entry(u64 base, u16 selector, u8 flags, u8 ist = 0)
                 : _baseLow(base & 0xffff)
                 , _selector(selector)
                 , _ist(ist)
@@ -157,6 +157,6 @@ namespace Quark::System::Platform::X64 {
                 , __reserved__0(0)
             {
             }
-        } __attribute__((packed)) _entries[256];
+        } __attribute__((packed)) Entries[256];
     } __attribute__((packed));
 } // namespace Quark::System::Platform::X64
