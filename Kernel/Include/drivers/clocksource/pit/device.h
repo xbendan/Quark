@@ -1,12 +1,13 @@
 #include <drivers/clocksource/pit/spec.h>
 #include <mixins/concurrent/atomic.h>
-#include <mixins/utils/linked_list.h>
+#include <mixins/utils/list.h>
 #include <quark/clocksource/timer.h>
 #include <quark/dev/device.h>
 #include <quark/hal/interrupts.h>
 #include <quark/hal/ports.h>
 
 namespace PIT {
+    using Qk::List;
     using namespace Quark::System;
     using namespace Quark::System::Hal;
 
@@ -17,7 +18,7 @@ namespace PIT {
     public:
         PITimerDevice(u32 frequency);
 
-        static void Tick(Registers* frame);
+        static bool Tick(int, Registers* frame);
 
         virtual Res<> OnStartup() override final;
         virtual Res<> OnShutdown() override final;
@@ -34,7 +35,7 @@ namespace PIT {
 
     private:
         Atomic<u64>                         m_uptime{ 0 };
-        LinkedList<TimerAlarm>              m_alarms{};
+        List<TimerAlarm>                    m_alarms{};
         u32                                 m_frequency;
         Hal::PortAccess<PIT_DATA_CHANNEL_0> m_dataAccess;
         Hal::PortAccess<PIT_COMMAND_REG>    m_commandAccess;
