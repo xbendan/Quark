@@ -20,7 +20,8 @@ namespace Quark::System::Hal {
     using Qk::List;
     using Quark::System::Io::Device;
 
-    bool SetInterrupt(u8, bool (*)(int, Registers*));
+    bool EnableInterrupt(u8, bool (*)(int, Registers*));
+    void DisableInterrupt(u8);
 
     Res<> SetupInterrupts();
 

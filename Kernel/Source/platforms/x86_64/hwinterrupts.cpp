@@ -6,8 +6,9 @@
 #include <quark/os/diagnostic/logging.h>
 
 #include <drivers/apic/device.h>
+#include <drivers/apic/interrupt.h>
 
-extern u64 IntVec[];
+extern u64 IntVec[256];
 
 namespace Quark::System::Platform::X64 {
     using namespace Quark::System::Diagnostic;
@@ -257,19 +258,39 @@ extern "C"
         }
     }
 
-    void irq_handler(int num, Registers* registers) {}
+    void irq_handler(int num, Registers* registers)
+    {
+        APIC::EndOfInterrupt();
+        if (__builtin_expect(Interrupts[num] != nullptr, 1) &&
+            Interrupts[num](num, registers) == true) {
+            return;
+        } else {
+            warn$("Unhandled or unresolved interrupt: {}", num);
+        }
+    }
 
-    void ipi_handler(int num, Registers* registers) {}
+    void ipi_handler(int num, Registers* registers)
+    {
+        APIC::EndOfInterrupt();
+        if (__builtin_expect(Interrupts[num] != nullptr, 1) &&
+            Interrupts[num](num, registers) == true) {
+            return;
+        } else {
+            warn$("Unhandled or unresolved interrupt: {}", num);
+        }
+    }
 }
 
 namespace Quark::System::Hal {
-    bool SetInterrupt(u8 num, bool (*handler)(int, Registers*))
+    bool EnableInterrupt(u8 num, bool (*handler)(int, Registers*))
     {
-        if (num < 0x20 or num >= 0xFF) {
+        if (num < 0x20) {
             warn$("Trying to set handler for invalid interrupt number: {}",
                   num);
             return false;
         }
+
+        APIC::EnableInterrupt(num);
 
         Interrupts[num] = handler;
         return true;

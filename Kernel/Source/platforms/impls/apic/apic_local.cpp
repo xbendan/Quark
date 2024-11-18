@@ -13,7 +13,9 @@ namespace APIC {
 
     void GenericControllerDevice::Local::Enable()
     {
-        RegWrite(LOCAL_APIC_SIVR, 0x1FF);
+        _apic->WriteBase(_apic->ReadBase() | (1UL << 11));
+
+        RegWrite(LOCAL_APIC_SIVR, RegRead(LOCAL_APIC_SIVR) | 0x1FF);
     }
 
     void GenericControllerDevice::Local::SendIPI(u32 vec)

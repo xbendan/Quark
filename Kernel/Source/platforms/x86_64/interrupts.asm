@@ -221,6 +221,6 @@ global IntVec
 IntVec:
 %assign i 0
 %rep 256
-    dq _int %+ i
-%assign i i+1
+    dq _int%+ i
+%assign i (i + 1)
 %endrep
