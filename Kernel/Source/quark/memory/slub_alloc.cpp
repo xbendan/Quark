@@ -96,11 +96,11 @@ namespace Quark::System::Memory {
         auto* addressSpace = Process::GetKernelProcess()->_addressSpace;
         auto  result       = addressSpace->GetPhysAddress(address);
 
-        if (result.IsError()) {
+        if (result.isError()) {
             return result.Err();
         }
 
-        auto* page = PageFrame::ByAddress(result.Unwrap());
+        auto* page = PageFrame::ByAddress(result.unwrap());
         assert(page != nullptr, "Invalid page frame for address");
 
         if (page->_kmemPool == nullptr ||

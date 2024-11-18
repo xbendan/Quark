@@ -6,22 +6,22 @@ void*
 operator new(usize size)
 {
     auto res = Quark::System::Memory::Allocate(size);
-    if (res.IsError()) {
+    if (res.isError()) {
         // Std::panic("Failed to allocate memory: {}", res.Err().message());
         Std::panic("Failed to allocate memory");
     }
-    return (void*)res.Unwrap();
+    return (void*)res.unwrap();
 }
 
 void*
 operator new[](usize size)
 {
     auto res = Quark::System::Memory::Allocate(size);
-    if (res.IsError()) {
+    if (res.isError()) {
         // Std::panic("Failed to allocate memory: {}", res.Err().message());
         Std::panic("Failed to allocate memory");
     }
-    return (void*)res.Unwrap();
+    return (void*)res.unwrap();
 }
 
 void

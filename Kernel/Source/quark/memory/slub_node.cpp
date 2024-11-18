@@ -13,9 +13,9 @@ namespace Quark::System::Memory {
         auto* addressSpace = BootInfo::MemoryInfo._addressSpace;
 
         auto  pageRes = AllocatePhysFrame4K(1);
-        auto* page    = pageRes.Unwrap();
+        auto* page    = pageRes.unwrap();
 
-        u64 address = addressSpace->AllocateVirtPages4K(1).Unwrap();
+        u64 address = addressSpace->AllocateVirtPages4K(1).unwrap();
 
         page->_flags |= Hal::PmmFlags::KERNEL;
         page->_kmemPool = this;

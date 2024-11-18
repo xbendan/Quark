@@ -15,11 +15,11 @@ namespace Quark::System::Task {
     {
         new (&m_pidNamespace) PidNamespace();
         auto devices = Hal::SetupMultiprocessing();
-        if (devices.IsError()) {
+        if (devices.isError()) {
             return Error::SystemError("Failed to setup multiprocessing");
         }
 
-        (m_devices = devices.Unwrap())
+        (m_devices = devices.unwrap())
             ->ForEachOrdered([](Hal::ICPULocalDevice* const& cpu, usize i) {
                 cpu->_threadQueue = new Queue<Thread*>();
                 cpu->SendSignal(Hal::Signal::SCHED);
@@ -38,7 +38,7 @@ namespace Quark::System {
 
     Res<> InitTasks()
     {
-        _cpus = Hal::SetupMultiprocessing().Unwrap();
+        _cpus = Hal::SetupMultiprocessing().unwrap();
         _cpus->ForEachOrdered([](Hal::ICPULocalDevice* const& cpu, usize i) {
             _threadQueues[i] = new Queue<Thread*>();
             cpu->SendSignal(Hal::Signal::SCHED);

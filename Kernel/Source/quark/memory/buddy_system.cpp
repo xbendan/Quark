@@ -56,11 +56,11 @@ namespace Quark::System::Memory {
     Res<u64> AllocatePhysMemory4K(usize amount)
     {
         auto res = AllocatePhysFrame4K(amount);
-        if (res.IsError()) {
+        if (res.isError()) {
             return res.Err();
         }
 
-        return Ok(res.Unwrap()->_address);
+        return Ok(res.unwrap()->_address);
     }
 
     Res<> FreePhysFrame4K(PageFrame* page, usize amount)
@@ -114,7 +114,7 @@ namespace Quark::System::Memory {
     {
         auto* page = PageFrame::ByAddress(address);
 
-        if (FreePhysFrame4K(page).IsOkay())
+        if (FreePhysFrame4K(page).isSuccess())
             return Ok((usize)page->_chainLength);
 
         return Error::PageNotExist();
@@ -265,17 +265,23 @@ namespace Quark::System::Memory {
         PresentPages += amount;
         ManagedPages.FetchAdd(amount);
 
-        u64 address = range.From();
+        u64 address = pageRange.From();
         u64 offset  = 0;
-        while (address < range.To()) {
+        while (address < pageRange.To()) {
             while ((offset = GetLevelAsOffset(pageLevelAssumption)) >
-                   (range.To() - address)) {
+                   (pageRange.To() - address)) {
                 pageLevelAssumption--;
             }
 
             pageFrame = PageFrame::ByAddress(address);
             if (!pageFrame->_address &&
                 !(pageFrame->_flags & Hal::PmmFlags::FREE)) {
+                memset(pageFrame,
+                       0,
+                       (1 << pageLevelAssumption) * sizeof(PageFrame));
+                memset((void*)address,
+                       0,
+                       (1 << pageLevelAssumption) * PAGE_SIZE_4K);
                 for (int i = 0; i < (1 << pageLevelAssumption); i++)
                     pageFrame[i] = {
                         ._flags    = Hal::PmmFlags::FREE,

@@ -4,6 +4,7 @@
 #include <mixins/meta/buf.h>
 #include <mixins/std/panic.h>
 #include <mixins/utils/arrays.h>
+#include <quark/os/diagnostic/debug.h>
 #include <quark/os/diagnostic/logging.h>
 
 #include <drivers/comm/device.h>
@@ -39,31 +40,30 @@ namespace Quark::System {
             log("VMM is not supported on this platform.");
         } else {
             kernelAddressSpace = BootInfo::MemoryInfo._addressSpace =
-                InitVirtMemory().Unwrap();
+                InitVirtMemory().unwrap();
             log("OK."s);
         }
 
         log("Initializing physical memory management...");
-        InitPhysMemory().Unwrap();
+        InitPhysMemory().unwrap();
         log("OK."s);
 
         // log("Initializing basic interrupts...");
         // Hal::SetupInterrupts().Unwrap();
 
         log("Creating kernel process...");
-        Process::CreateKernelProcess(kernelAddressSpace).Unwrap();
+        Process::CreateKernelProcess(kernelAddressSpace).unwrap();
 
         log("Initializing device connectivity...");
-        auto devList = EnumerateInitialDevices().Unwrap();
+        auto* devList = EnumerateInitialDevices().unwrap();
 
-        for (auto& dev : *devList) {
-            dev->OnInitialize();
-
+        for (auto& dev : *devList)
             Io::Device::Load(dev);
-        }
+
+        asm volatile("sti");
 
         log("Initializing task scheduler...");
-        InitTasks().Unwrap();
+        InitTasks().unwrap();
 
         log("Done!");
 

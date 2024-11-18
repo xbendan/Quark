@@ -41,7 +41,7 @@ namespace Quark::System {
             if (info._addressSpace /* Determine if virtual paging is enabled */) {
                 u64 virt = info._addressSpace
                                ->AllocateVirtPages4K(amount / PAGE_SIZE_4K)
-                               .Unwrap();
+                               .unwrap();
                 info._addressSpace->MapAddress4K(
                     address,
                     virt,

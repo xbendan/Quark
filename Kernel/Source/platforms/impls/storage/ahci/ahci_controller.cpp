@@ -7,9 +7,9 @@ namespace AHCI {
 
     AHCIControllerDevice::AHCIControllerDevice(PCIInfo& info)
         : PCIDevice(info, "AHCI Controller Device", Type::DiskController)
-        , m_clbPhys(AllocatePhysMemory4K(8).Unwrap())
-        , m_fbPhys(AllocatePhysMemory4K(2).Unwrap())
-        , m_ctbaPhys(AllocatePhysMemory4K(64).Unwrap())
+        , m_clbPhys(AllocatePhysMemory4K(8).unwrap())
+        , m_fbPhys(AllocatePhysMemory4K(2).unwrap())
+        , m_ctbaPhys(AllocatePhysMemory4K(64).unwrap())
         , m_addrBase(GetBaseAddrRegs(5))
     {
         EnableBusMastering();

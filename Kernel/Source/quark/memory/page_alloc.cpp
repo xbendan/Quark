@@ -20,13 +20,13 @@ namespace Quark::System::Memory {
     {
         Res<PageFrame*> phys = AllocatePhysFrame4K(amount);
 
-        if (phys.IsOkay()) {
+        if (phys.isSuccess()) {
             u64 address = 0;
 
             addressSpace->MapAddress4K(
-                phys.Unwrap()->_address,
+                phys.unwrap()->_address,
                 address =
-                    AllocateVirtMemory4K(amount, addressSpace, flags).Unwrap(),
+                    AllocateVirtMemory4K(amount, addressSpace, flags).unwrap(),
                 amount,
                 flags);
             return Ok(address);
@@ -45,9 +45,9 @@ namespace Quark::System::Memory {
 
         Res<u64> phys = addressSpace->GetPhysAddress(address);
 
-        if (phys.IsOkay()) {
+        if (phys.isSuccess()) {
             while (amount)
-                amount -= FreePhysMemory4K(phys.Unwrap()).Unwrap();
+                amount -= FreePhysMemory4K(phys.unwrap()).unwrap();
         }
 
         FreeVirtMemory4K(address, amount, addressSpace);

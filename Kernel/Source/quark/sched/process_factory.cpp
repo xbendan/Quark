@@ -7,7 +7,7 @@ namespace Quark::System::Task {
     {
         auto* p = new Process(Scheduler::GetDefaultPidNamespace().NextPid(),
                               name,
-                              AddressSpace::Create().Unwrap());
+                              AddressSpace::Create().unwrap());
 
         return Ok(RefPtr<Process>(p));
     }
@@ -47,7 +47,7 @@ namespace Quark::System::Task {
 
         auto* p = new Process(Scheduler::GetDefaultPidNamespace().NextPid(),
                               name,
-                              AddressSpace::Create().Unwrap(),
+                              AddressSpace::Create().unwrap(),
                               0,
                               0,
                               0);
