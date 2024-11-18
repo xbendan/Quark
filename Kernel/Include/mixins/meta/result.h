@@ -67,17 +67,17 @@ struct Res
 
     /* --- Methods --- */
 
-    always_inline constexpr bool IsError() const
+    always_inline constexpr bool isError() const
     {
         return _inner.template is<E>();
     }
 
-    always_inline constexpr bool IsOkay() const
+    always_inline constexpr bool isSuccess() const
     {
         return _inner.template is<Ok<V>>();
     }
 
-    always_inline constexpr V& Unwrap(
+    always_inline constexpr V& unwrap(
         const char* msg = "called `Result::unwrap()` on an error")
     {
         if (!_inner.template is<Ok<V>>()) {

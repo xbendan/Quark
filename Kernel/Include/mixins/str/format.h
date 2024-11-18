@@ -80,7 +80,7 @@ namespace Qk {
                 scan.next();
 
                 Scan inner{ scan.end() };
-                len += args.format(inner, writer, index).Unwrap();
+                len += args.format(inner, writer, index).unwrap();
 
                 index++;
             } else if (c == '}') {
@@ -366,7 +366,7 @@ namespace Qk {
                     ._width  = sizeof(T*) * 2,
                     ._fill   = '0',
                 };
-                len += formatter.formatUnsigned(writer, (usize)val).Unwrap();
+                len += formatter.formatUnsigned(writer, (usize)val).unwrap();
             } else {
                 len += writer.writeStr("nullptr");
             }
@@ -445,7 +445,7 @@ namespace Qk {
         Res<usize> format(TextWriter& writer, Res<T> const& val)
         {
             if (val)
-                return _ok.format(writer, val.Unwrap());
+                return _ok.format(writer, val.unwrap());
             else
                 return _err.format(writer, val.Err());
         }

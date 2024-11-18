@@ -1,3 +1,5 @@
+#pragma once
+
 #include <drivers/acpi/spec.h>
 #include <mixins/std/c++types.h>
 #include <quark/dev/device.h>
