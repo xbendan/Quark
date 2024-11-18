@@ -1,20 +1,21 @@
 #pragma once
 
 #include <drivers/cmos/spec.h>
-#include <quark/clocksource/timer.h>
+#include <mixins/utils/date.h>
 #include <quark/dev/device.h>
 #include <quark/hal/ports.h>
+#include <quark/timing/clock_source.h>
 
 namespace CMOS {
     using namespace Quark::System;
 
     class RealTimeClockDevice
-        : public Timer
+        : public ClockSource
         , public Io::Device
     {
     public:
         RealTimeClockDevice()
-            : Timer(TimerType::RTC)
+            : ClockSource()
             , Device("Real Time Clock", Device::Type::TimerOrClock)
         {
         }
@@ -31,14 +32,8 @@ namespace CMOS {
         u8   GetMonth();
         u16  GetYear();
 
-        virtual void            Sleep(u64) override final;
-        virtual void            SleepNanos(u64) override final;
-        virtual void            SleepUntil(Date) override final;
-        virtual Res<TimerAlarm> CreateAlarm(Date, Func<void()>) override;
-        virtual Res<TimerAlarm> CreateAlarm(TimeSpan, Func<void()>) override;
-        virtual Date            GetToday() override final;
-        virtual u64             GetSystemUptime() override final;
-        virtual u64             GetTimestamp() override final;
+        virtual Date GetToday() override final;
+        virtual u64  GetTimestamp() override final;
 
     private:
         Hal::PortAccess<CMOS_PORT_REG_INDEX> m_indexAccess;

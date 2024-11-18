@@ -2,7 +2,6 @@
 #include <quark/dev/device.h>
 #include <quark/hal/interrupts.h>
 #include <quark/hal/ports.h>
-
 #include <quark/os/diagnostic/logging.h>
 
 namespace PIT {
@@ -12,32 +11,40 @@ namespace PIT {
     bool PITimerDevice::Tick(int, Registers* frame)
     {
         m_instance->m_uptime.Inc(MemoryOrder::MemoryOrderRelaxed);
+        info$("[PIT] Tick: {}", m_instance->m_uptime.Load());
 
         return true;
     }
 
     PITimerDevice::PITimerDevice(u32 frequency)
-        : Timer(TimerType::PIT)
+        : TimerSource()
         , Device("Programmable Interval Timer", Device::Type::TimerOrClock)
         , m_frequency(frequency)
     {
         m_instance = this;
+    }
 
-        u32 divisor = PIT_NORMAL_FREQUENCY / frequency;
+    Res<> PITimerDevice::OnInitialize()
+    {
+        EnableInterrupt(IRQ_PIT_TIMER_UPDATE, PITimerDevice::Tick);
+
+        u32 divisor = PIT_NORMAL_FREQUENCY / m_frequency;
+
         m_commandAccess << (u8)0x36;
         m_dataAccess << (u8)(divisor & 0xFF);
         m_dataAccess << (u8)((divisor >> 8) & 0xFF);
+
+        return Ok();
     }
 
     Res<> PITimerDevice::OnStartup()
     {
-        SetInterrupt(IRQ_PIT_TIMER_UPDATE, &PITimerDevice::Tick);
         return Ok();
     }
 
     Res<> PITimerDevice::OnShutdown()
     {
-        SetInterrupt(IRQ_PIT_TIMER_UPDATE, nullptr);
+        EnableInterrupt(IRQ_PIT_TIMER_UPDATE, nullptr);
         return Ok();
     }
 
@@ -47,7 +54,7 @@ namespace PIT {
 
         ms = ms * 1000 + m_uptime.Load();
         while (m_uptime.Load() < ms)
-            asm volatile("pause");
+            asm volatile("hlt");
     }
 
     void PITimerDevice::SleepNanos(u64 ms)
@@ -55,26 +62,18 @@ namespace PIT {
         Sleep(ms / 1000000);
     }
 
-    void PITimerDevice::SleepUntil(Date date)
+    Res<TimerAlarm> PITimerDevice::CreateAlarm(Date, Func<void()>)
     {
-        u64 ms = (date - Date::Now()).GetAsTimestamp();
-        Sleep(ms);
+        return Error::NotImplemented();
     }
 
-    Res<TimerAlarm> PITimerDevice::CreateAlarm(Date, Func<void()>) {}
-
-    Res<TimerAlarm> PITimerDevice::CreateAlarm(TimeSpan, Func<void()>) {}
-
-    Date PITimerDevice::GetToday() {}
+    Res<TimerAlarm> PITimerDevice::CreateAlarm(TimeSpan, Func<void()>)
+    {
+        return Error::NotImplemented();
+    }
 
     u64 PITimerDevice::GetSystemUptime()
     {
         return m_uptime.Load();
     }
-
-    u64 PITimerDevice::GetTimestamp()
-    {
-        return m_uptime.Load(); // FIXME: Implement
-    }
-
 }

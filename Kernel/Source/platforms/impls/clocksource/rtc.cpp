@@ -83,24 +83,6 @@ namespace CMOS {
         }
     }
 
-    void RealTimeClockDevice::Sleep(u64 ms) {}
-
-    void RealTimeClockDevice::SleepNanos(u64 ms) {}
-
-    void RealTimeClockDevice::SleepUntil(Date date) {}
-
-    Res<TimerAlarm> RealTimeClockDevice::CreateAlarm(Date         date,
-                                                     Func<void()> func)
-    {
-        return Error::NotImplemented();
-    }
-
-    Res<TimerAlarm> RealTimeClockDevice::CreateAlarm(TimeSpan     span,
-                                                     Func<void()> func)
-    {
-        return Error::NotImplemented();
-    }
-
     Date RealTimeClockDevice::GetToday()
     {
         u8 cen, year, month, day, hours, minutes, seconds;
@@ -144,11 +126,6 @@ namespace CMOS {
 
         u16 fullyear = (u16)cen * 100 + year;
         return Date(fullyear, month, day, hours, minutes, seconds, 0);
-    }
-
-    u64 RealTimeClockDevice::GetSystemUptime()
-    {
-        return 0;
     }
 
     u64 RealTimeClockDevice::GetTimestamp()

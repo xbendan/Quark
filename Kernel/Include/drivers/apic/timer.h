@@ -1,29 +1,25 @@
+#pragma once
+
 #include <drivers/apic/device.h>
 #include <quark/dev/device.h>
-#include <quark/time/clocksource.h>
+#include <quark/timing/timer_source.h>
 
 namespace APIC {
-    class APICTimerDevice
-        : public System::IClockSource
-        , public Io::Device
+    class LocalAPICTimer : public TimerSource
     {
     public:
-        APICTimerDevice(GenericControllerDevice::Local* local)
-            : Device(u8"APIC Timer", Type::TimerOrClock)
-            , m_local(local)
-            , m_clockFreq(0)
-            , m_clockTicks(0)
-        {
-        }
+        LocalAPICTimer(GenericControllerDevice::Local*);
+        ~LocalAPICTimer() = default;
 
-        u64  getTicks() override;
-        Date now() override;
-        void sleep(u64 ms) override;
-        void sleepUntil(Date date) override;
+        void            Sleep(u64) override;
+        void            SleepNanos(u64) override;
+        Res<TimerAlarm> CreateAlarm(Date, Func<void()>) override;
+        Res<TimerAlarm> CreateAlarm(TimeSpan, Func<void()>) override;
+        u64             GetSystemUptime() override;
 
     private:
         GenericControllerDevice::Local* m_local;
-        u64                             m_clockFreq;
-        volatile u64                    m_clockTicks;
+        u32                             m_busSpeed;
+        u32                             m_irqSource;
     };
 } // namespace Quark::System::Hal

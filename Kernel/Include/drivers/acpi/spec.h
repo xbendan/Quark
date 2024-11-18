@@ -31,8 +31,6 @@ namespace ACPI {
         u32  _oemRevision;
         u32  _creatorId;
         u32  _creatorRevision;
-
-        ~TableHeader() = delete;
     } __attribute__((packed));
 
     struct RootSystemDescTable : public TableHeader
@@ -175,6 +173,7 @@ namespace ACPI {
         u32 _pm1bEventBlock;
         u32 _pm1aCtrlBlock;
         u32 _pm1bCtrlBlock;
+        u32 _pm2CtrlBlock;
         u32 _pmtTimerBlock;
         u32 _gpe0Block;
         u32 _gpe1Block;
@@ -200,6 +199,51 @@ namespace ACPI {
 
         u8 __reserved__1;
 
+//         struct
+//         {
+//             /*
+//                 If set, signifies that the WBINVD instruction
+//                 correctly flushes
+// the processor caches, maintains memory coherency, and upon completion
+// of the instruction, all caches for the current processor contain no
+// cached data other than what OSPM references and allows to be cached.
+// If this flag is not set, the ACPI OS is responsible for disabling all
+// ACPI features that need this function. This field is maintained for
+// ACPI 1.0 processor compatibility on existing systems. Processors in
+// new ACPIcompatible systems are required to support this function and
+// indicate this to OSPM by setting this field.
+//                 如果设置，则表示WBINVD指令正确地刷新处理器缓存，保持内存一致性，并且在指令完成后，当前处理器的所有缓存都不包含除了OSPM引用和允许缓存的数据之外的缓存数据。
+// 如果不设置该标志，则ACPI操作系统负责禁用所有需要该功能的ACPI特性。
+// 该字段是为了在现有系统上兼容ACPI 1.0处理器而维护的。
+// 新的acpiccompatible系统中的处理器需要支持此功能，并通过设置此字段向OSPM表明此功能。
+//             */
+//             u32 WbInvd : 1;
+//             u32 WbInvdFlush : 1;
+//             u32 ProcC1 : 1;
+//             u32 P_LVL2Up : 1;
+//         } _flags;
+#define FADT_FLAGS_WBINVD (1 << 0)
+#define FADT_FLAGS_WBINVD_FLUSH (1 << 1)
+#define FADT_FLAGS_PROC_C1 (1 << 2)
+#define FADT_FLAGS_P_LVL2UP (1 << 3)
+#define FADT_FLAGS_PWR_BUTTON (1 << 4)
+#define FADT_FLAGS_SLP_BUTTON (1 << 5)
+#define FADT_FLAGS_FIX_RTC (1 << 6)
+#define FADT_FLAGS_RTC_S4 (1 << 7)
+#define FADT_FLAGS_TMR_VAL_EXT (1 << 8)
+#define FADT_FLAGS_DCK_CAP (1 << 9)
+#define FADT_FLAGS_RESET_REG_SUP (1 << 10)
+#define FADT_FLAGS_SEALED_CASE (1 << 11)
+#define FADT_FLAGS_HEADLESS (1 << 12)
+#define FADT_FLAGS_CPU_SW_SLP (1 << 13)
+#define FADT_FLAGS_PCI_EXP_WAK (1 << 14)
+#define FADT_FLAGS_USE_PLATFORM_CLOCK (1 << 15)
+#define FADT_FLAGS_S4_RTC_STS_VALID (1 << 16)
+#define FADT_FLAGS_REMOTE_POWER_ON_CAP (1 << 17)
+#define FADT_FLAGS_APIC_CLUSTER (1 << 18)
+#define FADT_FLAGS_APIC_PHYSICAL (1 << 19)
+#define FADT_FLAGS_HW_REDUCED_ACPI (1 << 20)
+#define FADT_FLAGS_LOW_POWER_S0 (1 << 21)
         u32 _flags;
 
         AddressPack _resetRegistry;
@@ -217,6 +261,9 @@ namespace ACPI {
         AddressPack x_pmtTimerBlock;
         AddressPack x_gpe0Block;
         AddressPack x_gpe1Block;
+        AddressPack x_sleepCtrl;
+        AddressPack x_sleepStatus;
+        u64         x_hypervisorVendorId;
     } __attribute__((packed));
 
     struct FACS /* Firmware ACPI Control Structure */

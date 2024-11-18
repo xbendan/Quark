@@ -21,6 +21,7 @@ namespace APIC {
                   GenericControllerDevice* apic,
                   ICPULocalDevice*         device)
                 : _apicId(apicId)
+                , _apic(apic)
                 , _basePhys(apic->ReadBase() & LOCAL_APIC_BASE)
                 , _baseVirt(Memory::CopyAsIOAddress(_basePhys))
                 , _device(device)
@@ -36,10 +37,11 @@ namespace APIC {
             void SendIPI(u32 vec);
             void SendIPI(u32 dsh, u32 type, u8 vector);
 
-            u8               _apicId;
-            u64              _basePhys;
-            u64              _baseVirt;
-            ICPULocalDevice* _device;
+            u8                       _apicId;
+            GenericControllerDevice* _apic;
+            u64                      _basePhys;
+            u64                      _baseVirt;
+            ICPULocalDevice*         _device;
         };
 
         GenericControllerDevice();
@@ -58,9 +60,14 @@ namespace APIC {
         void WriteRegLoc(u32 reg, u32 data);
         u32  ReadRegLoc(u32 reg);
 
-        List<Local*>* GetApicLocals() const { return m_units; }
-        Local*        GetApicLocal(u8 id) { return (*m_units)[id]; }
+        List<Local*>& GetApicLocals() { return m_units; }
+        Local*        GetApicLocal(u8 id) { return (m_units)[id]; }
+        List<ACPI::MADT::InterruptServiceOverride*>& GetInterruptOverrides()
+        {
+            return m_overrides;
+        }
 
+        void Redirect(u8 irq, u8 vector, u32 delivery);
         void SendIPI(u8 dest, u32 dsh, u32 type, u8 vector);
 
         Res<> OnInitialize() override;
@@ -75,7 +82,7 @@ namespace APIC {
         volatile u32* m_ioRegSel;
         volatile u32* m_ioWindow;
 
-        List<Local*>*                                m_units;
-        List<ACPI::MADT::InterruptServiceOverride*>* m_overrides;
+        List<Local*>                                m_units;
+        List<ACPI::MADT::InterruptServiceOverride*> m_overrides;
     };
 } // namespace Quark::System::Hal
