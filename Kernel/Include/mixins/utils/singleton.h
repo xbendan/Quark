@@ -1,12 +1,13 @@
+#pragma once
+
 #include <mixins/std/c++types.h>
 #include <mixins/std/concepts.h>
 #include <mixins/utils/collections.h>
 #include <mixins/utils/list.h>
 
 namespace Qk {
-    template <typename TSource, template <typename> typename TImpl = List>
-        requires Std::isDerived<ICollection<TSource>, TImpl<TSource>>
-    class Singleton : public TImpl<TSource>
+    template <typename TSource>
+    class Singleton : public List<TSource>
     {
     public:
         Singleton()  = default;
@@ -14,7 +15,7 @@ namespace Qk {
 
         Opt<TSource> Select(TSource* selected)
         {
-            if (TImpl<TSource>::Contains(selected)) {
+            if (List<TSource>::Contains(selected)) {
                 return m_selected = selected;
             } else {
                 return Empty();
@@ -24,13 +25,20 @@ namespace Qk {
         Opt<TSource> GetOrFirst()
         {
             if (!m_selected) {
-                m_selected = TImpl<TSource>::FindFirst();
+                m_selected = List<TSource>::FindFirst();
             }
 
             return m_selected.Get();
         }
 
-        TSource* operator()() const { return GetOrFirst(); }
+        TSource& operator()()
+        {
+            if (!m_selected) {
+                m_selected = List<TSource>::FindFirst();
+            }
+
+            return m_selected.Get();
+        }
 
     private:
         Opt<TSource&> m_selected = Empty();
