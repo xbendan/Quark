@@ -13,10 +13,8 @@ namespace PCI {
     Res<> PCIEnumerationDevice::OnInitialize()
     {
         auto acpi = Device::FindByName<ACPI::ControllerDevice>(
-            "ACPI Management Device");
-        if (!acpi.IsPresent()) {
-            return Error::DeviceNotFound();
-        }
+            ACPI::ControllerDevice::Name);
+        assert(acpi.IsPresent(), "ACPI device not found");
 
         m_pciExpressTable =
             acpi.Take()->FindTable<ACPI::PCIExpressSpecTable>("MCFG");

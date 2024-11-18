@@ -17,7 +17,7 @@ namespace PS2 {
         /* PS2 Controller is not supported while the bit 1 of
            'IA PC Boot Architecture Flags' is clear (0). */
         ACPI::FixedAcpiDescTable* fadt;
-        Device::FindByName<ACPI::ControllerDevice>("ACPI Management Device")
+        Device::FindByName<ACPI::ControllerDevice>(ACPI::ControllerDevice::Name)
             .IfPresent([&](ACPI::ControllerDevice* device) {
                 fadt = device->FindTable<ACPI::FixedAcpiDescTable>("FACP");
             });
