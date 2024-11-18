@@ -1,4 +1,5 @@
 #include <drivers/acpi/device.h>
+#include <drivers/acpi/timer.h>
 #include <mixins/meta/func.h>
 #include <mixins/utils/strings.h>
 #include <quark/memory/address_range.h>
@@ -73,6 +74,8 @@ namespace ACPI {
         TblFadt = FindTable<ACPI::FixedAcpiDescTable>("FACP");
         TblHpet = FindTable<ACPI::HighPrecisionEventTable>("HPET");
         TblMcfg = FindTable<ACPI::PCIExpressSpecTable>("MCFG");
+
+        Device::Load(new ACPITimerDevice(this));
 
         return Ok();
     }
