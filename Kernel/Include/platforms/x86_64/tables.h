@@ -1,5 +1,7 @@
 #pragma once
 
+#define STACK_SIZE 0x4000
+
 #include <mixins/std/c++types.h>
 
 namespace Quark::System::Platform::X64 {
@@ -43,24 +45,19 @@ namespace Quark::System::Platform::X64 {
         {
             u16 _limitLow;
             u16 _baseLow;
-            u8  _baseMid;
-            u8  _flags;
-            u8  _limitHigh : 4;
-            u8  _granularity : 4;
+            u8  _baseMedium;
+            /*
+             * 0: Accessed
+             * 1: Read/Write
+             * 2: Direction/Conforming
+             * 3: Executable
+             * 4: Descriptor Type
+             * 5: Privilege Level
+             * 6: Present
+             */
+            u8  _access;
+            u8  _granularity;
             u8  _baseHigh;
-
-            Entry() {}
-
-            Entry(u32 base, u32 limit, u8 flags, u8 granularity)
-                : _limitLow(limit & 0xffff)
-                , _baseLow(base & 0xffff)
-                , _baseMid((base >> 16) & 0xff)
-                , _flags(flags)
-                , _limitHigh((limit >> 16) & 0x0f)
-                , _granularity(granularity)
-                , _baseHigh((base >> 24) & 0xff)
-            {
-            }
         } __attribute__((packed)) _entries[5];
 
         struct TssEntry
@@ -75,31 +72,52 @@ namespace Quark::System::Platform::X64 {
             u32 __reserved__0;
 
             TssEntry() = default;
-            TssEntry(TaskStateSegment* tss);
+            TssEntry(TaskStateSegment* tss)
+                : _len(108)
+                , _baseLow((u64)tss & 0xffff)
+                , _baseMedium(((u64)tss >> 16) & 0xff)
+                , _flags0(0b10001001)
+                , _flags1(0x00)
+                , _baseHigh(((u64)tss >> 24) & 0xff)
+                , _baseHighest(((u64)tss >> 32) & 0xffffffff)
+                , __reserved__0(0)
+            {
+            }
+            TssEntry(u16 len,
+                     u16 baseLow,
+                     u8  baseMedium,
+                     u8  flags0,
+                     u8  flags1,
+                     u8  baseHigh,
+                     u32 baseHighest)
+                : _len(len)
+                , _baseLow(baseLow)
+                , _baseMedium(baseMedium)
+                , _flags0(flags0)
+                , _flags1(flags1)
+                , _baseHigh(baseHigh)
+                , _baseHighest(baseHighest)
+                , __reserved__0(0)
+            {
+            }
         } __attribute__((packed)) _tss;
 
         GlobDescTbl() = delete;
 
         GlobDescTbl(TaskStateSegment* tss)
-            : _entries{ Entry(),
-                        Entry(0xaffff,
-                              0,
-                              (Segment | Present | Executable | ReadWrite),
-                              0x0f),
-                        Entry(0xaffff,
-                              0,
-                              (Segment | Present | ReadWrite),
-                              0x0f),
-                        Entry(
-                            0xafff,
-                            0,
-                            (Segment | Present | Executable | User | ReadWrite),
-                            0x0f),
-                        Entry(0xafff,
-                              0,
-                              (Segment | Present | User | ReadWrite),
-                              0x0f) }
-            , _tss(TssEntry(tss))
+            : _entries{
+                { 0x0000, 0x0000, 0x00, 0x00, 0x00,                       0x00},
+                { 0xFFFF, 0x0000, 0x00, 0x9A, (1 << 5) | (1 << 7) | 0x0F, 0x00},
+                { 0xFFFF, 0x0000, 0x00, 0x92, (1 << 5) | (1 << 7) | 0x0F, 0x00},
+                { 0xFFFF, 0x0000, 0x00, 0xFA, (1 << 5) | (1 << 7) | 0x0F, 0x00},
+                { 0xFFFF, 0x0000, 0x00, 0xF2, (1 << 5) | (1 << 7) | 0x0F, 0x00}
+                // {0xFFFF, 0x0000, 0x00, 0b00000000, 0b00000000, 0x00},
+                // {0x0000, 0x0000, 0x00, 0b10011010, 0b00100000, 0x00},
+                // {0x0000, 0x0000, 0x00, 0b10010010, 0b00000000, 0x00},
+                // {0x0000, 0x0000, 0x00, 0b11110010, 0b00100000, 0x00},
+                // {0x0000, 0x0000, 0x00, 0b11111010, 0b00000000, 0x00}, 
+            }
+            , _tss{ 108, 0, 0, 0b10001001, 0b00000000, 0, 0 }
         {
         }
     };
@@ -109,13 +127,14 @@ namespace Quark::System::Platform::X64 {
         u32 __reserved__0 __attribute__((aligned(0x10)));
         u64 _rsp[3];
         u64 __reserved__1;
+        /* Interrupt Stack Table */
         u64 _ist[7];
         u64 __reserved__2;
-        u16 __reserved__3;
-        u16 _iopb;
+        u64 __reserved__3;
+        u32 _iopb;
 
         TaskStateSegment() = default;
-        TaskStateSegment(GlobDescTbl::TssEntry& tss);
+        TaskStateSegment(u64 istp);
     } __attribute__((packed));
 
     struct InterruptDescTbl
@@ -150,7 +169,7 @@ namespace Quark::System::Platform::X64 {
             constexpr Entry(u64 base, u16 selector, u8 flags, u8 ist = 0)
                 : _baseLow(base & 0xffff)
                 , _selector(selector)
-                , _ist(ist)
+                , _ist(ist & 0x7)
                 , _flags(flags)
                 , _baseMedium((base >> 16) & 0xffff)
                 , _baseHigh((base >> 32) & 0xffffffff)

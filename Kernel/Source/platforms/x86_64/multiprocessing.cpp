@@ -8,14 +8,21 @@
 #include <quark/dev/device.h>
 #include <quark/hal/multiprocessing.h>
 #include <quark/memory/page_alloc.h>
+#include <quark/os/diagnostic/logging.h>
 #include <quark/sched/completable.h>
 
 namespace Quark::System {
-    extern Inert<Platform::X64::CPULocalDevice> kCPULocal;
-    extern Platform::X64::InterruptDescTbl      kIdt;
+    extern Inert<Platform::X64::CPULocalDevice>  kCPULocal;
+    extern Platform::X64::InterruptDescTbl::Pack kIdtPtr;
 }
 
+extern void* SMPTrampolineStart;
+extern void* SMPTrampolineEnd;
+
+extern Quark::System::Platform::X64::GlobDescTbl::Pack GDT64Pack64;
+
 namespace Quark::System::Platform::X64 {
+    using namespace Quark::System::Diagnostic;
     using namespace Quark::System::Io;
     using namespace Quark::System::Memory;
     using namespace Quark::System::Task;
@@ -34,6 +41,7 @@ namespace Quark::System::Platform::X64 {
 
     void TrampolineEntry(u16 cpuID)
     {
+        info$("CPU {} is being initialized.", cpuID);
         CPULocalDevice* cpu = (CPULocalDevice*)Hal::GetCPULocal(cpuID);
 
         SetCPULocal(cpu);
@@ -43,11 +51,13 @@ namespace Quark::System::Platform::X64 {
             ._size   = sizeof(cpu->_gdt) - 1,
             ._offset = (u64)&cpu->_gdt,
         };
-        cpu->_idtPtr = {
-            ._size   = sizeof(kIdt) - 1,
-            ._offset = (u64)&kIdt,
-        };
-        cpu->_tss = TaskStateSegment(cpu->_gdt._tss);
+        cpu->_idtPtr = kIdtPtr;
+        cpu->_tss    = TaskStateSegment(
+            Memory::AllocateMemory4K(STACK_SIZE * 3,
+                                     Process::GetKernelProcess()->_addressSpace,
+                                     Hal::VmmFlags::PRESENT |
+                                         Hal::VmmFlags::WRITABLE)
+                .unwrap());
 
         cpu->_schedule = {
             ._id            = cpuID,
@@ -80,58 +90,65 @@ namespace Quark::System::Hal {
 
     Res<List<ICPULocalDevice*>*> SetupMultiprocessing()
     {
-        auto* apic = Device::FindByName<APIC::GenericControllerDevice>(
-                         "Advanced Programmable Interrupt Controller")
-                         .Take();
-        assert(apic != nullptr,
+        auto apicRes = Device::FindByName<APIC::GenericControllerDevice>(
+            "Advanced Programmable Interrupt Controller");
+        assert(apicRes.IsPresent(),
                "Multi processing feature requires APIC device");
 
+        auto* apic = apicRes.Take();
         assert(_cpuLocals == nullptr,
                "Do not call SetupMultiprocessing() more than once");
-        _cpuLocals = apic->GetApicLocals()->Select<ICPULocalDevice*>(
+        _cpuLocals = apic->GetApicLocals().Select<ICPULocalDevice*>(
             [](APIC::GenericControllerDevice::Local* const& apicLocal) {
                 return apicLocal->_device;
             });
+        memcpy((void*)SMP_TRAMPOLINE_ENTRY,
+               (void*)&SMPTrampolineStart,
+               (u64)&SMPTrampolineEnd - (u64)&SMPTrampolineStart);
 
         (*_cpuLocals)[0] = &(kCPULocal.unwrap());
-        apic->GetApicLocals()->ForEach(
-            [&](APIC::GenericControllerDevice::Local* apicLocal) {
-                if (apicLocal->_apicId == 0)
-                    return;
+        for (APIC::GenericControllerDevice::Local* apicLocal :
+             apic->GetApicLocals()) {
+            if (apicLocal->_apicId == (*_cpuLocals)[0]->_id) {
+                CPU0 = static_cast<CPULocalDevice*>(apicLocal->_device);
+                continue;
+            }
 
-                *MagicValue       = 0;
-                *TrampolineCpuID  = apicLocal->_apicId;
-                *TrampolineEntry2 = (u64)TrampolineEntry;
-                *TrampolineStack =
-                    AllocateMemory4K(4,
-                                     Process::GetKernelProcess()->_addressSpace,
-                                     Hal::VmmFlags::PRESENT |
-                                         Hal::VmmFlags::WRITABLE)
-                        .Unwrap() +
-                    4 * PAGE_SIZE_4K;
-                *TrampolineGdtPack = CPU0->_gdtPtr;
+            info$("Initializing CPU {}", apicLocal->_apicId);
+            *MagicValue       = 0;
+            *TrampolineCpuID  = apicLocal->_apicId;
+            *TrampolineEntry2 = (u64)TrampolineEntry;
+            *TrampolineStack =
+                AllocateMemory4K(4,
+                                 Process::GetKernelProcess()->_addressSpace,
+                                 Hal::VmmFlags::PRESENT |
+                                     Hal::VmmFlags::WRITABLE)
+                    .unwrap() +
+                4 * PAGE_SIZE_4K;
+            *TrampolineGdtPack = CPU0->_gdtPtr;
+            // *TrampolineGdtPack = GDT64Pack64;
 
-                asm volatile("mov %%cr3, %%rax\n\t"
-                             "mov %%rax, %0"
-                             : "=m"(*TrampolineCR3)
-                             :
-                             : "rax");
+            asm volatile("mov %%cr3, %%rax\n\t"
+                         "mov %%rax, %0"
+                         : "=m"(*TrampolineCR3)
+                         :
+                         : "rax");
 
-                apicLocal->SendIPI(ICR_DSH_DEST, ICR_MESSAGE_TYPE_INIT, 0);
-                Task::Delay(50);
+            apicLocal->SendIPI(ICR_DSH_DEST, ICR_MESSAGE_TYPE_INIT, 0);
+            Task::Delay(50);
 
-                while (*MagicValue != 0xB33F) {
-                    apicLocal->SendIPI(ICR_DSH_DEST,
-                                       ICR_MESSAGE_TYPE_STARTUP,
-                                       (SMP_TRAMPOLINE_ENTRY >> 12));
-                    Task::Delay(200);
-                }
+            while (*MagicValue != 0xB33F) {
+                apicLocal->SendIPI(ICR_DSH_DEST,
+                                   ICR_MESSAGE_TYPE_STARTUP,
+                                   (SMP_TRAMPOLINE_ENTRY >> 12));
+                Task::Delay(200);
+            }
 
-                while (!DoneInit)
-                    asm volatile("pause");
+            while (!DoneInit)
+                asm volatile("pause");
 
-                DoneInit = false;
-            });
+            DoneInit = false;
+        }
 
         return Ok(_cpuLocals);
     }

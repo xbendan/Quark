@@ -10,6 +10,7 @@ GLOBAL GDT64.Pack64
 extern kload_multiboot2
 extern kload_stivale2
 
+STACK_SIZE  equ 0x4000
 KERNEL_VIRTUAL_BASE equ 0xFFFFFFFF80000000
 KERNEL_BASE_PML4_INDEX equ (((KERNEL_VIRTUAL_BASE) >> 39) & 0x1FF)
 KERNEL_BASE_PDPT_INDEX equ (((KERNEL_VIRTUAL_BASE) >> 30) & 0x1FF)
@@ -205,6 +206,8 @@ text_address:
 EXTERN _bss
 EXTERN _bss_end
 
+global GDT64Pack64
+
 SECTION .data
 GDT64Pack64:
     dw GDT64.Pack32 - GDT64 - 1
@@ -314,5 +317,5 @@ kinit_stivale2:
 SECTION .bss
 align 64
 StackTop:
-    resb 0x4000
+    resb STACK_SIZE
 StackBottom:

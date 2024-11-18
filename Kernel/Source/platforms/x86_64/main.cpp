@@ -25,15 +25,19 @@ extern "C"
 
 extern u64 IntVec[];
 
+extern Quark::System::Platform::X64::GlobDescTbl::Pack GDT64Pack64;
+
 namespace Quark::System {
     using namespace Quark::System::Memory;
     using namespace Quark::System::Platform::X64;
     using namespace Quark::System::Diagnostic;
+    using namespace Quark::System::Hal;
     using Qk::Array;
 
-    InterruptDescTbl                    kIdt = {};
+    InterruptDescTbl::Entry             kIdtEntries[256] = {};
+    InterruptDescTbl::Pack              kIdtPtr          = {};
     Inert<CPULocalDevice>               kCPULocal;
-    Qk::Buf<char, 3 * 8 * PAGE_SIZE_4K> kTssEntryBuf;
+    Qk::Buf<char, 3 * 8 * PAGE_SIZE_4K> kTssIstRegion;
 
     Res<Array<Io::Device*>*> EnumerateInitialDevices()
     {
@@ -56,37 +60,44 @@ namespace Quark::System {
 
         CPULocalDevice* p = kCPULocal(0);
 
-        /* load global descriptor table */
-        _lgdt(&p->_gdtPtr);
-
-        /* load interrupt descriptor table */
-        // for (int i = 0; i < kIdt.Count; i++) {
-        //     kIdt.Entries[i] =
-        //         InterruptDescTbl::Entry((u64)&interruptVectors[i],  //
-        //                                 0x08,                       //
-        //                                 0,                          //
-        //                                 InterruptDescTbl::IntGate); //
-        // }
         for (int i = 0; i < 256; i++)
-            kIdt.Entries[i] = InterruptDescTbl::Entry(
+            kIdtEntries[i] = InterruptDescTbl::Entry(
                 IntVec[i], 0x08, InterruptDescTbl::IntGate);
 
-        kIdt.Entries[8]._ist = 2;
+        kIdtEntries[8]._ist = 2;
 
-        p->_idtPtr = { sizeof(kIdt) - 1, (u64)&kIdt };
-        _lidt(&p->_idtPtr);
+        // p->_idtPtr = {
+        //     sizeof(InterruptDescTbl::Entry) * InterruptDescTbl::Count - 1,
+        //     (u64)&kIdtEntries,
+        // };
+        kIdtPtr = {
+            sizeof(InterruptDescTbl::Entry) * InterruptDescTbl::Count - 1,
+            (u64)&kIdtEntries,
+        };
+        _lidt(&kIdtPtr);
+
+        pOut<u8>(0x20, 0x11);
+        pOut<u8>(0xA0, 0x11);
+        pOut<u8>(0x21, 0x20);
+        pOut<u8>(0xA1, 0x28);
+        pOut<u8>(0x21, 0x04);
+        pOut<u8>(0xA1, 0x02);
+        pOut<u8>(0x21, 0x01);
+        pOut<u8>(0xA1, 0x01);
+        pOut<u8>(0x21, 0x0);
+        pOut<u8>(0xA1, 0x0);
 
         SetCPULocal(p);
 
         p->_gdt._tss = GlobDescTbl::TssEntry(&p->_tss);
-        for (int i = 0; i < 3; i++) {
-            p->_tss._ist[i] = (u64)&kTssEntryBuf._data[i * 8 * PAGE_SIZE_4K];
-            // memset
-            p->_tss._ist[i] += PAGE_SIZE_4K * 8;
-        }
+        p->_tss      = TaskStateSegment((u64)kTssIstRegion.buf());
 
-        asm volatile("mov %%rsp, %0" : "=r"(p->_tss._rsp[0]));
-        asm volatile("ltr %%ax" ::"a"(0x28));
+        /* load global descriptor table */
+        _lgdt(&p->_gdtPtr);
+        // _lgdt(&GDT64Pack64);
+
+        // asm volatile("mov %%rsp, %0" : "=r"(p->_tss._rsp[0]));
+        // asm volatile("ltr %%ax" ::"a"(0x28));
 
         // Check if the system supports the required features
         CPUID cpuid(1, 0);
