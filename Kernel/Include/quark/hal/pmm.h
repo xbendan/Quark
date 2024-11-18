@@ -19,4 +19,7 @@ namespace Quark::System::Hal {
         DMA32,
         NORMAL,
     };
+
+    Res<> InitPhysMemory();
+    Res<> InitPhysAlloc();
 }

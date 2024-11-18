@@ -14,4 +14,6 @@
 
 namespace Quark::System::Hal {
     using VmmFlags = Quark::System::Platform::__ARCH_NAMESPACE::VmmFlags;
+
+    Res<> InitVirtMemory();
 } // namespace Quark::System::Hal

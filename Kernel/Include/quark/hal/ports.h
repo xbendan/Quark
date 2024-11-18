@@ -13,14 +13,14 @@ namespace Quark::System::Hal {
         TNumType In()
         {
             TNumType data;
-            asm volatile("in %1, %0" : "=a"(data) : "d"(TNum));
+            asm volatile("in %1, %0" : "=a"(data) : "dN"(TNum));
             return data;
         }
 
         template <Integral TNumType = u8>
         TNumType Out(TNumType data)
         {
-            asm volatile("out %0, %1" : : "a"(data), "d"(TNum));
+            asm volatile("out %1, %0" : : "d"(TNum), "a"(data));
             return data;
         }
 
