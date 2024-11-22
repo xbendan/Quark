@@ -19,8 +19,6 @@ namespace Quark::System::Io {
         {
             Biometric,
             Bluetooth,
-            DiskDrive,
-            DiskController,
             DisplayAdapter,
             DisplayOutput,
             Firmware,
@@ -34,6 +32,8 @@ namespace Quark::System::Io {
             PowerSupply,
             Processor,
             Security,
+            StorageDrive,
+            StorageController,
             SoftwareDevice,
             SystemDevices,
             Sensor,
