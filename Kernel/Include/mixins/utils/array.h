@@ -74,8 +74,6 @@ namespace Qk {
             : _data(new T[size])
             , _size(size)
         {
-            this->_buf = _data;
-            this->_len = size;
         }
         Array(T* data, usize size)
             : _data(data)
@@ -86,8 +84,6 @@ namespace Qk {
             : _data(new T[other._size])
             , _size(other._size)
         {
-            this->_buf = _data;
-            this->_len = _size;
             for (usize i = 0; i < _size; i++) {
                 _data[i] = other._data[i];
             }

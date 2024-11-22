@@ -151,3 +151,10 @@ struct [[nodiscard]] Error
     MakeError$(SystemError, SYSTEM_ERROR, "System error");
     MakeError$(SystemShutdown, SYSTEM_SHUTDOWN, "System shutdown");
 };
+
+namespace Qk {
+    struct Exception
+    {
+        const char* _message;
+    };
+}
