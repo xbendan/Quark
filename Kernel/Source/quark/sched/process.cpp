@@ -21,6 +21,29 @@ namespace Quark::System::Task {
 
     Process::~Process() {}
 
+    bool Process::AddThread(Thread* thread)
+    {
+        if (thread->GetProcess() != nullptr) {
+            return false;
+        }
+
+        m_childrenThreadList.PushBack(thread);
+        return true;
+    }
+
+    Thread* Process::GetThreadById(u32 id)
+    {
+        return m_childrenThreadList
+            .FindFirst(
+                [id](Thread* thread) { return thread->GetThreadID() == id; })
+            .Take();
+    }
+
+    u32 Process::GetNextThreadId()
+    {
+        return m_nextThreadId++;
+    }
+
     Process* Process::GetKernelProcess()
     {
         return m_kernelProcess;

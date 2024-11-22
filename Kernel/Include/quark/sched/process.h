@@ -12,6 +12,7 @@ namespace Quark::System::Task {
     using namespace Quark::System::Memory;
     using namespace Quark::System::Io::FileSystem;
     using Qk::List;
+    using Qk::NonnullRefPtr;
 
     class Process
     {
@@ -24,12 +25,11 @@ namespace Quark::System::Task {
                 u64            memStack   = 0);
         ~Process();
 
-        bool    AddThread(Thread* thread);
-        u32     GetNextThreadId() { return m_nextThreadId++; }
-        Thread* GetThread(u32 threadId)
-        {
-            return m_childrenThreadList[threadId];
-        }
+        bool AddThread(Thread* thread);
+
+        Thread* GetThreadById(u32);
+
+        u32 GetNextThreadId();
 
         u32 const           _processId;
         Qk::StringView      _name;
@@ -43,15 +43,15 @@ namespace Quark::System::Task {
         static Res<RefPtr<Process>> CreateIdleProcess();
         static Res<Process*> CreateKernelProcess(AddressSpace* addressSpace);
         static Res<RefPtr<Process>> CreateProcessEx( //
-            Qk::StringView name,
-            File*          file,
-            Folder*        workingDirectory,
-            Qk::StringView launchArgs);
+            Qk::StringView      name,
+            NonnullRefPtr<File> file,
+            Directory*          workingDirectory,
+            Qk::StringView      launchArgs);
         template <typename... TArgs>
         static Res<RefPtr<Process>> CreateProcessEx( //
-            Qk::StringView name,
-            File*          file,
-            Folder*        workingDirectory,
+            Qk::StringView      name,
+            NonnullRefPtr<File> file,
+            Directory*          workingDirectory,
             TArgs&&... launchArgs);
         static void                 DestroyProcess(Process* process);
         static void                 DestroyProcess(u16 id);
@@ -97,9 +97,9 @@ namespace Quark::System::Task {
          */
         template <typename... TArgs>
         RefPtr<Process> createProcessEx( //
-            Qk::StringView name,
-            File*          file,
-            Folder*        workingDirectory,
+            Qk::StringView      name,
+            NonnullRefPtr<File> file,
+            Directory*          workingDirectory,
             TArgs&&... launchArgs);
         /**
          * @brief Create a thread with specified parent process

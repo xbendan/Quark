@@ -36,15 +36,11 @@ namespace Quark::System::Task {
     }
 
     Res<RefPtr<Process>> Process::CreateProcessEx( //
-        Qk::StringView name,
-        File*          file,
-        Folder*        workingDirectory,
-        Qk::StringView launchArgs)
+        Qk::StringView      name,
+        NonnullRefPtr<File> file,
+        Directory*          workingDirectory,
+        Qk::StringView      launchArgs)
     {
-        if (!file) {
-            return Error::InvalidArgument();
-        }
-
         auto* p = new Process(Scheduler::GetDefaultPidNamespace().NextPid(),
                               name,
                               AddressSpace::Create().unwrap(),
