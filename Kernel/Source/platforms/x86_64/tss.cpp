@@ -10,6 +10,6 @@ namespace Quark::System::Platform::X64 {
                 istp + STACK_SIZE * 3 }
     {
         asm volatile("mov %%rsp, %0" : "=r"(_rsp[0]));
-        asm volatile("ltr %%ax" ::"a"(0x28));
+        asm volatile("ltr %%ax" ::"a"(0x2b));
     }
 }

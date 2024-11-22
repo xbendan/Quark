@@ -51,22 +51,19 @@ namespace Quark::System::Platform::X64 {
             ._size   = sizeof(cpu->_gdt) - 1,
             ._offset = (u64)&cpu->_gdt,
         };
+
         cpu->_idtPtr = kIdtPtr;
-        cpu->_tss    = TaskStateSegment(
-            Memory::AllocateMemory4K(STACK_SIZE * 3,
+        asm volatile("lidt %0" ::"m"(kIdtPtr));
+
+        cpu->_gdt._tss = GlobDescTbl::TssEntry(&cpu->_tss);
+        asm volatile("lgdt (%%rax)" ::"a"(&cpu->_gdtPtr));
+
+        cpu->_tss = TaskStateSegment(
+            Memory::AllocateMemory4K(STACK_SIZE / PAGE_SIZE_4K * 3,
                                      Process::GetKernelProcess()->_addressSpace,
                                      Hal::VmmFlags::PRESENT |
                                          Hal::VmmFlags::WRITABLE)
                 .unwrap());
-
-        cpu->_schedule = {
-            ._id            = cpuID,
-            ._currentThread = nullptr,
-            ._idleThread    = nullptr,
-        };
-
-        asm volatile("lgdt (%%rax)" ::"a"(&cpu->_gdtPtr));
-        asm volatile("lidt %0" ::"m"(cpu->_idtPtr));
 
         Device::FindByName<APIC::GenericControllerDevice>(
             "Advanced Programmable Interrupt Controller")
@@ -74,7 +71,7 @@ namespace Quark::System::Platform::X64 {
             ->GetApicLocal(cpuID)
             ->Enable();
 
-        asm volatile("sti");
+        // asm volatile("sti");
         DoneInit = true;
 
         while (true)
@@ -102,6 +99,7 @@ namespace Quark::System::Hal {
             [](APIC::GenericControllerDevice::Local* const& apicLocal) {
                 return apicLocal->_device;
             });
+
         memcpy((void*)SMP_TRAMPOLINE_ENTRY,
                (void*)&SMPTrampolineStart,
                (u64)&SMPTrampolineEnd - (u64)&SMPTrampolineStart);
@@ -125,8 +123,8 @@ namespace Quark::System::Hal {
                                      Hal::VmmFlags::WRITABLE)
                     .unwrap() +
                 4 * PAGE_SIZE_4K;
-            *TrampolineGdtPack = CPU0->_gdtPtr;
-            // *TrampolineGdtPack = GDT64Pack64;
+            // *TrampolineGdtPack = CPU0->_gdtPtr;
+            *TrampolineGdtPack = GDT64Pack64;
 
             asm volatile("mov %%cr3, %%rax\n\t"
                          "mov %%rax, %0"
@@ -149,6 +147,13 @@ namespace Quark::System::Hal {
 
             DoneInit = false;
         }
+
+        CPU0->_gdt._tss = GlobDescTbl::TssEntry(&CPU0->_tss);
+        CPU0->_tss      = TaskStateSegment(
+            AllocateMemory4K(STACK_SIZE / PAGE_SIZE_4K * 3,
+                             Process::GetKernelProcess()->_addressSpace,
+                             Hal::VmmFlags::PRESENT | Hal::VmmFlags::WRITABLE)
+                .unwrap());
 
         return Ok(_cpuLocals);
     }

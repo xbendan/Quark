@@ -34,10 +34,9 @@ namespace Quark::System {
     using namespace Quark::System::Hal;
     using Qk::Array;
 
-    InterruptDescTbl::Entry             kIdtEntries[256] = {};
-    InterruptDescTbl::Pack              kIdtPtr          = {};
-    Inert<CPULocalDevice>               kCPULocal;
-    Qk::Buf<char, 3 * 8 * PAGE_SIZE_4K> kTssIstRegion;
+    InterruptDescTbl::Entry kIdtEntries[256] = {};
+    InterruptDescTbl::Pack  kIdtPtr          = {};
+    Inert<CPULocalDevice>   kCPULocal;
 
     Res<Array<Io::Device*>*> EnumerateInitialDevices()
     {
@@ -87,24 +86,13 @@ namespace Quark::System {
         pOut<u8>(0x21, 0x0);
         pOut<u8>(0xA1, 0x0);
 
-        SetCPULocal(p);
-
-        p->_gdt._tss = GlobDescTbl::TssEntry(&p->_tss);
-        p->_tss      = TaskStateSegment((u64)kTssIstRegion.buf());
-
         /* load global descriptor table */
         _lgdt(&p->_gdtPtr);
-        // _lgdt(&GDT64Pack64);
 
-        // asm volatile("mov %%rsp, %0" : "=r"(p->_tss._rsp[0]));
-        // asm volatile("ltr %%ax" ::"a"(0x28));
+        SetCPULocal(p);
 
         // Check if the system supports the required features
         CPUID cpuid(1, 0);
-        // u32   eax, ebx, ecx, edx;
-        // asm volatile("cpuid"
-        //              : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-        //              : "a"(1), "c"(0));
         assert(cpuid._ecx & CPUID_ECX_SSE4_2,
                "System requires [SSE4.2] to run while it's not supported");
         assert(cpuid._edx & CPUID_EDX_FPU,

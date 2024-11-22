@@ -40,8 +40,6 @@ mov cr0, eax
 
 lgdt [SMP_TRAMPOLINE_GDT_PTR]
 
-hlt
-
 jmp 0x08:(SMP_TRAMPOLINE_ENTRY64)
 
 hlt
@@ -49,14 +47,12 @@ hlt
 bits 64
 align 0x40
 SMPTrampolineStart64:
-    hlt
     mov ax, 0x10
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    hlt
 
     mov rsp, [SMP_TRAMPOLINE_STACK]
 
