@@ -1,25 +1,27 @@
 #include <drivers/storage/ahci/controller_device.h>
-#include <drivers/storage/ahci/disk_device.h>
+#include <drivers/storage/ahci/storage_device.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
 
 namespace AHCI {
     using namespace Quark::System::Memory;
 
-    SATADiskDevice::SATADiskDevice(int                   port,
-                                   AHCI::HBAPortRegs*    portRegs,
-                                   AHCIControllerDevice* controller)
-        : DiskDevice("Unidentified SATA Hard Disk Drive")
+    SATAStorageDevice::SATAStorageDevice(
+        int                          port,
+        AHCI::HBAPortRegs*           portRegs,
+        AHCIStorageControllerDevice* controller,
+        u64                          driveSize)
+        : StorageDevice("Unidentified SATA Hard Disk Drive", 512, driveSize)
         , m_portRegs(portRegs)
         , m_memRegs(controller->GetMemoryRegs())
     {
         StopCommand();
 
-        portRegs->_clb  = (controller->clbPhys() & 0xFFFFFFFF) + (port << 10);
-        portRegs->_clbu = (controller->clbPhys() >> 32);
+        portRegs->_clb  = (controller->m_clbPhys & 0xFFFFFFFF) + (port << 10);
+        portRegs->_clbu = (controller->m_clbPhys >> 32);
 
-        portRegs->_fb  = (controller->fbPhys() & 0xFFFFFFFF) + (port << 8);
-        portRegs->_fbu = (controller->fbPhys() >> 32);
+        portRegs->_fb  = (controller->m_fbPhys & 0xFFFFFFFF) + (port << 8);
+        portRegs->_fbu = (controller->m_fbPhys >> 32);
 
         m_commandList = reinterpret_cast<AHCI::_HBACommandHeader*>(
             CopyAsIOAddress(portRegs->_clb));
@@ -27,7 +29,7 @@ namespace AHCI {
         for (int i = 0; i < 8 /* 32 */; i++) {
             m_commandList[i]._prdtl = 8;
 
-            u64 phys = controller->ctbaPhys() + (port << 13) + (i << 8);
+            u64 phys = controller->m_ctbaPhys + (port << 13) + (i << 8);
             m_commandList[i]._ctba  = (phys & 0xFFFFFFFF);
             m_commandList[i]._ctbau = (phys >> 32);
 
@@ -40,26 +42,32 @@ namespace AHCI {
         StartCommand();
     }
 
-    // SATADiskDevice::~SATADiskDevice() {}
+    // SATAStorageDevice::~SATAStorageDevice() {}
 
-    i64 SATADiskDevice::Read(u64 offset, u64 size, void* buffer)
+    Res<usize> SATAStorageDevice::Read(u64 offset, Bytes bytes)
     {
-        return Access(offset / 512, size / 512, (u64)buffer, false);
+        if (Access(offset / 512, bytes.len() / 512, (u64)bytes.buf(), false)) {
+            return Error::DeviceFault();
+        }
+        return Ok(bytes.len());
     }
 
-    i64 SATADiskDevice::Write(u64 offset, u64 size, void* buffer)
+    Res<usize> SATAStorageDevice::Write(u64 offset, Bytes bytes)
     {
-        return Access(offset / 512, size / 512, (u64)buffer, true);
+        if (Access(offset / 512, bytes.len() / 512, (u64)bytes.buf(), true)) {
+            return Error::DeviceFault();
+        }
+        return Ok(bytes.len());
     }
 
-    void SATADiskDevice::StartCommand()
+    void SATAStorageDevice::StartCommand()
     {
         while (m_portRegs->_cmd & HBA_PxCMD_CR)
             ;
         m_portRegs->_cmd |= (HBA_PxCMD_FRE | HBA_PxCMD_ST);
     }
 
-    void SATADiskDevice::StopCommand()
+    void SATAStorageDevice::StopCommand()
     {
         m_portRegs->_cmd &= ~(HBA_PxCMD_FRE | HBA_PxCMD_ST);
         while ((m_portRegs->_cmd & HBA_PxCMD_FR) ||
@@ -67,7 +75,7 @@ namespace AHCI {
             ;
     }
 
-    int SATADiskDevice::Access(u64 lba, u32 count, u64 physBuf, int write)
+    int SATAStorageDevice::Access(u64 lba, u32 count, u64 physBuf, int write)
     {
         m_portRegs->_ie = 0xffffffff;
         m_portRegs->_is = 0;
@@ -134,12 +142,12 @@ namespace AHCI {
         return !(m_portRegs->_is & HBA_PxIS_TFES);
     }
 
-    SATADiskDevice::~SATADiskDevice()
+    SATAStorageDevice::~SATAStorageDevice()
     {
         // StopCommand();
     }
 
-    int SATADiskDevice::FindSlot()
+    int SATAStorageDevice::FindSlot()
     {
         u32 slots = (m_portRegs->_sact | m_portRegs->_ci);
         for (int i = 0; i < 32; i++) {

@@ -307,22 +307,62 @@ namespace AHCI {
 
     using HBAPortRegs = volatile _HBAPortRegs;
 
+    struct HBACapability
+    {
+        u32 Ports : 5;
+        u32 ExternalSATA : 1;
+        u32 EnclosureManagement : 1;
+        u32 CommandCompletionCoalescing : 1;
+        u32 CommandSlots : 5;
+        u32 PartialState : 1;
+        u32 SlumberState : 1;
+        u32 PIOMultipleDRQBlock : 1;
+        u32 FISBasedSwitching : 1;
+        u32 PortMultiplier : 1;
+        u32 AHCIModeOnly : 1;
+        u32 __reserved__0 : 1;
+        enum class InterfaceSpeed : u32
+        {
+            Reserved = 0b0000,
+            Gen1     = 0b0001, // 1.5 Gbps
+            Gen2     = 0b0010, // 3 Gbps
+            Gen3     = 0b0011, // 6 Gbps
+        } InterfaceSpeed : 4;
+        u32 CommandListOverride : 1;
+        u32 ActivityLED : 1;
+        u32 AggressiveLinkPowerManagement : 1;
+        u32 StaggeredSpinUp : 1;
+        u32 MechanicalPresenceSwitch : 1;
+        u32 SNotification : 1;
+        u32 NativeCommandQueuing : 1;
+        /* Indicates whether the HBA can access 64-bit data structures.*/
+        u32 Bit64Addressing : 1;
+    } __attribute__((packed));
+    ;
+
+    struct HBACapabilityExtended
+    {
+        u32 BiosOsHandoffControl : 1;
+        u32 NVMHCI : 1;
+        u32 AutomaticSlumberModeTransition : 1;
+    };
+
     struct _HBAMemRegs
     {
-        u32          _hostCapability;
-        u32          _ghc;
-        u32          _interruptStatus;
-        u32          _portsImplemented;
-        u32          _version;
-        u32          _ccc_ctl;
-        u32          _ccc_pts;
-        u32          _em_loc;
-        u32          _em_ctl;
-        u32          _hostCapabilityExt;
-        u32          _bohc;
-        u8           _reserved0[0x74];
-        u8           _vendor[0x60];
-        _HBAPortRegs _ports[0x20];
+        HBACapability HostCapability;
+        u32           GlobalHostControl;
+        u32           InterruptStatus;
+        u32           PortsImplemented;
+        u32           Version;
+        u32           _cccctl;
+        u32           _cccpts;
+        u32           _emloc;
+        u32           _emctl;
+        u32           _hostCapabilityExt;
+        u32           _bohc;
+        u8            _reserved0[0x74];
+        u8            _vendor[0x60];
+        _HBAPortRegs  _ports[0x20];
     } __attribute__((packed));
 
     using HBAMemRegs = volatile _HBAMemRegs;

@@ -5,25 +5,25 @@
 namespace AHCI {
     using namespace Quark::System::Memory;
 
-    AHCIControllerDevice::AHCIControllerDevice(PCIInfo& info)
-        : PCIDevice(info, "AHCI Controller Device", Type::DiskController)
+    AHCIStorageControllerDevice::AHCIStorageControllerDevice(PCIInfo& info)
+        : PCIDevice(info, "AHCI Controller Device", Type::StorageController)
         , m_clbPhys(AllocatePhysMemory4K(8).unwrap())
         , m_fbPhys(AllocatePhysMemory4K(2).unwrap())
         , m_ctbaPhys(AllocatePhysMemory4K(64).unwrap())
-        , m_addrBase(GetBaseAddrRegs(5))
+        , m_addrPhys(GetBaseAddrRegs(5))
     {
         EnableBusMastering();
         EnableInterrupts();
         EnableMemorySpace();
 
-        m_addrVirt = CopyAsIOAddress(m_addrBase);
+        m_addrVirt = CopyAsIOAddress(m_addrPhys);
         m_memRegs  = reinterpret_cast<AHCI::HBAMemRegs*>(m_addrVirt);
 
-        m_memRegs->_ghc &= ~AHCI_GHC_IE;
-        m_memRegs->_interruptStatus = 0xFFFFFFFF;
+        m_memRegs->GlobalHostControl &= ~AHCI_GHC_IE;
+        m_memRegs->InterruptStatus = 0xFFFFFFFF;
 
         for (int i = 0; i < 32; i++) {
-            if (!(m_memRegs->_portsImplemented & (1 << i))) {
+            if (!(m_memRegs->PortsImplemented & (1 << i))) {
                 continue;
             }
 
@@ -45,8 +45,7 @@ namespace AHCI {
                     break;
                 }
                 default: {
-                    SATADiskDevice* disk =
-                        new SATADiskDevice(i, portRegs, this);
+                    auto* disk = new SATAStorageDevice(i, portRegs, this, 0);
 
                     if (disk->Status() != 1) {
                         // Initializing failed, delete the disk

@@ -1,30 +1,26 @@
 #include <drivers/pci/device.h>
-#include <drivers/storage/ahci/disk_device.h>
 #include <drivers/storage/ahci/spec.h>
+#include <drivers/storage/ahci/storage_device.h>
 
 namespace AHCI {
     using Qk::List;
 
-    class AHCIControllerDevice : public PCI::PCIDevice
+    class AHCIStorageControllerDevice : public PCI::PCIDevice
     {
     public:
-        AHCIControllerDevice(PCIInfo& info);
-        ~AHCIControllerDevice();
+        AHCIStorageControllerDevice(PCIInfo& info);
+        ~AHCIStorageControllerDevice();
 
         AHCI::HBAMemRegs* GetMemoryRegs() { return m_memRegs; }
 
-        u64 clbPhys() { return m_clbPhys; }
+    protected:
+        friend class SATAStorageDevice;
 
-        u64 fbPhys() { return m_fbPhys; }
-
-        u64 ctbaPhys() { return m_ctbaPhys; }
-
-    private:
         u64               m_clbPhys, m_fbPhys, m_ctbaPhys;
-        u64               m_addrBase;
+        u64               m_addrPhys;
         u64               m_addrVirt;
         AHCI::HBAMemRegs* m_memRegs;
 
-        List<SATADiskDevice*> m_diskList;
+        List<SATAStorageDevice*> m_diskList;
     };
 }

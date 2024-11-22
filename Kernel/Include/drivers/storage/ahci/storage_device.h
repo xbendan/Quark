@@ -1,23 +1,24 @@
 #pragma once
 
 #include <drivers/storage/ahci/spec.h>
-#include <quark/dev/disk_device.h>
+#include <quark/dev/storage/storage_device.h>
 
 namespace AHCI {
     using namespace Quark::System::Io;
 
-    class AHCIControllerDevice;
+    class AHCIStorageControllerDevice;
 
-    class SATADiskDevice : public DiskDevice
+    class SATAStorageDevice final : public StorageDevice
     {
     public:
-        SATADiskDevice(int                   port,
-                       AHCI::HBAPortRegs*    portRegs,
-                       AHCIControllerDevice* controller);
-        virtual ~SATADiskDevice() override;
+        SATAStorageDevice(int                          port,
+                          AHCI::HBAPortRegs*           portRegs,
+                          AHCIStorageControllerDevice* controller,
+                          u64                          driveSize);
+        ~SATAStorageDevice();
 
-        i64 Read(u64 offset, u64 size, void* buffer) override;
-        i64 Write(u64 offset, u64 size, void* buffer) override;
+        virtual Res<usize> Read(u64, Bytes) override;
+        virtual Res<usize> Write(u64, Bytes) override;
 
         void StartCommand();
         void StopCommand();
