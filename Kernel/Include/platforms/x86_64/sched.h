@@ -50,6 +50,7 @@ namespace Quark::System::Platform::X64 {
 
     struct CPULocalDevice : ICPULocalDevice
     {
+        CPULocalDevice*        _this;
         GlobDescTbl            _gdt;
         GlobDescTbl::Pack      _gdtPtr;
         InterruptDescTbl::Pack _idtPtr;
@@ -60,6 +61,7 @@ namespace Quark::System::Platform::X64 {
         CPULocalDevice() = delete;
         CPULocalDevice(u32 id, Thread* idleThread = nullptr)
             : ICPULocalDevice{ id }
+            , _this(this)
             , _gdt(&_tss)
             , _gdtPtr({
                   ._size   = sizeof(_gdt) - 1,
@@ -71,5 +73,5 @@ namespace Quark::System::Platform::X64 {
         {
         }
         ~CPULocalDevice() = default;
-    };
+    } __attribute__((aligned(0x10)));
 } // namespace Quark::System::Platform::X64

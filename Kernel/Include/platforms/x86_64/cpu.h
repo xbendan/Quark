@@ -324,6 +324,7 @@ namespace Quark::System::Platform::X64 {
 
     static inline void SetCPULocal(CPULocalDevice* cpu)
     {
+        cpu->_this = cpu;
         asm volatile("wrmsr" ::"a"((u64)cpu & 0xffffffff) /* Value low */,
                      "d"(((u64)cpu >> 32) & 0xffffffff) /* Value high */,
                      "c"(MSR_KERN_GS_BASE) /* Set Kernel GS Base */);

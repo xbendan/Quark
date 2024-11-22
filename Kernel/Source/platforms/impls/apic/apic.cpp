@@ -7,6 +7,12 @@
 #include <quark/hal/ports.h>
 #include <quark/os/diagnostic/logging.h>
 
+namespace Quark::System {
+    using namespace Quark::System::Platform::X64;
+
+    extern Inert<CPULocalDevice> kCPULocal;
+}
+
 namespace APIC {
     using namespace Platform::X64;
     using namespace Quark::System::Diagnostic;
@@ -79,9 +85,16 @@ namespace APIC {
                         static_cast<ACPI::MultiApicDescTable::LocalApic*>(
                             entry);
                     if (apicLocal->_flags & 0x3) {
-                        CPULocalDevice* device = new CPULocalDevice(
-                            apicLocal->_processorId, nullptr);
-                        Device::Load(device);
+                        CPULocalDevice* device;
+                        if (apicLocal->_processorId == 0) {
+                            device = reinterpret_cast<CPULocalDevice*>(
+                                kCPULocal._data);
+                            info$("Set CPU0 to {:#X}", device);
+                        } else {
+                            device = new CPULocalDevice(apicLocal->_processorId,
+                                                        nullptr);
+                            Device::Load(device);
+                        }
 
                         m_units.PushBack(
                             new Local(apicLocal->_apicId, this, device));
