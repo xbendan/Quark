@@ -2,11 +2,14 @@
 #include <quark/memory/buddy_system.h>
 #include <quark/memory/memory_info.h>
 #include <quark/memory/page_alloc.h>
+#include <quark/sched/process.h>
 
 #include <mixins/math/align.h>
 #include <mixins/math/compute.h>
 
 namespace Quark::System::Memory {
+    using namespace Quark::System::Task;
+
     PageFrame** g_pageFrames;
     // PhysMemFrame**               g_pageFrames;
 
@@ -67,6 +70,33 @@ namespace Quark::System::Memory {
         addressSpace->MapAddress4K(phys, virt, amount, flags);
 
         return Ok();
+    }
+
+    Res<u64> KernelAllocateMemory4K(
+        usize                amount,
+        Flags<Hal::VmmFlags> flags = (Hal::VmmFlags::PRESENT |
+                                      Hal::VmmFlags::WRITABLE))
+    {
+        return AllocateMemory4K(
+            amount, Process::GetKernelProcess()->_addressSpace, flags);
+    }
+
+    Res<> KernelFreeMemory4K(usize address, usize amount)
+    {
+        return FreeMemory4K(
+            address, amount, Process::GetKernelProcess()->_addressSpace);
+    }
+
+    Res<> KernelMapAddress(u64                  phys,
+                           u64                  virt,
+                           usize                amount,
+                           Flags<Hal::VmmFlags> flags)
+    {
+        return MapAddress(phys,
+                          virt,
+                          amount,
+                          Process::GetKernelProcess()->_addressSpace,
+                          flags);
     }
 
     // Physical Memory Management
