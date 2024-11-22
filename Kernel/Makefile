@@ -163,7 +163,7 @@ run-x86_64:
 	@qemu-system-x86_64.exe -cdrom $(patsubst /mnt/d/%, D:/%, $(FINAL_PATH)) -s -S \
 		-serial stdio \
 		-cpu qemu64,+ssse3,+sse4.1,+sse4.2 \
-		-smp 4 -m 64m 
+		-smp 4 -m 128m 
 
 clean:  
 	@echo "Cleaning up..."
