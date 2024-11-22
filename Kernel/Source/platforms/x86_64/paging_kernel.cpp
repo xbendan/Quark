@@ -9,7 +9,7 @@
 namespace Quark::System::Platform::X64 {
     using Quark::System::Memory::AddressRange;
 
-    X64AddressSpace<Privilege::Level::System> kAddressSpace;
+    X64AddressSpace<UserManagement::Level::System> kAddressSpace;
 
     pml4_t    kPml4 __attribute__((aligned(PAGE_SIZE_4K)));     // 0x249000
     pdpt_t    kPdpt __attribute__((aligned(PAGE_SIZE_4K)));     // 0x248000
@@ -19,7 +19,7 @@ namespace Quark::System::Platform::X64 {
     pagetbl_t kHeapTbls[512] __attribute__((aligned(PAGE_SIZE_4K)));
     pagedir_t kIoDirs[4] __attribute__((aligned(PAGE_SIZE_4K)));
 
-    X64AddressSpace<Privilege::Level::System>::X64AddressSpace()
+    X64AddressSpace<UserManagement::Level::System>::X64AddressSpace()
     {
         AddressRange(&kPml4, sizeof(pml4_t)).SetZero();
         AddressRange(&kPdpt, sizeof(pdpt_t)).SetZero();
@@ -70,7 +70,8 @@ namespace Quark::System::Platform::X64 {
         asm volatile("mov %%rax, %%cr3" ::"a"(_pml4Phys));
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::System>::AllocateVirtPages4K(
+    Res<u64>
+    X64AddressSpace<UserManagement::Level::System>::AllocateVirtPages4K(
         usize           amount,
         Flags<VmmFlags> flags)
     {
@@ -112,28 +113,29 @@ namespace Quark::System::Platform::X64 {
         return Error::OutOfMemory();
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::System>::AllocateVirtPages2M(
+    Res<u64>
+    X64AddressSpace<UserManagement::Level::System>::AllocateVirtPages2M(
         usize           amount,
         Flags<VmmFlags> flags)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::FreeVirtPages4K(
+    Res<> X64AddressSpace<UserManagement::Level::System>::FreeVirtPages4K(
         u64   address,
         usize amount)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::FreeVirtPages2M(
+    Res<> X64AddressSpace<UserManagement::Level::System>::FreeVirtPages2M(
         u64   address,
         usize amount)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::MapAddress4K(
+    Res<> X64AddressSpace<UserManagement::Level::System>::MapAddress4K(
         u64             phys, //
         u64             virt,
         usize           amount,
@@ -156,7 +158,7 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::MapAddress2M(
+    Res<> X64AddressSpace<UserManagement::Level::System>::MapAddress2M(
         u64             phys, //
         u64             virt,
         usize           amount,
@@ -165,13 +167,13 @@ namespace Quark::System::Platform::X64 {
         return Error::NotImplemented();
     }
 
-    Res<Flags<VmmFlags>> X64AddressSpace<Privilege::Level::System>::getFlags(
-        u64 address)
+    Res<Flags<VmmFlags>>
+    X64AddressSpace<UserManagement::Level::System>::getFlags(u64 address)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::System>::setFlags(
+    Res<> X64AddressSpace<UserManagement::Level::System>::setFlags(
         u64             address,
         Flags<VmmFlags> flags,
         bool            set)
@@ -179,7 +181,7 @@ namespace Quark::System::Platform::X64 {
         return Error::NotImplemented();
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::System>::GetPhysAddress(
+    Res<u64> X64AddressSpace<UserManagement::Level::System>::GetPhysAddress(
         u64 address)
     {
         return Error::NotImplemented();
@@ -194,16 +196,16 @@ namespace Quark::System {
     {
         AddressSpace* p = &kAddressSpace;
         if (!kAddressSpace._pml4Phys) {
-            new (p) X64AddressSpace<Privilege::Level::System>();
+            new (p) X64AddressSpace<UserManagement::Level::System>();
         }
         return Ok(p);
     }
 
     namespace Memory {
-        Res<AddressSpace*> AddressSpace::Create(Privilege::Level lv)
+        Res<AddressSpace*> AddressSpace::Create(UserManagement::Level lv)
         {
             return Ok(static_cast<AddressSpace*>(
-                new X64AddressSpace<Privilege::Level::User>()));
+                new X64AddressSpace<UserManagement::Level::User>()));
         }
 
         u64 CopyAsIOAddress(u64 address)

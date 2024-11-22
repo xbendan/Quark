@@ -5,7 +5,7 @@
 #include <mixins/utils/list.h>
 #include <mixins/utils/uuid.h>
 
-namespace Quark::System::Privilege {
+namespace Quark::System::UserManagement {
     using Qk::List;
 
     enum class Level
@@ -28,11 +28,11 @@ namespace Quark::System::Privilege {
 
     class UserGroup;
 
-    class UserAccount
+    class UserID
     {
     public:
-        UserAccount() = default;
-        UserAccount(Qk::StringView name, UserGroup* group)
+        UserID() = default;
+        UserID(Qk::StringView name, UserGroup* group)
             : _name(name)
             , _group(group)
             , _id(UUID())
@@ -42,7 +42,7 @@ namespace Quark::System::Privilege {
         {
         }
 
-        constexpr bool operator==(UserAccount const& other) const
+        constexpr bool operator==(UserID const& other) const
         {
             return _name == other._name && _group == other._group;
         }
@@ -63,7 +63,7 @@ namespace Quark::System::Privilege {
         UserGroup(Qk::StringView name, Level level)
             : m_name(name)
             , m_level(level)
-            , m_users(List<UserAccount>())
+            , m_users(List<UserID>())
         {
         }
 
@@ -73,8 +73,8 @@ namespace Quark::System::Privilege {
         }
 
     private:
-        Qk::StringView    m_name;
-        Level             m_level;
-        List<UserAccount> m_users{};
+        Qk::StringView m_name;
+        Level          m_level;
+        List<UserID>   m_users{};
     };
 }

@@ -8,7 +8,7 @@
 #define PAGE_FLAGS_PR (VmmFlags::PRESENT | VmmFlags::WRITABLE)
 
 namespace Quark::System::Platform::X64 {
-    X64AddressSpace<Privilege::Level::User>::X64AddressSpace()
+    X64AddressSpace<UserManagement::Level::User>::X64AddressSpace()
         : _pml4Phys((u64)&_pml4 - KERNEL_VIRTUAL_BASE)
         , _bitmap(new Bitmap(1'6384 / 8 * 1024))
     {
@@ -18,7 +18,7 @@ namespace Quark::System::Platform::X64 {
             _pdpt[0], (u64)&_pageDirs[0] - KERNEL_VIRTUAL_BASE, PAGE_FLAGS_PRU);
     }
 
-    X64AddressSpace<Privilege::Level::User>::~X64AddressSpace()
+    X64AddressSpace<UserManagement::Level::User>::~X64AddressSpace()
     {
         for (int i = 0; i < VMM_PAGE_ENTRY_COUNT; i++) {
             if (!_pageDirs[i]) {
@@ -40,7 +40,7 @@ namespace Quark::System::Platform::X64 {
         // I hate nested pointers.
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::User>::AllocateVirtPages4K(
+    Res<u64> X64AddressSpace<UserManagement::Level::User>::AllocateVirtPages4K(
         usize           amount, //
         Flags<VmmFlags> flags)
     {
@@ -76,15 +76,16 @@ namespace Quark::System::Platform::X64 {
         return Ok(index << 12);
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::User>::AllocateVirtPages2M(
+    Res<u64> X64AddressSpace<UserManagement::Level::User>::AllocateVirtPages2M(
         usize           amount,
         Flags<VmmFlags> flags)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::FreeVirtPages4K(u64 address,
-                                                                   usize amount)
+    Res<> X64AddressSpace<UserManagement::Level::User>::FreeVirtPages4K(
+        u64   address,
+        usize amount)
     {
         u64 index = address >> 12;
         u16 i, j, k;
@@ -106,13 +107,14 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::FreeVirtPages2M(u64 address,
-                                                                   usize amount)
+    Res<> X64AddressSpace<UserManagement::Level::User>::FreeVirtPages2M(
+        u64   address,
+        usize amount)
     {
         return Error::NotImplemented();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::MapAddress4K(
+    Res<> X64AddressSpace<UserManagement::Level::User>::MapAddress4K(
         u64             phys, //
         u64             virt,
         usize           amount,
@@ -156,7 +158,7 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::MapAddress2M(
+    Res<> X64AddressSpace<UserManagement::Level::User>::MapAddress2M(
         u64             phys, //
         u64             virt,
         usize           amount,
@@ -165,7 +167,7 @@ namespace Quark::System::Platform::X64 {
         return Error::NotImplemented();
     }
 
-    Res<Flags<VmmFlags>> X64AddressSpace<Privilege::Level::User>::getFlags(
+    Res<Flags<VmmFlags>> X64AddressSpace<UserManagement::Level::User>::getFlags(
         u64 address)
     {
         u64 index = address >> 12;
@@ -195,7 +197,7 @@ namespace Quark::System::Platform::X64 {
         return Ok(flags);
     }
 
-    Res<> X64AddressSpace<Privilege::Level::User>::setFlags(
+    Res<> X64AddressSpace<UserManagement::Level::User>::setFlags(
         u64             address,
         Flags<VmmFlags> flags,
         bool            set)
@@ -215,7 +217,7 @@ namespace Quark::System::Platform::X64 {
         return Ok();
     }
 
-    Res<u64> X64AddressSpace<Privilege::Level::User>::GetPhysAddress(
+    Res<u64> X64AddressSpace<UserManagement::Level::User>::GetPhysAddress(
         u64 address)
     {
         // u64 index = address >> 12;

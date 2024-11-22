@@ -1,4 +1,4 @@
-namespace Quark::System::Privilege {
+namespace Quark::System::UserManagement {
     enum class Scene
     {
         Focused,

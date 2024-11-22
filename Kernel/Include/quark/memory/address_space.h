@@ -101,7 +101,7 @@ namespace Quark::System::Memory {
         virtual Res<u64> GetPhysAddress(u64) = 0;
 
         static Res<AddressSpace*> Create(
-            Privilege::Level lv = Privilege::Level::User);
+            UserManagement::Level lv = UserManagement::Level::User);
 
     protected:
         struct Stats

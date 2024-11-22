@@ -3,11 +3,11 @@
 namespace Quark::System::Platform::X64 {
     using namespace Quark::System::Memory;
 
-    template <Privilege::Level>
+    template <UserManagement::Level>
     class X64AddressSpace;
 
     template <>
-    class X64AddressSpace<Privilege::Level::User> : public AddressSpace
+    class X64AddressSpace<UserManagement::Level::User> : public AddressSpace
     {
     public:
         X64AddressSpace();
@@ -88,7 +88,7 @@ namespace Quark::System::Platform::X64 {
     };
 
     template <>
-    class X64AddressSpace<Privilege::Level::System> : public AddressSpace
+    class X64AddressSpace<UserManagement::Level::System> : public AddressSpace
     {
     public:
         X64AddressSpace();
