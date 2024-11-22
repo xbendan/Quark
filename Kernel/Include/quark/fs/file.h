@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mixins/meta/result.h>
 #include <mixins/std/c++types.h>
 #include <mixins/str/string.h>
@@ -6,20 +8,9 @@
 #include <mixins/utils/uuid.h>
 
 namespace Quark::System::Io::FileSystem {
-    enum class FileType : u16
-    {
-        Unknown,
-        File,
-        Directory,
-        Device,
-        Pipe,
-        Socket,
-        SymbolicLink,
-        HardLink,
-        MountPoint,
-    };
+    using Qk::StringView;
 
-    enum class FileMode
+    enum class FileOpenMode
     {
         Append,
         Create,
@@ -48,23 +39,11 @@ namespace Quark::System::Io::FileSystem {
         Device
     };
 
-    class INode
-    {
-    public:
-        virtual i64  read(u64 offset, u64 size, u8* buffer)  = 0;
-        virtual i64  write(u64 offset, u64 size, u8* buffer) = 0;
-        virtual void close()                                 = 0;
-    };
-
     class FileNode
     {
     public:
-        FileNode(FileSource     source,
-                 FileType       type,
-                 Qk::StringView name,
-                 Qk::StringView parent)
+        FileNode(FileSource source, Qk::StringView name, Qk::StringView parent)
             : m_source(source)
-            , m_type(type)
             , m_name(name)
             , m_parent(parent)
         {
@@ -73,36 +52,17 @@ namespace Quark::System::Io::FileSystem {
         bool isRemote() const { return m_source != FileSource::Local; }
 
     protected:
-        FileSource     m_source;
-        FileType       m_type;
-        Qk::StringView m_name;
-        Qk::StringView m_parent;
-    };
-
-    class Folder : public FileNode
-    {
-    public:
-        Folder() = default;
-        Folder(Qk::StringView fullpath);
-        virtual ~Folder();
-
-        // virtual Res<Array<FileNode*>> listFiles() = 0;
+        FileSource m_source;
+        StringView m_name;
+        StringView m_parent;
     };
 
     class File : public FileNode
     {
     public:
         File() = default;
-        File(Qk::StringView fullpath);
+        File(StringView fullpath);
         virtual ~File();
-
-        virtual Res<i64> read(u64 offset, u64 size, u8* buffer)  = 0;
-        virtual Res<i64> write(u64 offset, u64 size, u8* buffer) = 0;
-        virtual void     close()                                 = 0;
-
-        static Res<File*> Open(Qk::StringView fullpath, FileMode mode);
-        static Res<File*> Create(Qk::StringView fullpath, FileMode mode);
-        static Res<>      Delete(Qk::StringView fullpath);
 
     protected:
         UUID m_uniqueId;
@@ -112,25 +72,20 @@ namespace Quark::System::Io::FileSystem {
         Flags<FileAttribute> m_attributes;
     };
 
-    class IFileSystem;
+    class Directory : public FileNode
+    {};
 
-    class IFileAccess
-    {
-    public:
-        IFileAccess(File* file, IFileSystem& fileSystem, FileMode mode)
-            : m_file(file)
-            , m_fileSystem(fileSystem)
-            , m_accessMode(mode)
-        {
-        }
+    class Symlink : public FileNode
+    {};
 
-        virtual i64  read(u64 offset, u64 size, u8* buffer)  = 0;
-        virtual i64  write(u64 offset, u64 size, u8* buffer) = 0;
-        virtual void close()                                 = 0;
-
-    private:
-        File*        m_file;
-        IFileSystem& m_fileSystem;
-        FileMode     m_accessMode;
-    };
+    /**
+     * @brief A shared directory set
+     *
+     * A library could be considered as a shared directory set, which maps files
+     * in the several specificed directories into one. It does NOT contain any
+     * file data, but only mapping records. This is usually used for sharing
+     * file views with similar properties, like downloads, documents, etc.
+     */
+    class Library : public FileNode
+    {};
 }
