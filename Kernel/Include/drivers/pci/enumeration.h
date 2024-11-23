@@ -18,10 +18,12 @@ namespace PCI {
 
         List<Io::Device*>* EnumerateDevices() override;
 
-        bool         CheckDevice(u8 bus, u8 slot, u8 func);
-        bool         CheckDevice(PCIInfo& info);
-        bool         FindDevice(u16 deviceID, u16 vendorID);
-        bool         FindGenericDevice(u8 classCode, u8 subclass);
+        void EnumerateSingleFuncDevice(List<Io::Device*>*, u8 bus, u8 slot);
+        void EnumerateMultipleFuncDevices(List<Io::Device*>*, u8 bus, u8 slot);
+        bool CheckDevice(u8 bus, u8 slot, u8 func);
+        bool CheckDevice(PCIInfo& info);
+        bool FindDevice(u16 deviceID, u16 vendorID);
+        bool FindGenericDevice(u8 classCode, u8 subclass);
         Opt<Device*> GetDevice(u16 deviceId, u16 vendorId);
         Opt<Device*> GetDevice(u8 classCode, u8 subclassCode);
 

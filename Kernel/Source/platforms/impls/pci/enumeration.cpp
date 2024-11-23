@@ -1,8 +1,34 @@
 #include <drivers/acpi/device.h>
 #include <drivers/pci/enumeration.h>
+#include <quark/os/diagnostic/logging.h>
 
 namespace PCI {
+    using namespace Quark::System::Diagnostic;
     using Qk::List;
+
+    // constexpr const char ClassNames[][0xFF + 1] = {
+    //     [0x00] = "Unclassified",
+    //     [0x01] = "Storage",
+    //     [0x02] = "Network",
+    //     [0x03] = "Display",
+    //     [0x04] = "Multimedia",
+    //     [0x05] = "Memory",
+    //     [0x06] = "Bridge",
+    //     [0x07] = "Communication",
+    //     [0x08] = "Peripheral",
+    //     [0x09] = "Input Device",
+    //     [0x0A] = "Docking Station",
+    //     [0x0B] = "Processor",
+    //     [0x0C] = "Serial Bus",
+    //     [0x0D] = "Wireless Controller",
+    //     [0x0E] = "Intelligent Controller",
+    //     [0x0F] = "Satellite Communication",
+    //     [0x10] = "Encryption",
+    //     [0x11] = "Signal Processing",
+    // };
+
+    PortAccess<PCI_CONFIG_ADDRESS> ConfigAddress;
+    PortAccess<PCI_CONFIG_DATA>    ConfigData;
 
     PCIEnumerationDevice::PCIEnumerationDevice()
         : Io::EnumerationDevice("PCI Device Enumerator")
@@ -27,37 +53,76 @@ namespace PCI {
         return Ok();
     }
 
+    void PCIEnumerationDevice::EnumerateSingleFuncDevice(
+        List<Io::Device*>* devices,
+        u8                 bus,
+        u8                 slot)
+    {
+        PCIInfo pciInfo(bus, slot, 0);
+        if (!CheckDevice(pciInfo)) {
+            return;
+        }
+
+        auto* device = new PCIDevice(bus, slot, 0);
+        devices->PushBack(device);
+
+        info$("[PCI] Found PCI device at {:#u}:{:#u}:00 with Class: "
+              "{:#X}, Subclass: {:#X}",
+              bus,
+              slot,
+              device->GetClass(),
+              device->GetSubclass());
+        EnumerateMultipleFuncDevices(devices, bus, slot);
+    }
+
+    void PCIEnumerationDevice::EnumerateMultipleFuncDevices(
+        List<Io::Device*>* devices,
+        u8                 bus,
+        u8                 slot)
+    {
+        PCIInfo pciInfo(bus, slot, 0);
+        if (!(pciInfo.ReadByte(PCI::ConfigRegs::HeaderType) & 0x80)) {
+            return;
+        }
+
+        info("[PCI] A multi-function device bit was checked, enumerating other "
+             "functions...");
+        for (u8 k = 1; k < 8; k++) {
+            if (CheckDevice(bus, slot, k)) {
+                auto* device = new PCIDevice(bus, slot, k);
+                devices->PushBack(device);
+
+                info$("[PCI]   - Found PCI device at {:#u}:{:#u}:{:#u}, Class: "
+                      "{:#X}, Subclass: {:#X}",
+                      bus,
+                      slot,
+                      k,
+                      device->GetClass(),
+                      device->GetSubclass());
+            }
+        }
+    }
+
     List<Io::Device*>* PCIEnumerationDevice::EnumerateDevices()
     {
         List<Io::Device*>* devices = new List<Io::Device*>();
-        for (u16 i = 0; i < 256; i++) {
-            for (u16 j = 0; j < 32; j++) {
-                if (CheckDevice(i, j, 0)) {
-                    PCIInfo info(i, j, 0);
-                    devices->PushBack(new PCI::PCIDevice(info));
+        for (u16 i = 0; i < 256; i++)
+            for (u16 j = 0; j < 32; j++)
+                EnumerateSingleFuncDevice(devices, i, j);
 
-                    if (info.Read<>(PCI::ConfigRegs::HeaderType) & 0x80) {
-                        for (int k = 1; k < 8; k++) { // Func
-                            if (CheckDevice(i, j, k)) {
-                                devices->PushBack(new PCI::PCIDevice(i, j, k));
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        info$("[PCI] Enumerated {} PCI devices", devices->Count());
         return devices;
     }
 
     bool PCIEnumerationDevice::CheckDevice(u8 bus, u8 slot, u8 func)
     {
-        PCIInfo info(bus, slot, func);
-        return CheckDevice(info);
+        PCIInfo deviceInfo(bus, slot, func);
+        return CheckDevice(deviceInfo);
     }
 
     bool PCIEnumerationDevice::CheckDevice(PCIInfo& info)
     {
-        return info.GetVendorID() != 0xFFFF;
+        return info.GetVendorID() && info.GetVendorID() != 0xFFFF;
     }
 
     bool PCIEnumerationDevice::FindDevice(u16 deviceID, u16 vendorID)
