@@ -17,10 +17,12 @@ namespace APIC {
     public:
         struct Local
         {
-            Local(u8                       apicId,
+            Local(u8                       processorId,
+                  u8                       apicId,
                   GenericControllerDevice* apic,
                   ICPULocalDevice*         device)
-                : _apicId(apicId)
+                : _processorId(processorId)
+                , _apicId(apicId)
                 , _apic(apic)
                 , _basePhys(apic->ReadBase() & LOCAL_APIC_BASE)
                 , _baseVirt(Memory::CopyAsIOAddress(_basePhys))
@@ -37,6 +39,7 @@ namespace APIC {
             void SendIPI(u32 vec);
             void SendIPI(u32 dsh, u32 type, u8 vector);
 
+            u8                       _processorId;
             u8                       _apicId;
             GenericControllerDevice* _apic;
             u64                      _basePhys;
