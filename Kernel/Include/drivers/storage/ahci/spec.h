@@ -1,5 +1,6 @@
 #pragma once
 
+#include <drivers/storage/ahci/spec_command.h>
 #include <mixins/std/c++types.h>
 
 #define AHCI_GHC_HR (1 << 0) // HBA Reset
@@ -61,226 +62,6 @@ namespace AHCI {
         TYPE_PIO_SETUP = 0x5F,
         TYPE_DEV_BITS  = 0xA1,
     };
-
-    struct RegHostToDevice
-    {
-        u8 _fisType;
-
-        u8 _portMultiplier : 4;
-        u8 _reserved0 : 3;
-        u8 _mode : 1;
-
-        u8 _command;
-        u8 _featLow;
-
-        union
-        {
-            dword _dw0;
-
-            struct
-            {
-                u8 _lba0;
-                u8 _lba1;
-                u8 _lba2;
-                u8 _device;
-            };
-        };
-
-        union
-        {
-            dword _dw1;
-
-            struct
-            {
-                u8 _lba3;
-                u8 _lba4;
-                u8 _lba5;
-                u8 _featHigh;
-            };
-        };
-
-        union
-        {
-            dword _dw2;
-
-            struct
-            {
-                u8 _countLow;
-                u8 _countHigh;
-                u8 _icc;
-                u8 _ctl;
-            };
-        };
-
-        union
-        {
-            dword _dw3;
-
-            struct
-            {
-                u8 _reserved1[4];
-            };
-        };
-    } __attribute__((packed));
-
-    struct RegDeviceToHost
-    {
-        u8 _fisType;
-
-        u8 _portMultiplier : 4;
-        u8 _reserved0 : 2;
-        u8 _interrupt : 1;
-        u8 _reserved1 : 1;
-
-        u8 _statusRegister;
-        u8 _errorRegister;
-
-        union
-        {
-            dword _dw0;
-
-            struct
-            {
-                u8 _lba0;
-                u8 _lba1;
-                u8 _lba2;
-                u8 _device;
-            };
-        };
-
-        union
-        {
-            dword _dw1;
-
-            struct
-            {
-                u8 _lba3;
-                u8 _lba4;
-                u8 _lba5;
-                u8 _reserved2;
-            };
-        };
-
-        union
-        {
-            dword _dw2;
-
-            struct
-            {
-                u8 _countLow;
-                u8 _countHigh;
-                u8 _reserved3[2];
-            };
-        };
-
-        union
-        {
-            dword _dw3;
-
-            struct
-            {
-                u8 _reserved4[4];
-            };
-        };
-    } __attribute__((packed));
-
-    struct Data
-    {
-        u8 _fisType;
-
-        u8 _portMultiplier : 4;
-        u8 _reserved0 : 4;
-
-        u8 _reserved1[2];
-
-        u32 _data[1];
-    } __attribute__((packed));
-
-    struct PIOSetup
-    {
-        u8 _fisType;
-
-        u8 _portMultiplier : 4;
-        u8 _reserved0 : 1;
-        u8 _interrupt : 1;
-        u8 _reserved1 : 1;
-        u8 _status : 1;
-
-        u8 _error;
-
-        union
-        {
-            dword _dw0;
-
-            struct
-            {
-                u8 _lba0;
-                u8 _lba1;
-                u8 _lba2;
-                u8 _device;
-            };
-        };
-
-        union
-        {
-            dword _dw1;
-
-            struct
-            {
-                u8 _lba3;
-                u8 _lba4;
-                u8 _lba5;
-                u8 _reserved2;
-            };
-        };
-
-        union
-        {
-            dword _dw2;
-
-            struct
-            {
-                u8 _countLow;
-                u8 _countHigh;
-                u8 _reserved3;
-                u8 _e_status;
-            };
-        };
-
-        union
-        {
-            dword _dw3;
-
-            struct
-            {
-                u16 _transferCount;
-                u8  _reserved4[2];
-            };
-        };
-    } __attribute__((packed));
-
-    struct DMASetup
-    {
-        u8 _fisType;
-
-        u8 _portMultiplier : 4;
-        u8 _reserved0 : 1;
-        u8 _interrupt : 1;
-        u8 _autoActivate : 1;
-        u8 _reserved1 : 1;
-
-        u8 _reserved2[2];
-
-        u64 _dmaBufferId;
-
-        u32 _reserved3;
-
-        u32 _dmaBufferOffset;
-
-        u32 _transferCount;
-
-        u32 _reserved4;
-    } __attribute__((packed));
 
     struct _HBAPortRegs
     {
@@ -369,14 +150,14 @@ namespace AHCI {
 
     struct _HBAFrameInfo
     {
-        DMASetup _dmaSetup;
-        u8       _reserved0[4];
+        Command::SetupDMA _dmaSetup;
+        u8                _reserved0[4];
 
-        PIOSetup _pioSetup;
-        u8       _reserved1[12];
+        Command::SetupPIO _pioSetup;
+        u8                _reserved1[12];
 
-        RegDeviceToHost _d2hRegister;
-        u8              _reserved2[4];
+        Command::DeviceToHost _d2hRegister;
+        u8                    _reserved2[4];
 
         u8 devBits[8];
 

@@ -88,7 +88,7 @@ namespace AHCI {
         m_portRegs->_tfd  = 0;
 
         AHCI::HBACommandHeader* header = &m_commandList[slot];
-        header->_cfl   = sizeof(AHCI::RegHostToDevice) / sizeof(u32);
+        header->_cfl   = sizeof(AHCI::Command::HostToDevice) / sizeof(u32);
         header->_a     = 0;
         header->_w     = write;
         header->_c     = 0;
@@ -104,8 +104,8 @@ namespace AHCI {
         table->_prdtEntry[0]._dbc  = (count << 9) - 1;
         table->_prdtEntry[0]._i    = 1;
 
-        AHCI::RegHostToDevice* h2d = (AHCI::RegHostToDevice*)table->_cfis;
-        AddressRange((u64)h2d, sizeof(AHCI::RegHostToDevice)).SetZero();
+        auto* h2d = (AHCI::Command::HostToDevice*)table->_cfis;
+        AddressRange((u64)h2d, sizeof(AHCI::Command::HostToDevice)).SetZero();
         h2d->_fisType        = AHCI::FisRegs::TYPE_REG_H2D;
         h2d->_mode           = 1;
         h2d->_portMultiplier = 0;
