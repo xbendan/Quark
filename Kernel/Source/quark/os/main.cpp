@@ -8,12 +8,14 @@
 #include <quark/os/diagnostic/logging.h>
 
 #include <drivers/comm/device.h>
+#include <drivers/gfx/vesa/device_vga.h>
 
 namespace Quark::System {
     using namespace Quark::System::Diagnostic;
 
-    BootInfo                 launchConfig;
-    Serial::SerialPortDevice serial;
+    BootInfo                  launchConfig;
+    Serial::SerialPortDevice  serial;
+    VESA::VGATextOutputDevice vga;
 
     BootInfo& getLaunchConfiguration()
     {
@@ -26,7 +28,8 @@ namespace Quark::System {
         Hal::Platform& platform = BootInfo::Platform;
 
         new (&serial) Serial::SerialPortDevice();
-        new (&_LoggerWriter) LoggerTextWriter(&serial);
+        new (&vga) VESA::VGATextOutputDevice();
+        new (&_LoggerWriter) LoggerTextWriter(&serial, &vga);
 
         log("Setting up kernel..."s);
 
@@ -34,7 +37,7 @@ namespace Quark::System {
         SetupArch();
         log("OK."s);
 
-        log("Initializing virtual memory management:");
+        log("Initializing virtual memory management...");
         AddressSpace* kernelAddressSpace = nullptr;
         if (platform._features.hasNot(Hal::Platform::AddressSpaceIsolation)) {
             log("VMM is not supported on this platform.");

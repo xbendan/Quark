@@ -22,7 +22,13 @@ namespace Quark::System::Diagnostic {
     struct LoggerTextWriter : Qk::TextWriter
     {
         LoggerTextWriter() = default;
-        LoggerTextWriter(Qk::TextWriter* _default);
+        template <typename... TWriters>
+            requires(Derived<TextWriter, TWriters> && ...)
+        LoggerTextWriter(TWriters*... writers)
+        {
+            (add(writers), ...);
+            m_builder.clear();
+        }
 
         usize write(byte b) override;
         usize write(Bytes bytes) override;

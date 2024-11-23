@@ -3,14 +3,17 @@
 
 namespace Quark::System::Diagnostic {
     using Qk::StringView;
+    using Qk::TextWriter;
 
     LoggerTextWriter _LoggerWriter;
 
-    LoggerTextWriter::LoggerTextWriter(Qk::TextWriter* _default)
-    {
-        add(_default);
-        m_builder.clear();
-    }
+    // template <typename... TWriters>
+    //     requires(Derived<TextWriter, TWriters> && ...)
+    // LoggerTextWriter::LoggerTextWriter(Qk::TextWriter* _default)
+    // {
+    //     add(_default);
+    //     m_builder.clear();
+    // }
 
     usize LoggerTextWriter::write(byte b)
     {
