@@ -160,6 +160,7 @@ namespace Qk {
         bool  _prefix{ false };
         usize _base{ 10 };
         usize _width{ 0 };
+        bool  _autowidth{ false };
         bool  _charType{ false };
         bool  _uppercase{ false };
         char  _fill{ ' ' };
@@ -212,11 +213,21 @@ namespace Qk {
                     }
 
                     case 'x': {
-                        _base  = 16;
-                        _fill  = '0';
-                        _width = sizeof(usize) * 2;
+                        _base      = 16;
+                        _fill      = '0';
+                        _width     = sizeof(usize) * 2;
+                        _autowidth = true;
                         break;
                     }
+
+                    case 'u': {
+                        _base      = 16;
+                        _fill      = '0';
+                        _autowidth = true;
+                        _prefix    = false;
+                        break;
+                    }
+
                     default:
                         break;
                 }
@@ -239,6 +250,9 @@ namespace Qk {
                 buf.pushBack(digit(val % _base));
                 val /= _base;
             } while (val != 0 && buf.len() < buf.cap());
+
+            if (_autowidth)
+                _width = sizeof(T) * 2;
 
             while (_width > buf.len()) {
                 buf.pushBack(_fill);
