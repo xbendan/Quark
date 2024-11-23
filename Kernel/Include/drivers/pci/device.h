@@ -63,15 +63,15 @@ namespace PCI {
 
         // clang-format off
 
-        inline bool     BarIsIoPort(u8 i)               { return Read<u32>((u8)PCI::ConfigRegs::BAR0 + i * 4) & 0x1; }
-        inline u8       GetInterruptLine()              { return Read<u8>(PCI::ConfigRegs::InterruptLine); }
-        inline void     SetInterruptLine(u8 value)      { Write<u8>(PCI::ConfigRegs::InterruptLine, value); }
-        inline u8       GetInterruptPin()               { return Read<u8>(PCI::ConfigRegs::InterruptPin); }
-        inline void     SetInterruptPin(u8 value)       { Write<u8>(PCI::ConfigRegs::InterruptPin, value); }
-        inline u8       GetCommand()                    { return Read<u8>(PCI::ConfigRegs::Command); } 
-        inline void     SetCommand(u8 value)            { Write<u8>(PCI::ConfigRegs::Command, value); }
-        inline u8       GetStatus()                     { return Read<u8>(PCI::ConfigRegs::Status); }
-        inline u8       GetHeaderType()                 { return Read<u8>(PCI::ConfigRegs::HeaderType); }
+        inline bool     BarIsIoPort(u8 i)               { return ReadDWord((PCI::ConfigRegs)((u8)PCI::ConfigRegs::BAR0 + i * 4)) & 0x1; }
+        inline u8       GetInterruptLine()              { return ReadByte(PCI::ConfigRegs::InterruptLine); }
+        inline void     SetInterruptLine(u8 value)      { WriteByte(PCI::ConfigRegs::InterruptLine, value); }
+        inline u8       GetInterruptPin()               { return ReadByte(PCI::ConfigRegs::InterruptPin); }
+        inline void     SetInterruptPin(u8 value)       { WriteByte(PCI::ConfigRegs::InterruptPin, value); }
+        inline u8       GetCommand()                    { return ReadByte(PCI::ConfigRegs::COMMAND); } 
+        inline void     SetCommand(u8 value)            { WriteByte(PCI::ConfigRegs::COMMAND, value); }
+        inline u8       GetStatus()                     { return ReadByte(PCI::ConfigRegs::STATUS); }
+        inline u8       GetHeaderType()                 { return ReadByte(PCI::ConfigRegs::HeaderType); }
         inline void     EnableBusMastering()            { SetCommand(GetCommand() | PCI_CMD_BUS_MASTER); }
         inline void     EnableInterrupts()              { SetCommand(GetCommand() & (~PCI_CMD_INTERRUPT_DISABLE)); }
         inline void     EnableMemorySpace()             { SetCommand(GetCommand() | PCI_CMD_MEMORY_SPACE); }
