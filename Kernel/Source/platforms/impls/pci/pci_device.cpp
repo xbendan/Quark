@@ -1,25 +1,25 @@
 #include <drivers/pci/device.h>
 
 namespace PCI {
-    PCIDevice::PCIDevice(u8 bus, u8 slot, u8 func)
-        : PCIInfo(bus, slot, func)
+    Device::Device(u8 bus, u8 slot, u8 func)
+        : DeviceIdentifier(bus, slot, func)
         , Io::Device("Unknown PCI Device", Io::Device::Type::Unknown)
     {
     }
 
-    PCIDevice::PCIDevice(u8 bus, u8 slot, u8 func, u16 vendorID, u16 deviceID)
-        : PCIInfo(bus, slot, func)
+    Device::Device(u8 bus, u8 slot, u8 func, u16 vendorID, u16 deviceID)
+        : DeviceIdentifier(bus, slot, func)
         , Io::Device("Unknown PCI Device", Io::Device::Type::Unknown)
     {
     }
 
-    PCIDevice::PCIDevice(PCIInfo& info)
-        : PCIInfo(info)
+    Device::Device(DeviceIdentifier const& info)
+        : DeviceIdentifier(info)
         , Io::Device("Unknown PCI Device", Io::Device::Type::Unknown)
     {
     }
 
-    u64 PCIDevice::GetBaseAddrRegs(u8 i)
+    u64 Device::GetBaseAddrRegs(u8 i)
     {
         if (i > 5) {
             return 0;

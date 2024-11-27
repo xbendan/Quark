@@ -60,9 +60,9 @@ namespace Quark::System::Memory {
 
         u64 _address;
 
-        Opt<PageFrame*> Divide();
-        Opt<PageFrame*> Combine(PageFrame* page);
-        Opt<PageFrame*> Combine();
+        Optional<PageFrame*> Divide();
+        Optional<PageFrame*> Combine(PageFrame* page);
+        Optional<PageFrame*> Combine();
 
         static PageFrame* ByAddress(u64 address);
     };

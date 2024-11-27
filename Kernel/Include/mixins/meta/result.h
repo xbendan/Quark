@@ -114,69 +114,71 @@ struct Res
     }
 };
 
-template <typename TSuccess, typename... TErrors>
-    requires(sizeof...(TErrors) > 0)
-struct Result
-{
-    using InnerType = Union<Ok<TSuccess>, TErrors...>;
-
-    InnerType _inner;
-
-    always_inline constexpr Result(Ok<TSuccess> const& ok)
-        : _inner(ok)
+namespace Qk {
+    template <typename TSuccess, typename... TErrors>
+    struct Result
     {
-    }
+        using InnerType = Union<Ok<TSuccess>, TErrors...>;
 
-    always_inline constexpr Result(Ok<TSuccess>&& ok)
-        : _inner(Std::move(ok))
-    {
-    }
+        InnerType _inner;
 
-    template <Any<TErrors...> TErrorType>
-    always_inline constexpr Result(TErrorType const& err)
-        : _inner(err)
-    {
-    }
-
-    template <typename U>
-    always_inline constexpr Result(Result<U, TErrors...> other)
-        : _inner(other._inner)
-    {
-    }
-
-    always_inline constexpr ~Result() {}
-
-    always_inline constexpr explicit operator bool() const
-    {
-        return _inner.template is<Ok<TSuccess>>();
-    }
-
-    always_inline constexpr bool isError() const
-    {
-        return not _inner.template is<Ok<TSuccess>>();
-    }
-
-    template <Any<TErrors...> TErrorType>
-    always_inline constexpr bool isError() const
-    {
-        return _inner.template is<TErrorType>();
-    }
-
-    always_inline constexpr bool isSuccess() const
-    {
-        return _inner.template is<Ok<TSuccess>>();
-    }
-
-    always_inline constexpr TSuccess& unwrap(
-        const char* msg = "called `Result::unwrap()` on an error")
-    {
-        if (not _inner.template is<Ok<TSuccess>>()) {
-            indexCast<TErrors...>(
-                _inner._index - 1, _inner._data, []<typename T>(T& value) {});
+        always_inline constexpr Result(Ok<TSuccess> const& ok)
+            : _inner(ok)
+        {
         }
-        return _inner.template unwrap<Ok<TSuccess>>().inner;
-    }
-};
 
-template <typename TSuccess>
-Result(TSuccess) -> Result<TSuccess, Error>;
+        always_inline constexpr Result(Ok<TSuccess>&& ok)
+            : _inner(Std::move(ok))
+        {
+        }
+
+        template <Any<TErrors...> TErrorType>
+        always_inline constexpr Result(TErrorType const& err)
+            : _inner(err)
+        {
+        }
+
+        template <typename U>
+        always_inline constexpr Result(Result<U, TErrors...> other)
+            : _inner(other._inner)
+        {
+        }
+
+        always_inline constexpr ~Result() {}
+
+        always_inline constexpr explicit operator bool() const
+        {
+            return _inner.template is<Ok<TSuccess>>();
+        }
+
+        always_inline constexpr bool isError() const
+        {
+            return not _inner.template is<Ok<TSuccess>>();
+        }
+
+        template <Any<TErrors...> TErrorType>
+        always_inline constexpr bool isError() const
+        {
+            return _inner.template is<TErrorType>();
+        }
+
+        always_inline constexpr bool isSuccess() const
+        {
+            return _inner.template is<Ok<TSuccess>>();
+        }
+
+        always_inline constexpr TSuccess& unwrap(
+            const char* msg = "called `Result::unwrap()` on an error")
+        {
+            if (not _inner.template is<Ok<TSuccess>>()) {
+                indexCast<TErrors...>(_inner._index - 1,
+                                      _inner._data,
+                                      []<typename T>(T& value) {});
+            }
+            return _inner.template unwrap<Ok<TSuccess>>().inner;
+        }
+    };
+
+    template <typename TSuccess>
+    Result(TSuccess) -> Result<TSuccess, Error>;
+}

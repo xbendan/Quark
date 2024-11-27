@@ -1,12 +1,13 @@
-#include <drivers/storage/ahci/controller_device.h>
+#include <drivers/storage/ahci/ahci_controller_device.h>
 #include <quark/memory/address_space.h>
 #include <quark/memory/page_alloc.h>
 
 namespace AHCI {
     using namespace Quark::System::Memory;
 
-    AHCIStorageControllerDevice::AHCIStorageControllerDevice(PCIInfo& info)
-        : PCIDevice(info, "AHCI Controller Device", Type::StorageController)
+    AHCIStorageControllerDevice::AHCIStorageControllerDevice(
+        DeviceIdentifier& info)
+        : Device(info, "AHCI Controller Device", Type::StorageController)
         , m_clbPhys(AllocatePhysMemory4K(8).unwrap())
         , m_fbPhys(AllocatePhysMemory4K(2).unwrap())
         , m_ctbaPhys(AllocatePhysMemory4K(64).unwrap())

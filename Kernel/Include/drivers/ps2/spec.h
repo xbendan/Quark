@@ -4,34 +4,34 @@
 #define PS2_COMMAND_PORT 0x64
 
 namespace PS2 {
-    enum class StateReg
+    enum StateReg
     {
-        OutputBuffer   = 0x01,
-        InputBuffer    = 0x02,
-        SystemFlag     = 0x04,
-        CommandData    = 0x08,
-        KeyboardLock   = 0x10,
-        ReceiveTimeout = 0x20,
-        TimeoutError   = 0x40,
-        ParityError    = 0x80
+        STATE_OUTPUT_BUFFER   = 0x01,
+        STATE_INPUT_BUFFER    = 0x02,
+        STATE_SYSTEM_FLAG     = 0x04,
+        STATE_COMMAND_DATA    = 0x08,
+        STATE_KEYBOARD_LOCK   = 0x10,
+        STATE_RECEIVE_TIMEOUT = 0x20,
+        STATE_TIMEOUT_ERROR   = 0x40,
+        STATE_PARITY_ERROR    = 0x80
     };
 
     enum class Command
     {
-        ReadByteZero         = 0x20,
-        WriteByteZero        = 0x60,
-        DisableSecondPort    = 0xA7,
-        EnableSecondPort     = 0xA8,
-        TestSecondPort       = 0xA9,
-        TestPs2Controller    = 0xAA,
-        TestFirstPort        = 0xAB,
-        DiagnosticDump       = 0xAC,
-        DisableFirstPort     = 0xAD,
-        EnableFirstPort      = 0xAE,
-        ReadControllerInput  = 0xC0,
-        CopyBits03To47       = 0xC1,
-        CopyBits47To47       = 0xC2,
-        ReadControllerOutput = 0xD0
+        READ_BYTE_ZERO         = 0x20,
+        WRITE_BYTE_ZERO        = 0x60,
+        DISABLE_SECOND_PORT    = 0xA7,
+        ENABLE_SECOND_PORT     = 0xA8,
+        TEST_SECOND_PORT       = 0xA9,
+        TEST_PS2_CONTROLLER    = 0xAA,
+        TEST_FIRST_PORT        = 0xAB,
+        DIAGNOSTIC_DUMP        = 0xAC,
+        DISABLE_FIRST_PORT     = 0xAD,
+        ENABLE_FIRST_PORT      = 0xAE,
+        READ_CONTROLLER_INPUT  = 0xC0,
+        COPY_BITS_03_TO_47     = 0xC1,
+        COPY_BITS_47_TO_47     = 0xC2,
+        READ_CONTROLLER_OUTPUT = 0xD0
     };
 
     enum ConfigByte

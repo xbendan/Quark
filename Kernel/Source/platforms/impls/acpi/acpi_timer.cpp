@@ -84,6 +84,6 @@ namespace ACPI {
 
     u64 ACPITimerDevice::GetSystemUptime()
     {
-        return pIn<u32>(m_ticks);
+        return in<u32>(m_ticks);
     }
 }

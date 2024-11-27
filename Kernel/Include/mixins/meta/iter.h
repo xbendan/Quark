@@ -19,8 +19,8 @@ namespace Qk {
 
         constexpr auto map(auto f)
         {
-            auto n =
-                [=, *this] mutable -> Opt<decltype(f(*declval<InnerType>()))> {
+            auto n = [=, *this] mutable
+                -> Optional<decltype(f(*declval<InnerType>()))> {
                 auto v = _next();
 
                 if (not v) {
@@ -36,7 +36,7 @@ namespace Qk {
         constexpr auto mapi(auto f)
         {
             auto n = [=, *this, index = 0uz] mutable
-                -> Opt<decltype(f(*declval<InnerType>(), 1uz))> {
+                -> Optional<decltype(f(*declval<InnerType>(), 1uz))> {
                 auto v = _next();
                 index++;
 
@@ -330,7 +330,7 @@ namespace Qk {
     template <typename T>
     constexpr auto iterRepeat(T value, usize count)
     {
-        return Iter([value, count] mutable -> Opt<T> {
+        return Iter([value, count] mutable -> Optional<T> {
             if (count == 0) {
                 return Empty{};
             }

@@ -1,14 +1,14 @@
 #include <drivers/pci/device.h>
+#include <drivers/storage/ahci/ahci_storage_device.h>
 #include <drivers/storage/ahci/spec.h>
-#include <drivers/storage/ahci/storage_device.h>
 
 namespace AHCI {
     using Qk::List;
 
-    class AHCIStorageControllerDevice : public PCI::PCIDevice
+    class AHCIStorageControllerDevice : public PCI::Device
     {
     public:
-        AHCIStorageControllerDevice(PCIInfo& info);
+        AHCIStorageControllerDevice(DeviceIdentifier& info);
         ~AHCIStorageControllerDevice();
 
         AHCI::HBAMemRegs* GetMemoryRegs() { return m_memRegs; }

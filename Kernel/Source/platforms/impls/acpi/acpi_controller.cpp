@@ -104,14 +104,14 @@ namespace ACPI {
 
             if (Qk::Strings::Equals(table->_signature, name) &&
                 (_index++ == index)) {
-                info$("ACPI Table found: {}, at {#X}", name, ent);
+                info$("[ACPI] ACPI Table found: {}, at {#X}", name, ent);
 
                 // Perhaps check the checksum here
                 return table;
             }
         }
 
-        warn$("ACPI Table not found: {}", name);
+        warn$("[ACPI] ACPI Table not found: {}", name);
         return nullptr;
     }
 } // namespace Quark::System::Hal

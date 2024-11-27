@@ -24,6 +24,6 @@ namespace Quark::System::Hal {
         u32 _memBufferStatus;
     } __attribute__((packed));
 
-    class NVMeControllerDevice : public PCI::PCIDevice
+    class NVMeControllerDevice : public PCI::Device
     {};
 } // namespace Quark::System::Hal

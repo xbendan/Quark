@@ -33,7 +33,7 @@ namespace Quark::System::Io {
         Partition const& partition() const { return m_partition; }
 
     private:
-        StorageDevice* m_device;
-        Partition&     m_partition;
+        StorageDevice*   m_device;
+        Partition const& m_partition;
     };
 }

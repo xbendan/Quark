@@ -7,11 +7,11 @@
 #include <mixins/std/utility.h>
 
 template <typename T>
-struct Opt;
+struct Optional;
 
 template <typename T>
     requires Std::isReference<T>
-struct [[nodiscard]] Opt<T>
+struct [[nodiscard]] Optional<T>
 {
     using TPureType  = Std::RemoveCvRef<T>;
     using TInnerType = Std::AddPointer<TPureType>;
@@ -23,53 +23,53 @@ struct [[nodiscard]] Opt<T>
     };
     bool _present;
 
-    always_inline constexpr Opt()
+    always_inline constexpr Optional()
         : _empty()
         , _present(false)
     {
     }
 
-    always_inline constexpr Opt(Empty)
+    always_inline constexpr Optional(Empty)
         : _empty()
         , _present(false)
     {
     }
 
-    always_inline constexpr Opt(TInnerType value)
+    always_inline constexpr Optional(TInnerType value)
         : _value(value)
         , _present(true)
     {
     }
 
-    always_inline constexpr Opt(T value)
+    always_inline constexpr Optional(T value)
         : _value(&value)
         , _present(true)
     {
     }
 
-    always_inline constexpr Opt(Opt const& other)
+    always_inline constexpr Optional(Optional const& other)
         : _present(other._present)
     {
         if (_present)
             _value = other._value;
     }
 
-    always_inline constexpr Opt(Opt&& other)
+    always_inline constexpr Optional(Optional&& other)
         : _present(other._present)
     {
         if (_present)
             _value = other._value;
     }
 
-    always_inline constexpr ~Opt() { Clear(); }
+    always_inline constexpr ~Optional() { Clear(); }
 
-    always_inline constexpr Opt& operator=(Empty)
+    always_inline constexpr Optional& operator=(Empty)
     {
         Clear();
         return *this;
     }
 
-    always_inline constexpr Opt& operator=(TInnerType value)
+    always_inline constexpr Optional& operator=(TInnerType value)
     {
         Clear();
 
@@ -78,7 +78,7 @@ struct [[nodiscard]] Opt<T>
         return *this;
     }
 
-    always_inline constexpr Opt& operator=(T value)
+    always_inline constexpr Optional& operator=(T value)
     {
         Clear();
 
@@ -89,8 +89,8 @@ struct [[nodiscard]] Opt<T>
 
     always_inline
 
-        constexpr Opt&
-        operator=(Opt const& other)
+        constexpr Optional&
+        operator=(Optional const& other)
     {
         if (this != &other) {
             Clear();
@@ -102,7 +102,7 @@ struct [[nodiscard]] Opt<T>
         return *this;
     }
 
-    always_inline constexpr Opt& operator=(Opt&& other)
+    always_inline constexpr Optional& operator=(Optional&& other)
     {
         if (this != &other) {
             Clear();
@@ -172,14 +172,14 @@ struct [[nodiscard]] Opt<T>
     }
 
     template <typename To>
-    always_inline constexpr Opt<To> Select(Func<To(T)> f) const
+    always_inline constexpr Optional<To> Select(Func<To(T)> f) const
     {
         if (_present)
             return f(*_value);
         return Empty();
     }
 
-    always_inline constexpr Opt<Std::RemoveRef<T>> Extract() const
+    always_inline constexpr Optional<Std::RemoveRef<T>> Extract() const
     {
         if (_present)
             return *_value;
@@ -189,7 +189,7 @@ struct [[nodiscard]] Opt<T>
     template <typename... Args>
     always_inline constexpr auto operator()(Args&&... args) const
     {
-        using OptRet = Opt<InvokeResult<T, Args...>>;
+        using OptRet = Optional<InvokeResult<T, Args...>>;
 
         if constexpr (SameAs<void, InvokeResult<T, Args...>>) {
             if (!_present) {
@@ -207,7 +207,7 @@ struct [[nodiscard]] Opt<T>
 };
 
 template <typename T>
-struct [[nodiscard]] Opt
+struct [[nodiscard]] Optional
 {
     union
     {
@@ -216,34 +216,34 @@ struct [[nodiscard]] Opt
     };
     bool _present;
 
-    always_inline constexpr Opt()
+    always_inline constexpr Optional()
         : _empty()
         , _present(false)
     {
     }
 
-    always_inline constexpr Opt(Empty)
+    always_inline constexpr Optional(Empty)
         : _empty()
         , _present(false)
     {
     }
 
-    always_inline constexpr Opt(T const& value)
+    always_inline constexpr Optional(T const& value)
         : _value(value)
         , _present(true)
     {
     }
 
     template <typename U = T>
-    always_inline constexpr Opt(U&& value)
-        requires(!SameAs<Std::RemoveCvRef<U>, Opt<T>> &&
+    always_inline constexpr Optional(U&& value)
+        requires(!SameAs<Std::RemoveCvRef<U>, Optional<T>> &&
                  MoveConstructible<T, U>)
         : _value(Std::forward<U>(value))
         , _present(true)
     {
     }
 
-    always_inline constexpr Opt(Opt const& other)
+    always_inline constexpr Optional(Optional const& other)
         requires CopyConstructible<T>
         : _present(other._present)
     {
@@ -251,7 +251,7 @@ struct [[nodiscard]] Opt
             new (&_value) T(other._value);
     }
 
-    always_inline constexpr Opt(Opt&& other)
+    always_inline constexpr Optional(Optional&& other)
         requires MoveConstructible<T>
         : _present(other._present)
     {
@@ -260,21 +260,21 @@ struct [[nodiscard]] Opt
     }
 
     template <typename... Args>
-    always_inline constexpr Opt(Args&&... args)
+    always_inline constexpr Optional(Args&&... args)
         : _value(Std::forward<Args>(args)...)
         , _present(true)
     {
     }
 
-    always_inline constexpr ~Opt() { Clear(); }
+    always_inline constexpr ~Optional() { Clear(); }
 
-    always_inline constexpr Opt& operator=(Empty)
+    always_inline constexpr Optional& operator=(Empty)
     {
         Clear();
         return *this;
     }
 
-    always_inline constexpr Opt& operator=(T const& value)
+    always_inline constexpr Optional& operator=(T const& value)
     {
         Clear();
 
@@ -283,7 +283,7 @@ struct [[nodiscard]] Opt
         return *this;
     }
 
-    always_inline constexpr Opt& operator=(T&& value)
+    always_inline constexpr Optional& operator=(T&& value)
     {
         Clear();
 
@@ -292,7 +292,7 @@ struct [[nodiscard]] Opt
         return *this;
     }
 
-    always_inline constexpr Opt& operator=(Opt const& other)
+    always_inline constexpr Optional& operator=(Optional const& other)
         requires CopyConstructible<T>
     {
         if (this != &other) {
@@ -305,7 +305,7 @@ struct [[nodiscard]] Opt
         return *this;
     }
 
-    always_inline constexpr Opt& operator=(Opt&& other)
+    always_inline constexpr Optional& operator=(Optional&& other)
         requires MoveConstructible<T>
     {
         if (this != &other) {
@@ -425,17 +425,17 @@ struct [[nodiscard]] Opt
     }
 
     template <typename To>
-    always_inline constexpr Opt<To> Select(Func<To(T)> f) const
+    always_inline constexpr Optional<To> Select(Func<To(T)> f) const
     {
         if (_present)
             return f(_value);
-        return Opt<To>();
+        return Optional<To>();
     }
 
     template <typename... Args>
     always_inline constexpr auto operator()(Args&&... args) const
     {
-        using OptRet = Opt<InvokeResult<T, Args...>>;
+        using OptRet = Optional<InvokeResult<T, Args...>>;
 
         if constexpr (SameAs<void, InvokeResult<T, Args...>>) {
             if (!_present) {

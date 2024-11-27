@@ -17,6 +17,7 @@ namespace APIC {
     using namespace Platform::X64;
     using namespace Quark::System::Diagnostic;
     using namespace Quark::System::Hal;
+    using namespace Quark::System::Memory;
 
     static GenericControllerDevice* _Device;
 
@@ -32,6 +33,8 @@ namespace APIC {
 
     void EnableInterrupt(u8 irq)
     {
+        return;
+
         irq -= 0x20;
         int nirq = -1;
         for (auto* iso : _Device->GetInterruptOverrides()) {
@@ -42,9 +45,10 @@ namespace APIC {
         }
         if (nirq == -1) {
             warn$("[APIC] No interrupt override found for IRQ {}", irq);
-            nirq = irq;
+            return;
+            // nirq = irq;
         }
-        EnableInterrupt(nirq, irq);
+        EnableInterrupt(nirq, irq + 0x20);
     }
 
     bool __SpuriousInterrupt(int, Registers*)
@@ -67,7 +71,7 @@ namespace APIC {
         auto devRes = Device::FindByName<ACPI::ControllerDevice>(
             "ACPI Management Device");
         devRes.IfPresent([&madt](ACPI::ControllerDevice* acpi) {
-            Opt<ACPI::MADT*> opt = acpi->FindTable<ACPI::MADT>("APIC");
+            Optional<ACPI::MADT*> opt = acpi->FindTable<ACPI::MADT>("APIC");
             if (opt.IsPresent())
                 madt = opt.Take("MADT table not found.");
         });
@@ -96,8 +100,10 @@ namespace APIC {
                             Device::Load(device);
                         }
 
-                        m_units.PushBack(
-                            new Local(apicLocal->_apicId, this, device));
+                        m_units.PushBack(new Local(apicLocal->_processorId,
+                                                   apicLocal->_apicId,
+                                                   this,
+                                                   device));
                         info$(
                             "[APIC] Local APIC, Processor ID: {}, APIC ID: {}, "
                             "Flags: {#b}",
@@ -194,33 +200,40 @@ namespace APIC {
             return Error::DeviceFault("No I/O APIC found");
         }
 
-        // pOut<u8>(0x20, 0x11);
-        // pOut<u8>(0xA0, 0x11);
-        // pOut<u8>(0x21, 0x20);
-        // pOut<u8>(0xA1, 0x28);
-        // pOut<u8>(0x21, 0x04);
-        // pOut<u8>(0xA1, 0x02);
-        // pOut<u8>(0x21, 0x01);
-        // pOut<u8>(0xA1, 0x01);
-        pOut<u8>(0x21, 0xFF);
-        pOut<u8>(0xA1, 0xFF);
+        out<u8>(0x20, 0x11);
+        out<u8>(0xA0, 0x11);
+        out<u8>(0x21, 0x20);
+        out<u8>(0xA1, 0x28);
+        out<u8>(0x21, 0x04);
+        out<u8>(0xA1, 0x02);
+        out<u8>(0x21, 0x01);
+        out<u8>(0xA1, 0x01);
+        out<u8>(0x21, 0xFF);
+        out<u8>(0xA1, 0xFF);
 
         m_ioBaseVirt = Memory::CopyAsIOAddress(m_ioBasePhys);
         m_ioRegSel   = (u32*)(m_ioBaseVirt + IO_APIC_REGSEL);
         m_ioWindow   = (u32*)(m_ioBaseVirt + IO_APIC_WIN);
         m_interrupts = ReadReg32(IO_APIC_REGISTER_VER) >> 16;
 
-        Hal::EnableInterrupt(0xFF, __SpuriousInterrupt);
+        m_locBasePhys = ReadBase() & LOCAL_APIC_BASE;
+        m_locBaseVirt = Memory::CopyAsIOAddress(m_locBasePhys);
+
+        info$("[APIC] Local APIC Virtual Base: {#X}", m_locBaseVirt);
 
         if (Platform::X64::rdmsr(MSR_APIC_BASE) != 0) {
         }
 
+        info$("[APIC] I/O APIC Virtual Base: {#X}", m_ioBaseVirt);
+        Hal::EnableInterrupt(0xFF, __SpuriousInterrupt);
+        WriteReg32(LOCAL_APIC_SIVR, 0x100 | 0xFF);
+
         GetApicLocal(0)->Enable();
 
         // Initialize I/O APIC
-        // for (auto* iso : m_overrides) {
-        //     Redirect(iso->_gSi, iso->_irqSource + 0x20, 0);
-        // }
+        for (auto* iso : m_overrides) {
+            Redirect(iso->_gSi, iso->_irqSource + 0x20, 0);
+        }
 
         return Ok();
     }
@@ -274,12 +287,12 @@ namespace APIC {
 
     void GenericControllerDevice::WriteRegLoc(u32 reg, u32 data)
     {
-        *((volatile u32*)(m_ioBaseVirt + reg)) = data;
+        *((volatile u32*)(m_locBaseVirt + reg)) = data;
     }
 
     u32 GenericControllerDevice::ReadRegLoc(u32 reg)
     {
-        return *((volatile u32*)(m_ioBaseVirt + reg));
+        return *((volatile u32*)(m_locBaseVirt + reg));
     }
 
     void GenericControllerDevice::Redirect(u8 irq, u8 vector, u32 delivery)

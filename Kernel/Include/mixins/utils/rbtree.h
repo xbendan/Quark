@@ -404,7 +404,7 @@ namespace Qk {
 
         void ForEach(Func<void(TKey const&, TValue const&)> action) const {}
 
-        virtual Opt<TValue&> operator[](TKey const& key)
+        virtual Optional<TValue&> operator[](TKey const& key)
         {
             TreeNode* node = Query(key, m_root);
             if (node == nullptr) {

@@ -31,7 +31,7 @@ namespace Qk {
             return node->Value;
         }
 
-        Opt<TSource> PopFront()
+        Optional<TSource> PopFront()
         {
             if (m_head == nullptr) {
                 return {};
@@ -44,7 +44,7 @@ namespace Qk {
             return value;
         }
 
-        Opt<TSource&> Peek()
+        Optional<TSource&> Peek()
         {
             if (m_head == nullptr) {
                 return Empty();

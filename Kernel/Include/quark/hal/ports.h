@@ -65,7 +65,7 @@ namespace Quark::System::Hal {
 
     template <typename T = u8>
         requires Std::isIntegral<T>
-    static inline T pIn(u16 port)
+    static inline T in(u16 port)
     {
         T data;
         asm volatile("in %1, %0" : "=a"(data) : "d"(port));
@@ -74,13 +74,48 @@ namespace Quark::System::Hal {
 
     template <typename T = u8>
         requires Std::isIntegral<T>
-    static inline void pOut(u16 port, T data)
+    static inline void in(u16 port, T* data, usize len)
+    {
+        for (usize i = 0; i < len; i++) {
+            data[i] = in<T>(port);
+        }
+    }
+
+    template <typename T = u8>
+        requires Std::isIntegral<T>
+    static inline void out(u16 port, T data)
     {
         asm volatile("out %0, %1" : : "a"(data), "d"(port));
     }
 
+    template <typename T = u8>
+        requires Std::isIntegral<T>
+    static inline void out(u16 port, T* data, usize len)
+    {
+        for (usize i = 0; i < len; i++) {
+            out<T>(port, data[i]);
+        }
+    }
+
+    template <typename T = u8, bool Eq = true>
+        requires Std::isIntegral<T>
+    static inline void wait(u16 port, u8 bit)
+    {
+        T  data;
+        u8 mask;
+        if constexpr (Eq) {
+            mask = bit;
+        } else {
+            mask = 0;
+        }
+
+        do {
+            data = in<T>(port);
+        } while ((data & bit) == mask);
+    }
+
     static inline void waitIO()
     {
-        pOut<u8>(0x80, 0);
+        out<u8>(0x80, 0);
     }
 } // namespace Quark::System::Hal

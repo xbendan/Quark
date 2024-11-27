@@ -260,9 +260,10 @@ extern "C"
 
     void irq_handler(int num, Registers* registers)
     {
-        APIC::EndOfInterrupt();
         if (__builtin_expect(Interrupts[num] != nullptr, 1) &&
             Interrupts[num](num, registers) == true) {
+
+            APIC::EndOfInterrupt();
             return;
         } else {
             warn$("Unhandled or unresolved interrupt: {}", num);

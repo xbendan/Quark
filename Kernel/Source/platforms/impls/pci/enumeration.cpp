@@ -50,6 +50,9 @@ namespace PCI {
                            : ConfigAccessMode::Legacy;
 
         m_devices = EnumerateDevices();
+        for (auto* device : *m_devices)
+            Device::Load(device);
+
         return Ok();
     }
 
@@ -58,20 +61,21 @@ namespace PCI {
         u8                 bus,
         u8                 slot)
     {
-        PCIInfo pciInfo(bus, slot, 0);
+        DeviceIdentifier pciInfo(bus, slot, 0);
         if (!CheckDevice(pciInfo)) {
             return;
         }
 
-        auto* device = new PCIDevice(bus, slot, 0);
-        devices->PushBack(device);
-
+        DeviceIdentifier ident(bus, slot, 0);
         info$("[PCI] Found PCI device at {:#u}:{:#u}:00 with Class: "
               "{:#X}, Subclass: {:#X}",
               bus,
               slot,
-              device->GetClass(),
-              device->GetSubclass());
+              ident.GetClass(),
+              ident.GetSubclass());
+        auto* device = CreateEnumeratedDevice(ident);
+        devices->PushBack(device);
+
         EnumerateMultipleFuncDevices(devices, bus, slot);
     }
 
@@ -80,7 +84,7 @@ namespace PCI {
         u8                 bus,
         u8                 slot)
     {
-        PCIInfo pciInfo(bus, slot, 0);
+        DeviceIdentifier pciInfo(bus, slot, 0);
         if (!(pciInfo.ReadByte(PCI::ConfigRegs::HeaderType) & 0x80)) {
             return;
         }
@@ -88,17 +92,18 @@ namespace PCI {
         info("[PCI] A multi-function device bit was checked, enumerating other "
              "functions...");
         for (u8 k = 1; k < 8; k++) {
-            if (CheckDevice(bus, slot, k)) {
-                auto* device = new PCIDevice(bus, slot, k);
-                devices->PushBack(device);
-
+            DeviceIdentifier ident(bus, slot, k);
+            if (CheckDevice(ident)) {
                 info$("[PCI]   - Found PCI device at {:#u}:{:#u}:{:#u}, Class: "
                       "{:#X}, Subclass: {:#X}",
                       bus,
                       slot,
                       k,
-                      device->GetClass(),
-                      device->GetSubclass());
+                      ident.GetClass(),
+                      ident.GetSubclass());
+
+                auto* device = CreateEnumeratedDevice(ident);
+                devices->PushBack(device);
             }
         }
     }
@@ -116,11 +121,11 @@ namespace PCI {
 
     bool PCIEnumerationDevice::CheckDevice(u8 bus, u8 slot, u8 func)
     {
-        PCIInfo deviceInfo(bus, slot, func);
+        DeviceIdentifier deviceInfo(bus, slot, func);
         return CheckDevice(deviceInfo);
     }
 
-    bool PCIEnumerationDevice::CheckDevice(PCIInfo& info)
+    bool PCIEnumerationDevice::CheckDevice(DeviceIdentifier& info)
     {
         return info.GetVendorID() && info.GetVendorID() != 0xFFFF;
     }
@@ -128,7 +133,7 @@ namespace PCI {
     bool PCIEnumerationDevice::FindDevice(u16 deviceID, u16 vendorID)
     {
         return m_devices->AnyMatch([&](Io::Device* dev) {
-            auto devp = static_cast<PCI::PCIDevice*>(dev);
+            auto devp = static_cast<PCI::Device*>(dev);
             return devp->GetVendorID() == vendorID &&
                    devp->GetDeviceID() == deviceID;
         });
@@ -137,28 +142,30 @@ namespace PCI {
     bool PCIEnumerationDevice::FindGenericDevice(u8 classCode, u8 subclass)
     {
         return m_devices->AnyMatch([&](Io::Device* dev) {
-            auto devp = static_cast<PCI::PCIDevice*>(dev);
+            auto devp = static_cast<PCI::Device*>(dev);
             return devp->GetClass() == classCode &&
                    devp->GetSubclass() == subclass;
         });
     }
 
-    Opt<Io::Device*> PCIEnumerationDevice::GetDevice(u16 deviceID, u16 vendorID)
+    Optional<Io::Device*> PCIEnumerationDevice::GetDevice(u16 deviceID,
+                                                          u16 vendorID)
     {
         return m_devices
             ->FindFirst([&](Io::Device* dev) {
-                auto devp = static_cast<PCI::PCIDevice*>(dev);
+                auto devp = static_cast<PCI::Device*>(dev);
                 return devp->GetVendorID() == vendorID &&
                        devp->GetDeviceID() == deviceID;
             })
             .Extract();
     }
 
-    Opt<Io::Device*> PCIEnumerationDevice::GetDevice(u8 classCode, u8 subclass)
+    Optional<Io::Device*> PCIEnumerationDevice::GetDevice(u8 classCode,
+                                                          u8 subclass)
     {
         return m_devices
             ->FindFirst([&](Io::Device* dev) {
-                auto devp = static_cast<PCI::PCIDevice*>(dev);
+                auto devp = static_cast<PCI::Device*>(dev);
                 return devp->GetClass() == classCode &&
                        devp->GetSubclass() == subclass;
             })

@@ -1,12 +1,16 @@
 #pragma once
 
 #include <mixins/math/range.h>
+#include <mixins/meta/ref.h>
+#include <mixins/meta/result.h>
 #include <mixins/std/c++types.h>
 #include <mixins/utils/array.h>
 #include <mixins/utils/uuid.h>
 
 namespace Quark::System::Io::FileSystem {
     using Qk::Array;
+    using Qk::NonnullRefPtr;
+    using Qk::Result;
 
     class Partition
     {
@@ -31,8 +35,8 @@ namespace Quark::System::Io::FileSystem {
     class PartitionTable
     {
     public:
-        Opt<Partition>          GetPartitionByIndex(u64 index) const;
-        Opt<Partition>          GetPartitionByUuid(UUID const& uuid) const;
+        Optional<Partition>     GetPartitionByIndex(u64 index) const;
+        Optional<Partition>     GetPartitionByUuid(UUID const& uuid) const;
         usize                   Count() const;
         Array<Partition> const& EnumerateValidPartitions() const;
 

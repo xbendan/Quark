@@ -12,11 +12,11 @@ namespace PCI {
     extern PortAccess<PCI_CONFIG_ADDRESS> ConfigAddress;
     extern PortAccess<PCI_CONFIG_DATA>    ConfigData;
 
-    class PCIInfo
+    class DeviceIdentifier
     {
     public:
-        PCIInfo() = default;
-        PCIInfo(u8 bus, u8 slot, u8 func)
+        DeviceIdentifier() = default;
+        DeviceIdentifier(u8 bus, u8 slot, u8 func)
             : _bus(bus)
             , _slot(slot)
             , _func(func)

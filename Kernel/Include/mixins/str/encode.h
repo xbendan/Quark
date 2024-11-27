@@ -326,13 +326,14 @@ namespace Qk {
     auto iterRunes(S const& slice)
     {
         Cursor<U> cursor(slice);
-        return Iter([cursor] mutable -> Opt<Rune> {
+        return Iter([cursor] mutable -> Optional<Rune> {
             if (cursor.ended()) {
                 return Empty{};
             }
 
             Rune r;
-            return E::decodeUnit(r, cursor) ? Opt<Rune>(r) : Opt<Rune>();
+            return E::decodeUnit(r, cursor) ? Optional<Rune>(r)
+                                            : Optional<Rune>();
         });
     }
 }

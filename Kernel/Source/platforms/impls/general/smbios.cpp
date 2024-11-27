@@ -15,7 +15,7 @@ namespace Quark::System::Hal {
         u64                  address = Memory::CopyAsIOAddress(0xF0000);
         Memory::AddressRange range(address, 0x10000);
 
-        Opt<u64> result;
+        Optional<u64> result;
         if ((result = range.Find(__signatureL2, 4, 0x10)).IsPresent()) {
             m_majorVer   = 2;
             m_smbiosInfo = (void*)result.Take();

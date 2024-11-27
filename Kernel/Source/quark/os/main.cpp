@@ -63,10 +63,10 @@ namespace Quark::System {
         for (auto& dev : *devList)
             Io::Device::Load(dev);
 
-        asm volatile("sti");
-
         log("Initializing task scheduler...");
         InitTasks().unwrap();
+
+        asm volatile("sti");
 
         log("Done!");
 

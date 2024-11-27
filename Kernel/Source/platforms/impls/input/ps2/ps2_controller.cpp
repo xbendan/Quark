@@ -25,35 +25,37 @@ namespace PS2 {
             return Error::DeviceFault("FADT table not found.");
         }
 
-        Send(Command::DisableFirstPort);
-        Send(Command::DisableSecondPort);
+        Send(Command::DISABLE_FIRST_PORT);
+        Send(Command::DISABLE_SECOND_PORT);
 
         /* Flush The Output Buffer */
         Flush();
 
         /* Set the Controller Configuration Byte */
-        Send(Command::ReadByteZero);
+        Send(Command::READ_BYTE_ZERO);
         u8 status =
-            PortAccess<(usize)Command::ReadByteZero>().In<u8>() &
+            PortAccess<(usize)Command::READ_BYTE_ZERO>().In<u8>() &
             (u8)(~(ConfigByte::FirstPortClock | ConfigByte::SecondPortClock |
                    ConfigByte::FirstPortTranslation) |
                  ConfigByte::FirstPortInterrupt);
-        Send(Command::WriteByteZero);
+        Send(Command::WRITE_BYTE_ZERO);
         m_dataAccess << status;
 
         /* Perform Controller Self-Test */
-        Send(Command::TestPs2Controller);
+        Send(Command::TEST_PS2_CONTROLLER);
         Wait();
         if (m_dataAccess.In<u8>() != 0x55) {
             return Error::DeviceFault("PS/2 Controller self-test failed.");
         }
 
         /* Perform First Port Test */
-        Send(Command::TestFirstPort);
+        Send(Command::TEST_FIRST_PORT);
         Wait();
         if (m_dataAccess.In<u8>() == 0x00) {
-            Send(Command::EnableFirstPort);
+            Send(Command::ENABLE_FIRST_PORT);
 
+            m_dataAccess << 0xF0;
+            m_dataAccess << 0x02;
             // pOut<>(PS2_DATA_PORT, 0xF0);
             // pOut<>(PS2_DATA_PORT, 0x02);
 
@@ -65,22 +67,21 @@ namespace PS2 {
 
     void LegacyControllerDevice::Send(PS2::Command command)
     {
-        while (m_commandAccess.In<u8>() & (u8)PS2::StateReg::InputBuffer)
+        while (m_commandAccess.In<u8>() & STATE_INPUT_BUFFER)
             ;
         m_commandAccess << (u8)command;
     }
 
     void LegacyControllerDevice::Flush()
     {
-        while (m_commandAccess.In<u8>() & (u8)StateReg::OutputBuffer)
+        while (m_commandAccess.In<u8>() & STATE_OUTPUT_BUFFER)
             m_dataAccess.In<u8>();
     }
 
     void LegacyControllerDevice::Wait()
     {
         int timeout = 100;
-        while (timeout-- &&
-               !(m_commandAccess.In<u8>() & (u8)StateReg::OutputBuffer))
+        while (timeout-- && !(m_commandAccess.In<u8>() & STATE_OUTPUT_BUFFER))
             Task::Delay(1);
     }
 }

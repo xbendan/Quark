@@ -5,7 +5,7 @@ namespace Vm::Qemu {
 
     static inline void Terminate()
     {
-        pOut(0x604, 0x2000);
+        out(0x604, 0x2000);
         PortAccess<0x604>().Out(0x2000);
     }
 }

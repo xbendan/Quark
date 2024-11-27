@@ -3,7 +3,17 @@
 #include <mixins/utils/uuid.h>
 
 namespace GPT {
-    struct PartitionEntry
+    struct ProtectiveMasterBootRecord
+    {
+        u8  _bootCode{ 0x00 };
+        u8  _chsBegin[3]{ 0x00, 0x02, 0x00 };
+        u8  _type{ 0xEE /* GPT Protective */ };
+        u8  _chsEnd[3]{ 0xFF, 0xFF, 0xFF };
+        u32 _lbaBegin{ 1 };
+        u32 _lbaLength{ 0xFFFFFFFF };
+    } __attribute__((packed));
+
+    struct PartitionData
     {
         UUID _partitionId;
         UUID _uniqueId;
@@ -32,5 +42,6 @@ namespace GPT {
         u32 _count;
         u32 _entrySize;
         u32 _checksumEntries;
+        u8  __reserved__1[512 - 0x5C];
     };
 }

@@ -1,5 +1,5 @@
-#include <drivers/storage/ahci/controller_device.h>
-#include <drivers/storage/ahci/storage_device.h>
+#include <drivers/storage/ahci/ahci_controller_device.h>
+#include <drivers/storage/ahci/ahci_storage_device.h>
 #include <quark/memory/address_range.h>
 #include <quark/memory/address_space.h>
 

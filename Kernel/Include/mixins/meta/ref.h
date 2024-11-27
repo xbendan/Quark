@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mixins/concurrent/atomic.h>
+#include <mixins/std/assert.h>
 #include <mixins/std/c++types.h>
 #include <mixins/std/utility.h>
 
@@ -221,7 +222,7 @@ namespace Qk {
 
         always_inline constexpr T* nonnull() const
         {
-            assert(m_ptr != nullptr, "NonnullRefPtr is null");
+            assert(m_ptr != nullptr, "Nonnull reference is null");
             return m_ptr;
         }
 
@@ -250,7 +251,7 @@ namespace Qk {
 
         always_inline NonnullRefPtr<T> ref() const
         {
-            _refCount.Inc(1, MemoryOrderRelaxed);
+            _refCount.Inc(MemoryOrderRelaxed);
             return NonnullRefPtr<T>(static_cast<T&>(*this));
         }
 

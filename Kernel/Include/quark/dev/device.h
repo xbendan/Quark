@@ -103,11 +103,11 @@ namespace Quark::System::Io {
 
         Type GetType() const { return m_deviceType; }
 
-        static Opt<Device*> FindByName(StringView name);
+        static Optional<Device*> FindByName(StringView name);
 
         template <typename T>
             requires Std::isDerived<Device, T>
-        static Opt<T*> FindByName(StringView name)
+        static Optional<T*> FindByName(StringView name)
         {
             auto device = FindByName(name);
             if (device.IsPresent()) {
@@ -116,13 +116,13 @@ namespace Quark::System::Io {
             return Empty();
         }
 
-        static Opt<Device*>    FindByUniqueId(UUID uuid);
-        static IList<Device*>* EnumerateDevices();
-        static IList<Device*>* EnumerateDevices(Type type);
-        static IList<Device*>* EnumerateDevices(Predicate<Device*> predicate);
-        static Res<>           Load(Device* device);
-        static Res<>           Unload(Device* device);
-        static Res<>           Rescan();
+        static Optional<Device*> FindByUniqueId(UUID uuid);
+        static IList<Device*>*   EnumerateDevices();
+        static IList<Device*>*   EnumerateDevices(Type type);
+        static IList<Device*>*   EnumerateDevices(Predicate<Device*> predicate);
+        static Res<>             Load(Device* device);
+        static Res<>             Unload(Device* device);
+        static Res<>             Rescan();
 
     protected:
         StringView m_name;

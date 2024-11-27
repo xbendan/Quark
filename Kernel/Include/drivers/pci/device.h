@@ -1,3 +1,5 @@
+#pragma once
+
 #include <drivers/pci/info.h>
 #include <drivers/pci/spec.h>
 #include <mixins/std/c++types.h>
@@ -9,31 +11,31 @@
 namespace PCI {
     using namespace Quark::System;
 
-    class PCIDevice
-        : public PCIInfo
+    class Device
+        : public DeviceIdentifier
         , public Io::Device
     {
     public:
-        PCIDevice(u8 bus, u8 slot, u8 func);
-        PCIDevice(u8 bus, u8 slot, u8 func, u16 vendorID, u16 deviceID);
-        PCIDevice(PCIInfo& info);
+        Device(u8 bus, u8 slot, u8 func);
+        Device(u8 bus, u8 slot, u8 func, u16 vendorID, u16 deviceID);
+        Device(DeviceIdentifier const& id);
 
-        PCIDevice(PCIInfo& info, Qk::StringView name, Type type)
-            : PCIInfo(info)
+        Device(DeviceIdentifier const& id, Qk::StringView name, Type type)
+            : DeviceIdentifier(id)
             , Io::Device(name, type)
         {
         }
-        PCIDevice(PCIDevice const& other)
-            : PCIInfo(other)
+        Device(Device const& other)
+            : DeviceIdentifier(other)
             , Io::Device(other.m_name, other.m_deviceType)
         {
             _bus  = other._bus;
             _slot = other._slot;
             _func = other._func;
         }
-        ~PCIDevice() = default;
+        ~Device() = default;
 
-        PCIDevice& operator=(PCIDevice const& other)
+        Device& operator=(Device const& other)
         {
             if (this != &other) {
                 _bus  = other._bus;
@@ -43,7 +45,7 @@ namespace PCI {
             return *this;
         }
 
-        PCIDevice& operator=(PCIDevice&& other)
+        Device& operator=(Device&& other)
         {
             if (this != &other) {
                 _bus  = other._bus;
@@ -53,7 +55,7 @@ namespace PCI {
             return *this;
         }
 
-        bool operator==(PCIDevice const& other)
+        bool operator==(Device const& other)
         {
             return _bus == other._bus && _slot == other._slot &&
                    _func == other._func;

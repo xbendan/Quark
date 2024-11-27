@@ -418,7 +418,7 @@ public:
     {
     }
 
-    Opt<TSource&> FindFirst() override
+    Optional<TSource&> FindFirst() override
     {
         if (m_count == 0) {
             return Empty();
@@ -427,7 +427,7 @@ public:
         return m_data[0];
     }
 
-    Opt<TSource&> FindFirst(Predicate<TSource const&> predicate) override
+    Optional<TSource&> FindFirst(Predicate<TSource const&> predicate) override
     {
         for (usize i = 0; i < m_count; i++) {
             if (predicate(m_data[i])) {
@@ -437,7 +437,7 @@ public:
         return Empty();
     }
 
-    Opt<TSource&> FindLast() override
+    Optional<TSource&> FindLast() override
     {
         if (m_count == 0) {
             return Empty();
@@ -446,7 +446,7 @@ public:
         return m_data[m_count - 1];
     }
 
-    Opt<TSource&> FindLast(Predicate<TSource const&> predicate) override
+    Optional<TSource&> FindLast(Predicate<TSource const&> predicate) override
     {
         for (int i = m_count - 1; i >= 0; i--) {
             if (predicate(m_data[i])) {
@@ -456,7 +456,7 @@ public:
         return Empty();
     }
 
-    Opt<TSource&> FindAny() override
+    Optional<TSource&> FindAny() override
     {
         if (m_count == 0) {
             return Empty();
@@ -465,7 +465,7 @@ public:
         return m_data[0];
     }
 
-    Opt<TSource&> FindAny(Predicate<TSource const&> predicate) override
+    Optional<TSource&> FindAny(Predicate<TSource const&> predicate) override
     {
         for (usize i = 0; i < m_count; i++) {
             if (predicate(m_data[i])) {

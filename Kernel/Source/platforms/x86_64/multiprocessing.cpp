@@ -41,7 +41,7 @@ namespace Quark::System::Platform::X64 {
 
     void TrampolineEntry(u16 cpuID)
     {
-        info$("CPU {} is being initialized.", cpuID);
+        info$("[SMP] CPU {} is being initialized.", cpuID);
         CPULocalDevice* cpu = (CPULocalDevice*)Hal::GetCPULocal(cpuID);
 
         SetCPULocal(cpu);
@@ -72,6 +72,7 @@ namespace Quark::System::Platform::X64 {
             ->Enable();
 
         // asm volatile("sti");
+        info$("[SMP] CPU {} is initialized.", cpuID);
         DoneInit = true;
 
         while (true)
@@ -112,9 +113,9 @@ namespace Quark::System::Hal {
                 continue;
             }
 
-            info$("Initializing CPU {}", apicLocal->_apicId);
+            info$("[SMP] Initializing CPU {}", apicLocal->_processorId);
             *MagicValue       = 0;
-            *TrampolineCpuID  = apicLocal->_apicId;
+            *TrampolineCpuID  = apicLocal->_processorId;
             *TrampolineEntry2 = (u64)TrampolineEntry;
             *TrampolineStack =
                 AllocateMemory4K(4,

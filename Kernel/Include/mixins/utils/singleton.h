@@ -13,7 +13,7 @@ namespace Qk {
         Singleton()  = default;
         ~Singleton() = default;
 
-        Opt<TSource> Select(TSource* selected)
+        Optional<TSource> Select(TSource* selected)
         {
             if (List<TSource>::Contains(selected)) {
                 return m_selected = selected;
@@ -22,7 +22,7 @@ namespace Qk {
             }
         }
 
-        Opt<TSource> GetOrFirst()
+        Optional<TSource> GetOrFirst()
         {
             if (!m_selected) {
                 m_selected = List<TSource>::FindFirst();
@@ -41,6 +41,6 @@ namespace Qk {
         }
 
     private:
-        Opt<TSource&> m_selected = Empty();
+        Optional<TSource&> m_selected = Empty();
     };
 }

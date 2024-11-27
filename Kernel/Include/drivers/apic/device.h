@@ -79,6 +79,8 @@ namespace APIC {
             "Advanced Programmable Interrupt Controller";
 
     private:
+        u64           m_locBasePhys;
+        u64           m_locBaseVirt;
         u64           m_ioBasePhys;
         u64           m_ioBaseVirt;
         u32           m_interrupts;

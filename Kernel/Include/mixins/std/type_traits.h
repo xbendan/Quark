@@ -725,4 +725,10 @@ namespace Std {
 
     template <typename T>
     using UnderlyingType = typename _underlyingType<T>::Type;
+
+    template <typename T>
+    constexpr UnderlyingType<T> toUnderlying(T value)
+    {
+        return static_cast<UnderlyingType<T>>(value);
+    }
 }

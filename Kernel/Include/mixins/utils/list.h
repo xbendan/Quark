@@ -561,7 +561,7 @@ namespace Qk {
         {
         }
 
-        Opt<TSource&> FindFirst()
+        Optional<TSource&> FindFirst()
         {
             if (m_head) {
                 return m_head->Data;
@@ -570,7 +570,7 @@ namespace Qk {
             return Empty();
         }
 
-        Opt<TSource&> FindFirst(Predicate<TSource const&> predicate)
+        Optional<TSource&> FindFirst(Predicate<TSource const&> predicate)
         {
             Node* node = m_head;
             while (node) {
@@ -582,7 +582,7 @@ namespace Qk {
             return Empty();
         }
 
-        Opt<TSource&> FindLast()
+        Optional<TSource&> FindLast()
         {
             if (m_tail) {
                 return m_tail->Data;
@@ -591,7 +591,7 @@ namespace Qk {
             return Empty();
         }
 
-        Opt<TSource&> FindLast(Predicate<TSource const&> predicate)
+        Optional<TSource&> FindLast(Predicate<TSource const&> predicate)
         {
             Node* node = m_tail;
             while (node) {
@@ -603,7 +603,7 @@ namespace Qk {
             return Empty();
         }
 
-        Opt<TSource&> FindAny()
+        Optional<TSource&> FindAny()
         {
             // TODO: Implement this function
         }
@@ -637,7 +637,7 @@ namespace Qk {
             return newList;
         }
 
-        Opt<TSource> TakeFirst()
+        Optional<TSource> TakeFirst()
         {
             if (m_size == 0) {
                 return Empty();
@@ -649,7 +649,7 @@ namespace Qk {
             return data;
         }
 
-        Opt<TSource> TakeFirst(Predicate<TSource const&> predicate)
+        Optional<TSource> TakeFirst(Predicate<TSource const&> predicate)
         {
             Node* node = m_head;
             while (node) {
@@ -663,7 +663,7 @@ namespace Qk {
             return Empty();
         }
 
-        Opt<TSource> TakeLast()
+        Optional<TSource> TakeLast()
         {
             if (m_size == 0) {
                 return Empty();
@@ -675,7 +675,7 @@ namespace Qk {
             return data;
         }
 
-        Opt<TSource> TakeLast(Predicate<TSource const&> predicate)
+        Optional<TSource> TakeLast(Predicate<TSource const&> predicate)
         {
             Node* node = m_tail;
             while (node) {
@@ -689,7 +689,7 @@ namespace Qk {
             return Empty();
         }
 
-        Opt<TSource> TakeAt(usize index)
+        Optional<TSource> TakeAt(usize index)
         {
             if (index >= m_size) {
                 return Empty();
@@ -745,7 +745,7 @@ namespace Qk {
             return m_head->Data;
         }
 
-        Opt<TSource&> SingleOrDefault(TSource const& defaultValue)
+        Optional<TSource&> SingleOrDefault(TSource const& defaultValue)
         {
             assert(m_size <= 1, "Sequence contains more than one element");
             return m_size ? m_head->Data : defaultValue;

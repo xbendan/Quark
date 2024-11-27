@@ -40,6 +40,13 @@ namespace Qk {
         {
         }
 
+        template <usize N>
+        constexpr Slice(T const (&buf)[N])
+            : _buf(buf)
+            , _len(N)
+        {
+        }
+
         constexpr T const& operator[](usize i) const { return _buf[i]; }
 
         constexpr T const* buf() const { return _buf; }
