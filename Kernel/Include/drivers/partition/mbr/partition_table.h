@@ -10,12 +10,10 @@ namespace MBR {
         : public Quark::System::Io::FileSystem::PartitionTable
     {
     public:
-        MasterBootRecord(StorageDevice*);
+        MasterBootRecord(Bytes const&, StorageDevice*);
         ~MasterBootRecord() = default;
 
     private:
-        bool      m_valid;
         u32 const m_lbaBegin;
-        Bytes     m_cache;
     };
 }

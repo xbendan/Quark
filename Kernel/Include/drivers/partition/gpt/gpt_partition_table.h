@@ -8,7 +8,7 @@ namespace GPT {
     class PartitionTableData : public PartitionTable
     {
     public:
-        PartitionTableData(Bytes const& data, NonnullRefPtr<StorageDevice>);
+        PartitionTableData(Bytes const& data, NonnullRefPtr<Io::StorageDevice>);
 
     private:
         GPT::PartitionTableHeader* m_tableHeader;

@@ -16,7 +16,7 @@ namespace Quark::System::Io {
         // 按名称查找设备的最佳方法是使用红黑树实现的表
         // 将传入的 @name 进行哈希处理，这样我们就可以
         // 利用红黑树的特性，对设备进行二分查找
-        for (auto& device : Devices) {
+        for (auto& device : m_devices) {
             Qk::StringView deviceName = device->GetName();
             if (Qk::Strings::Equals(deviceName, name)) {
                 return device;
@@ -30,7 +30,7 @@ namespace Quark::System::Io {
         // 实现查找设备的方法
         // 和 FindByName 方法类似，将传入的 @uuid 进行
         // 哈希处理
-        return Devices
+        return m_devices
             .FindFirst([&uuid](Device* device) {
                 return device->GetUniqueId() == uuid;
             })
@@ -47,7 +47,7 @@ namespace Quark::System::Io {
         // devices.PutIfAbsent(device->GetName(), device);
         // 实现加载设备的方法
         // 将设备添加到设备表中
-        Devices.PushBack(device);
+        m_devices.PushBack(device);
         return Ok();
     }
 

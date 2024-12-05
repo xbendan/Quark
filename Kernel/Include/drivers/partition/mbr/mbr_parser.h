@@ -3,7 +3,7 @@
 #include <quark/dev/storage/storage_device.h>
 #include <quark/fs/partition.h>
 
-namespace GPT {
+namespace MBR {
     using Qk::NonnullRefPtr;
     using Quark::System::Io::StorageDevice;
     using Quark::System::Io::FileSystem::PartitionTable;
@@ -11,7 +11,7 @@ namespace GPT {
     /**
      * @brief
      *
-     * @return Result<NonnullRefPtr<PartitionTable>>
+     * @return PartitionTable*
      */
     Optional<PartitionTable*> EnumeratePartitions(NonnullRefPtr<StorageDevice>);
 }
