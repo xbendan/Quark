@@ -269,4 +269,8 @@ namespace Qk {
     private:
         mutable Atomic<RefCountType> _refCount{ 1 };
     };
+
+    template <typename T>
+    class OwnedRefPtr
+    {};
 }

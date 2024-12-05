@@ -5,14 +5,20 @@
 #include <mixins/std/type_traits.h>
 
 namespace Qk {
-    template <typename TNextFunc>
+    template <typename T, typename InnerType = T::InnerType>
+    concept Iterable = requires(T const& t) {
+        { t.begin() };
+        { t.end() };
+    };
+
+    template <typename Fn>
     struct Iter
     {
-        TNextFunc _next;
+        Fn _next;
         using InnerType = decltype(_next());
         using Value     = Std::RemoveCvRef<decltype(*_next())>;
 
-        constexpr Iter(TNextFunc next)
+        constexpr Iter(Fn next)
             : _next(next)
         {
         }

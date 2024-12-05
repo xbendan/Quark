@@ -115,10 +115,10 @@ struct Res
 };
 
 namespace Qk {
-    template <typename TSuccess, typename... TErrors>
+    template <typename TSuccess = Empty, typename... TEx>
     struct Result
     {
-        using InnerType = Union<Ok<TSuccess>, TErrors...>;
+        using InnerType = Union<Ok<TSuccess>, TEx...>;
 
         InnerType _inner;
 
@@ -132,14 +132,14 @@ namespace Qk {
         {
         }
 
-        template <Any<TErrors...> TErrorType>
+        template <Any<TEx...> TErrorType>
         always_inline constexpr Result(TErrorType const& err)
             : _inner(err)
         {
         }
 
         template <typename U>
-        always_inline constexpr Result(Result<U, TErrors...> other)
+        always_inline constexpr Result(Result<U, TEx...> other)
             : _inner(other._inner)
         {
         }
@@ -156,7 +156,7 @@ namespace Qk {
             return not _inner.template is<Ok<TSuccess>>();
         }
 
-        template <Any<TErrors...> TErrorType>
+        template <Any<TEx...> TErrorType>
         always_inline constexpr bool isError() const
         {
             return _inner.template is<TErrorType>();
@@ -171,14 +171,49 @@ namespace Qk {
             const char* msg = "called `Result::unwrap()` on an error")
         {
             if (not _inner.template is<Ok<TSuccess>>()) {
-                indexCast<TErrors...>(_inner._index - 1,
-                                      _inner._data,
-                                      []<typename T>(T& value) {});
+                indexCast<TEx...>(_inner._index - 1,
+                                  _inner._data,
+                                  []<typename T>(T& value) {});
             }
             return _inner.template unwrap<Ok<TSuccess>>().inner;
+        }
+
+        template <Any<TEx...> Ex>
+        always_inline constexpr void catch$(auto f)
+        {
+            if (_inner.template is<Ok<TSuccess>>()) {
+                return;
+            }
+
+            if (not _inner.template is<Ok<TSuccess>>()) {
+                indexCast<TEx...>(
+                    _inner._index - 1, _inner._data, [f]<typename T>(T& value) {
+                        if constexpr (Derived<Ex, T>) {
+                            f(value);
+                        }
+                    });
+            }
         }
     };
 
     template <typename TSuccess>
     Result(TSuccess) -> Result<TSuccess, Error>;
 }
+
+struct IOException
+{};
+
+struct IllegalArgumentException
+{};
+
+struct IllegalStateException
+{};
+
+struct UnsupportedOperationException
+{};
+
+struct IndexOutOfBoundsException
+{};
+
+struct CheckFailureException
+{};

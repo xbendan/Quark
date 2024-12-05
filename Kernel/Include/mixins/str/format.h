@@ -344,6 +344,15 @@ namespace Qk {
         }
     };
 
+    template <>
+    struct Formatter<char>
+    {
+        Res<usize> format(TextWriter& writer, char val)
+        {
+            return Ok(writer.writeRune(val));
+        }
+    };
+
     // TODO: Implement floating point formatter
     // template <FloatingPoint T>
     // struct Formatter<T>

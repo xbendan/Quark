@@ -10,6 +10,12 @@
 
 namespace Qk {
 
+    template <typename T>
+    struct ListRefItem
+    {
+        T *_next, _prev;
+    };
+
     template <typename TSource>
     class List
     {
@@ -882,4 +888,16 @@ namespace Qk {
         Node* m_tail;
         usize m_size;
     };
+
+    // template <typename T>
+    // constexpr auto iter(List<T> const& list)
+    // {
+    //     return Iter([&list, node = list.begin()]() mutable ->
+    //                 typename List<T>::{
+    //                     if (node != list.end()) {
+    //                         return *node++;
+    //                     }
+    //                     return Empty{};
+    //                 });
+    // }
 } // namespace Qk
