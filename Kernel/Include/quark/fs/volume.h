@@ -7,7 +7,6 @@ namespace Quark::System::Io::FileSystem {
     {
     public:
     private:
-        u8          _id;
         FileSystem* _fileSystem;
     };
 } // namespace Quark::System::Io::FileSystem

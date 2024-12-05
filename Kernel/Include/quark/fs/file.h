@@ -12,31 +12,31 @@ namespace Quark::System::Io::FileSystem {
 
     enum class FileOpenMode
     {
-        Append,
-        Create,
-        CreateIfAbsent,
-        Open,
-        OpenOrCreate,
+        APPEND,
+        CREATE,
+        CREATE_IF_ABSENT,
+        OPEN,
+        OPEN_OR_CREATE,
     };
 
     enum class FileAttribute : u64
     {
-        ReadOnly = 1,
-        Hidden,
-        Archive,
-        Compressed,
-        Encrypted,
-        Temporary
+        READONLY = 1,
+        HIDDEN,
+        ARCHIVE,
+        COMPRESSWD,
+        ENCRYPTED,
+        TEMPORARY,
     };
     MakeFlags$(FileAttribute);
 
     enum class FileSource
     {
-        Local,
-        Network,
-        Cloud,
-        Virtual,
-        Device
+        LOCAL,
+        REMOTE,
+        CLOUD,
+        VIRTUAL,
+        DEVICE,
     };
 
     class FileNode
@@ -48,8 +48,6 @@ namespace Quark::System::Io::FileSystem {
             , m_parent(parent)
         {
         }
-
-        bool isRemote() const { return m_source != FileSource::Local; }
 
     protected:
         FileSource m_source;
@@ -65,9 +63,8 @@ namespace Quark::System::Io::FileSystem {
         virtual ~File();
 
     protected:
-        UUID m_uniqueId;
-        u64  m_size;
-        u64  m_bytesTaken;
+        u64 m_size;
+        u64 m_bytesTaken;
 
         Flags<FileAttribute> m_attributes;
     };

@@ -4,6 +4,7 @@
 #include <mixins/meta/result.h>
 #include <mixins/str/string.h>
 #include <mixins/utils/array.h>
+#include <mixins/utils/flags.h>
 #include <mixins/utils/uuid.h>
 
 #include <mixins/utils/list.h>
@@ -43,16 +44,18 @@ namespace Quark::System::Io {
             Unknown
         };
 
+        enum class Status : u32
+        {
+        };
+
         Device(StringView name)
             : Device(name, UUID::FromName(name), Type::Unknown)
         {
-            // _uuid = UUID::generate();
         }
 
         Device(StringView name, Type deviceType)
             : Device(name, UUID::FromName(name), deviceType)
         {
-            // _uuid = UUID::generate();
         }
 
         Device(StringView name, UUID uuid, Type deviceType)
@@ -130,8 +133,10 @@ namespace Quark::System::Io {
         Type       m_deviceType;
         bool       m_isStarted;
 
-        static inline List<Device*> Devices;
+        static inline List<Device*> m_devices;
     };
+
+    MakeFlags$(Device::Status);
 
     class EnumerationDevice : public Device
     {

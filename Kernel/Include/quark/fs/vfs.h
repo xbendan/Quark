@@ -8,6 +8,7 @@
 #include <mixins/utils/rbtree.h>
 #include <quark/fs/file.h>
 #include <quark/fs/file_access.h>
+#include <quark/fs/partition.h>
 #include <quark/fs/volume.h>
 
 namespace Quark::System::Io::FileSystem {
@@ -62,16 +63,15 @@ namespace Quark::System::Io::FileSystem {
             , Attributes(attributes) {};
 
     protected:
-        friend class VirtualFs;
+        friend class FileSystem;
         FileSystemInfo() = default;
     };
 
     class FileSystem
     {
     public:
-        FileSystem(StringView name, FileSystemInfo info)
-            : m_name(name)
-            , m_info(info) {};
+        FileSystem(StringView name)
+            : m_name(name) {};
 
         /**
          * @brief Open a file for reading or writing
@@ -252,11 +252,8 @@ namespace Quark::System::Io::FileSystem {
             bool       showHiddenFiles = false,
             bool       showSystemFiles = false) = 0;
 
-        FileSystemInfo const& GetSystemInfo() { return m_info; }
-
     private:
-        StringView     m_name;
-        FileSystemInfo m_info;
+        StringView m_name;
     };
 
     class VirtualFs : public FileSystem
@@ -302,9 +299,13 @@ namespace Quark::System::Io::FileSystem {
             bool       showHiddenFiles = false,
             bool       showSystemFiles = false) override;
 
+        Res<> Mount(FileSystem* fs,
+                    Partition*  partition,
+                    StringView  mountPoint);
+
     private:
-        FileNode*                     m_root;
-        List<FsVolume*>               m_volumes;
+        Directory*                    m_rootDirectory;
         RbTree<StringView, FileNode*> m_mappings;
+        List<Partition*>              m_volumes;
     };
 } // namespace Quark::System::Io::FileSystem
