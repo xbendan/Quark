@@ -1,7 +1,8 @@
-#include <drivers/partition/gpt/gpt_parser.h>
+#include <drivers/partition/gpt/gpt_definition.h>
 #include <drivers/partition/gpt/gpt_partition_table.h>
 #include <mixins/meta/buf.h>
 #include <mixins/utils/checksum.h>
+#include <quark/dev/storage/storage_device.h>
 #include <quark/dev/storage/storage_duplexable.h>
 #include <quark/os/diagnostic/logging.h>
 
@@ -13,10 +14,10 @@ namespace GPT {
     using Quark::System::Io::FileSystem::Partition;
 
     static const char* GUID_PARTITION_SIGNATURE = "EFI PART";
-    static u8          BUFFER[512];
 
-    PartitionTableData::PartitionTableData(Bytes const&                 data,
-                                           NonnullRefPtr<StorageDevice> device)
+    PartitionTableData::PartitionTableData(
+        Bytes const&                     data,
+        NonnullRefPtr<Io::StorageDevice> device)
         : m_tableHeader(new GPT::PartitionTableHeader())
     {
         memcpy((void*)&m_tableHeader,
@@ -45,21 +46,23 @@ namespace GPT {
         }
     }
 
-    Optional<PartitionTable*> Parse(NonnullRefPtr<StorageDevice> device)
+    Res<NonnullRefPtr<Io::FileSystem::PartitionTable>>
+    PartitionTableDefinition::Read(NonnullRefPtr<Io::StorageDevice> device)
     {
-        Bytes data(BUFFER);
-        auto  result = device->Read(0, data);
-        if (result.isError() || result.unwrap() < sizeof(BUFFER)) {
-            return Empty{};
+        SectorBytes data(512);
+        if (auto result = device->Read(0, data); result.isError()) {
+            return Error::InvalidOperation("Failed to read partition table");
         }
 
-        auto* table = reinterpret_cast<GPT::PartitionTableHeader*>(BUFFER);
-        if (memcmp(&table->_signature, GUID_PARTITION_SIGNATURE, 8) != 0) {
-            return Empty{};
+        auto* tableData =
+            reinterpret_cast<GPT::PartitionTableHeader const*>(data.buf());
+        if (memcmp(&tableData->_signature, GUID_PARTITION_SIGNATURE, 8) != 0) {
+            return Error::InvalidArgument("Invalid GPT signature");
         }
 
-        if (!Checksum::VerifyCRC32((u8 const*)table, table->_headerSize)) {
-            return Empty{};
+        if (!Checksum::VerifyCRC32((u8 const*)tableData,
+                                   tableData->_headerSize)) {
+            return Error::InvalidArgument("Invalid GPT header checksum");
         }
 
         info$("[Partition] Found GPT partition table on device {}\n"
@@ -68,10 +71,28 @@ namespace GPT {
               "   - LBA End: {}\n"
               "   - Partition Count: {}\n",
               device->GetName(),
-              table->_revision,
-              table->_lbaBegin,
-              table->_lbaEnd);
+              tableData->_revision,
+              tableData->_lbaBegin,
+              tableData->_lbaEnd);
 
-        return new PartitionTableData(data, device);
+        return Ok(NonnullRefPtr<PartitionTable>{
+            new GPT::PartitionTableData(data, device) });
+    }
+
+    Res<> PartitionTableDefinition::Write(
+        NonnullRefPtr<Io::StorageDevice>,
+        NonnullRefPtr<Io::FileSystem::PartitionTable>)
+    {
+        return Ok();
+    }
+
+    Res<> PartitionTableDefinition::Erase(NonnullRefPtr<Io::StorageDevice>)
+    {
+        return Ok();
+    }
+
+    Res<> PartitionTableDefinition::Format(NonnullRefPtr<Io::StorageDevice>)
+    {
+        return Ok();
     }
 }

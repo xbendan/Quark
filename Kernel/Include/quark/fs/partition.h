@@ -35,10 +35,18 @@ namespace Quark::System::Io::FileSystem {
     class PartitionTable
     {
     public:
-        Optional<Partition>     GetPartitionByIndex(u64 index) const;
-        Optional<Partition>     GetPartitionByUuid(UUID const& uuid) const;
-        usize                   Count() const;
-        Array<Partition> const& EnumerateValidPartitions() const;
+        Optional<Partition> GetPartitionByIndex(u64 index) const;
+        Optional<Partition> GetPartitionByUuid(UUID const& uuid) const;
+        usize               Count() const;
+
+        Partition&       operator[](usize index) { return m_partitions[index]; }
+        Partition const& operator[](usize index) const
+        {
+            return m_partitions[index];
+        }
+
+        Partition* begin() { return m_partitions.begin(); }
+        Partition* end() { return m_partitions.end(); }
 
     protected:
         Array<Partition> m_partitions;

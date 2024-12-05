@@ -11,7 +11,7 @@ namespace MBR /* Master Boot Record */ {
         u32 _lbaLength;
     } __attribute__((packed));
 
-    struct PartitionTable
+    struct PartitionTableData
     {
         u8             _bootCode[440];
         u32            _diskId;
