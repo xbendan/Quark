@@ -1,9 +1,11 @@
 #include <drivers/storage/ide/ide_storage_device.h>
 #include <mixins/math/compute.h>
+#include <quark/dev/storage/storage_device_partition.h>
 #include <quark/hal/ports.h>
 
 namespace IDE {
     using namespace Quark::System::Hal;
+    using Quark::System::Io::StorageDevicePartition;
 
     StorageDevice::StorageDevice(IDE::DeviceType       deviceType,
                                  IDE::DriveInfo const& info,

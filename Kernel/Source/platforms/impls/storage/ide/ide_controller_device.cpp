@@ -167,8 +167,8 @@ namespace IDE {
               modelName,
               channel == CHANNEL_PRIMARY ? "primary" : "secondary",
               info._size);
-        m_devices[channel * 2 + drive] =
-            new StorageDevice(DeviceType::ATA, info, port);
+        Device::Load(m_devices[channel * 2 + drive] =
+                         new StorageDevice(DeviceType::ATA, info, port));
     }
 
     void StorageControllerDevice::SendCommand(Channel channel, Command command)

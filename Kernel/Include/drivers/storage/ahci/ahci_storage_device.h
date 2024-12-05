@@ -4,11 +4,11 @@
 #include <quark/dev/storage/storage_device.h>
 
 namespace AHCI {
-    using namespace Quark::System::Io;
+    using namespace Quark::System;
 
     class AHCIStorageControllerDevice;
 
-    class SATAStorageDevice final : public StorageDevice
+    class SATAStorageDevice final : public Io::StorageDevice
     {
     public:
         SATAStorageDevice(int                          port,
