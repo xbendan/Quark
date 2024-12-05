@@ -6,7 +6,7 @@
 #include <mixins/utils/date.h>
 #include <mixins/utils/list.h>
 #include <mixins/utils/singleton.h>
-#include <quark/timing/timer_alarm.h>
+#include <quark/timing/timer_event.h>
 
 namespace Quark::System {
     using Qk::List;
@@ -25,11 +25,9 @@ namespace Quark::System {
     class TimerSource
     {
     public:
-        virtual void            Sleep(u64)                          = 0;
-        virtual void            SleepNanos(u64)                     = 0;
-        virtual Res<TimerAlarm> CreateAlarm(Date, Func<void()>)     = 0;
-        virtual Res<TimerAlarm> CreateAlarm(TimeSpan, Func<void()>) = 0;
-        virtual u64             GetSystemUptime()                   = 0;
+        virtual void Sleep(u64)        = 0;
+        virtual void SleepNanos(u64)   = 0;
+        virtual u64  GetSystemUptime() = 0;
 
         static inline Singleton<TimerSource*> Global;
     };
