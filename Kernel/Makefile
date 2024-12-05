@@ -33,7 +33,7 @@ LDFLAGS = \
  	-static -m elf_x86_64 -nostdlib -z max-page-size=0x1000  
 
 # Source files
-DIRS := $(shell find ./Source/$(FILENAME)/ -maxdepth 1 -type d)
+DIRS := $(shell find ./Source/$(FILENAME)/ -maxdepth 2 -type d)
 DIRS += $(shell find ./Source/libs/ -maxdepth 1 -type d)  
 DIRS := $(basename $(patsubst ./%,%,$(DIRS)))  
 
