@@ -1,10 +1,12 @@
 #include <drivers/acpi/device.h>
 #include <drivers/ps2/device.h>
 #include <quark/hal/ports.h>
+#include <quark/os/diagnostic/logging.h>
 #include <quark/sched/completable.h>
 
 namespace PS2 {
     using namespace Quark::System::Hal;
+    using namespace Quark::System::Diagnostic;
 
     LegacyControllerDevice::LegacyControllerDevice()
         : Io::Device("PS/2 Legacy Controller"s, Type::SystemDevices)
@@ -25,28 +27,34 @@ namespace PS2 {
             return Error::DeviceFault("FADT table not found.");
         }
 
-        Send(Command::DISABLE_FIRST_PORT);
-        Send(Command::DISABLE_SECOND_PORT);
+        // if (!(fadt->_flags & 0x2)) {
+        //     error$("[PS/2] PS/2 Controller is not supported. {:#b}",
+        //            fadt->_flags);
+        //     return Error::DeviceFault("PS/2 Controller is not supported.");
+        // }
 
-        /* Flush The Output Buffer */
-        Flush();
+        // Send(Command::DISABLE_FIRST_PORT);
+        // Send(Command::DISABLE_SECOND_PORT);
 
-        /* Set the Controller Configuration Byte */
-        Send(Command::READ_BYTE_ZERO);
-        u8 status =
-            PortAccess<(usize)Command::READ_BYTE_ZERO>().In<u8>() &
-            (u8)(~(ConfigByte::FirstPortClock | ConfigByte::SecondPortClock |
-                   ConfigByte::FirstPortTranslation) |
-                 ConfigByte::FirstPortInterrupt);
-        Send(Command::WRITE_BYTE_ZERO);
-        m_dataAccess << status;
+        // /* Flush The Output Buffer */
+        // Flush();
 
-        /* Perform Controller Self-Test */
-        Send(Command::TEST_PS2_CONTROLLER);
-        Wait();
-        if (m_dataAccess.In<u8>() != 0x55) {
-            return Error::DeviceFault("PS/2 Controller self-test failed.");
-        }
+        // /* Set the Controller Configuration Byte */
+        // Send(Command::READ_BYTE_ZERO);
+        // u8 status =
+        //     PortAccess<(usize)Command::READ_BYTE_ZERO>().In<u8>() &
+        //     (u8)(~(ConfigByte::FirstPortClock | ConfigByte::SecondPortClock |
+        //            ConfigByte::FirstPortTranslation) |
+        //          ConfigByte::FirstPortInterrupt);
+        // Send(Command::WRITE_BYTE_ZERO);
+        // m_dataAccess << status;
+
+        // /* Perform Controller Self-Test */
+        // Send(Command::TEST_PS2_CONTROLLER);
+        // Wait();
+        // if (m_dataAccess.In<u8>() != 0x55) {
+        //     return Error::DeviceFault("PS/2 Controller self-test failed.");
+        // }
 
         /* Perform First Port Test */
         Send(Command::TEST_FIRST_PORT);
@@ -54,10 +62,8 @@ namespace PS2 {
         if (m_dataAccess.In<u8>() == 0x00) {
             Send(Command::ENABLE_FIRST_PORT);
 
-            m_dataAccess << 0xF0;
-            m_dataAccess << 0x02;
-            // pOut<>(PS2_DATA_PORT, 0xF0);
-            // pOut<>(PS2_DATA_PORT, 0x02);
+            // m_dataAccess << 0xF0;
+            // m_dataAccess << 0x02;
 
             Device::Load(m_keyboard = new LegacyKeyboardDevice());
         }
@@ -67,15 +73,15 @@ namespace PS2 {
 
     void LegacyControllerDevice::Send(PS2::Command command)
     {
-        while (m_commandAccess.In<u8>() & STATE_INPUT_BUFFER)
+        while (m_commandAccess.In<byte>() & STATE_INPUT_BUFFER)
             ;
-        m_commandAccess << (u8)command;
+        m_commandAccess << (byte)command;
     }
 
     void LegacyControllerDevice::Flush()
     {
-        while (m_commandAccess.In<u8>() & STATE_OUTPUT_BUFFER)
-            m_dataAccess.In<u8>();
+        while (m_commandAccess.In<byte>() & STATE_OUTPUT_BUFFER)
+            m_dataAccess.In<byte>();
     }
 
     void LegacyControllerDevice::Wait()

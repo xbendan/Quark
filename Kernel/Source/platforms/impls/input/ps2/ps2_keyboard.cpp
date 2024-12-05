@@ -11,8 +11,8 @@ namespace PS2 {
 
     bool OnKeyInterrupt(int, Registers* regs)
     {
-        while (in<byte>(PS2_COMMAND_PORT) & STATE_OUTPUT_BUFFER)
-            ;
+        // while (in<byte>(PS2_COMMAND_PORT) & STATE_OUTPUT_BUFFER)
+        //     return false;
 
         u8 resp    = in<byte>(PS2_DATA_PORT);
         u8 keyCode = resp & 0x7F;
