@@ -11,8 +11,6 @@ namespace PIT {
     bool PITimerDevice::Tick(int, Registers* frame)
     {
         m_instance->m_uptime.Inc(MemoryOrder::MemoryOrderRelaxed);
-        if (m_instance->m_uptime.Load() % 1000 == 0)
-            info$("[PIT] Tick: {}", m_instance->m_uptime.Load());
 
         return true;
     }
