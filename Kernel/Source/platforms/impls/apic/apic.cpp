@@ -33,22 +33,12 @@ namespace APIC {
 
     void EnableInterrupt(u8 irq)
     {
-        return;
-
         irq -= 0x20;
-        int nirq = -1;
         for (auto* iso : _Device->GetInterruptOverrides()) {
-            if (iso->_irqSource == irq) {
-                nirq = iso->_gSi;
-                break;
-            }
+            if (iso->_irqSource == irq)
+                return; // Already enabled
         }
-        if (nirq == -1) {
-            warn$("[APIC] No interrupt override found for IRQ {}", irq);
-            return;
-            // nirq = irq;
-        }
-        EnableInterrupt(nirq, irq + 0x20);
+        _Device->Redirect(irq, irq + 0x20, ICR_MESSAGE_TYPE_LOW_PRIORITY);
     }
 
     bool __SpuriousInterrupt(int, Registers*)
@@ -104,12 +94,12 @@ namespace APIC {
                                                    apicLocal->_apicId,
                                                    this,
                                                    device));
-                        info$(
-                            "[APIC] Local APIC, Processor ID: {}, APIC ID: {}, "
-                            "Flags: {#b}",
-                            apicLocal->_processorId,
-                            apicLocal->_apicId,
-                            apicLocal->_flags);
+                        info$("[APIC] Local APIC, Processor ID: {}, APIC "
+                              "ID: {}, "
+                              "Flags: {#b}",
+                              apicLocal->_processorId,
+                              apicLocal->_apicId,
+                              apicLocal->_flags);
                     }
                     break;
                 }
@@ -118,11 +108,11 @@ namespace APIC {
                         static_cast<ACPI::MultiApicDescTable::IoApic*>(entry);
                     if (!apicIo->_gSiB) {
                         m_ioBasePhys = apicIo->_address;
-                        info$(
-                            "[APIC] I/O APIC, ID: {}, Address: {#X}, gSiB: {}",
-                            apicIo->_apicId,
-                            apicIo->_address,
-                            apicIo->_gSiB);
+                        info$("[APIC] I/O APIC, ID: {}, Address: {#X}, "
+                              "gSiB: {}",
+                              apicIo->_apicId,
+                              apicIo->_address,
+                              apicIo->_gSiB);
                     }
                     break;
                 }
@@ -174,7 +164,8 @@ namespace APIC {
                     ACPI::MultiApicDescTable::Localx2Apic* x2apicLocal =
                         static_cast<ACPI::MultiApicDescTable::Localx2Apic*>(
                             entry);
-                    info$("[APIC] Local x2APIC, x2APIC ID: {}, Flags: {}, UID: "
+                    info$("[APIC] Local x2APIC, x2APIC ID: {}, Flags: {}, "
+                          "UID: "
                           "{}",
                           x2apicLocal->_x2apicId,
                           x2apicLocal->_flags,
@@ -185,7 +176,8 @@ namespace APIC {
                     ACPI::MultiApicDescTable::Nmix2Apic* nmi =
                         static_cast<ACPI::MultiApicDescTable::Nmix2Apic*>(
                             entry);
-                    info$("[APIC] NMI Source: {}, UID: {}, Local APIC LINT: {}",
+                    info$("[APIC] NMI Source: {}, UID: {}, Local APIC "
+                          "LINT: {}",
                           nmi->_flags,
                           nmi->_uid,
                           nmi->_lInt);
@@ -297,6 +289,7 @@ namespace APIC {
 
     void GenericControllerDevice::Redirect(u8 irq, u8 vector, u32 delivery)
     {
+        info$("[APIC] Redirecting IRQ {} to vector {}", irq, vector);
         WriteReg64(IO_APIC_RED_TABLE_ENT(irq), delivery | vector);
     }
 
